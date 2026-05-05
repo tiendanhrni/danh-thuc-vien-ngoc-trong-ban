@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Học Viện RNI — Return · Nurture · Illuminate</title>
+<meta name="description" content="Khám phá hành trình phát triển bản thân phù hợp với bạn tại Học viện RNI — Ruby Nguyen." />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Be Vietnam Pro','system-ui','sans-serif'],
+        display: ['Cormorant Garamond','serif'],
+        heading: ['Montserrat','system-ui','sans-serif']
+      },
+      colors: {
+        rni: { 50:'#fef2f2',100:'#fee2e2',200:'#fecaca',300:'#fca5a5',400:'#f87171',500:'#ef4444',600:'#9b1106',700:'#7f0e05',800:'#660b04',900:'#4d0803' },
+        gold: { 300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706' },
+        cream: { 50:'#fdfbf7',100:'#faf5ed' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:#fdfbf7;color:#1a1a1a}
+  .fade-in{animation:fadeIn .5s ease-out}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  .slide-up{animation:slideUp .7s ease-out}
+  @keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+  .bounce-in{animation:bounceIn .6s cubic-bezier(.68,-.55,.27,1.55)}
+  @keyframes bounceIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+  .float{animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .pulse-btn{animation:pulseBtn 2s ease-in-out infinite}
+  @keyframes pulseBtn{0%,100%{box-shadow:0 0 0 0 rgba(155,17,6,.35)}50%{box-shadow:0 0 0 12px rgba(155,17,6,0)}}
+  .progress-bar{transition:width .6s ease}
+  .card-hover{transition:all .25s ease}
+  .card-hover:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(155,17,6,.1)}
+  .hero-bg{background:linear-gradient(150deg,#fdfbf7 0%,#fef2f2 40%,#fdfbf7 70%,#fffbeb 100%)}
+  .rni-text-gradient{background:linear-gradient(135deg,#9b1106 0%,#c41a0a 50%,#f59e0b 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;background:#111}
+  .video-wrap iframe{position:absolute;top:-42px;left:0;width:100%;height:calc(100% + 84px);border:0}
+  .video-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:42px;background:#111;z-index:2;border-radius:12px 12px 0 0;pointer-events:none}
+  .video-wrap::after{content:'';position:absolute;bottom:0;left:0;right:0;height:42px;background:#111;z-index:2;border-radius:0 0 12px 12px;pointer-events:none}
+  .dandelion{opacity:.06;pointer-events:none;user-select:none}
+  .module-locked{opacity:.45}
+  .tab-active{color:#9b1106;border-bottom:2px solid #9b1106}
+  .tab-inactive{color:#9ca3af;border-bottom:2px solid transparent}
+  .option-btn{transition:all .2s ease}
+  .option-btn:hover{transform:translateX(4px)}
+  .option-selected{border-color:#9b1106 !important;background:#fef2f2 !important}
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const {useState, useEffect, useRef, useCallback} = React;
+
+// ── LOGO SVG ──────────────────────────────────────────────────────────────────
+function LogoMark({className=''}) {
+  return (
+    <div className={`inline-flex items-center justify-center bg-rni-600 rounded-xl ${className}`}>
+      <span className="font-heading font-black text-white text-lg tracking-wider px-3 py-1">RNI</span>
+    </div>
+  );
+}
+
+// ── QUIZ DATA ─────────────────────────────────────────────────────────────────
+const QUIZ_QUESTIONS = [
+  {
+    id:1, part:1,
+    q:"Từ khóa nào mô tả đúng nhất về tình trạng nội tâm của bạn hiện tại?",
+    opts:[
+      "Chông chênh, trống rỗng và kiệt quệ cảm xúc dù bề ngoài vẫn ổn.",
+      "Đang tập quay về bên trong, có lúc bình an nhưng đôi khi vẫn bị ngoại cảnh làm dao động.",
+      "Vững chãi, tĩnh tại và sẵn sàng lan tỏa năng lượng bình an này đến những người xung quanh."
+    ]
+  },
+  {
+    id:2, part:1,
+    q:"Thách thức lớn nhất mà bạn đang phải đối diện lúc này là gì?",
+    opts:[
+      "Không biết mình thực sự muốn gì, cảm thấy lạc lối và mất niềm tin vào chính mình.",
+      "Biết mình cần thay đổi nhưng chưa duy trì được thói quen tỉnh thức, cần sự đồng hành để không bỏ cuộc.",
+      "Đang làm nghề giúp người nhưng thiếu hệ thống chuẩn để đóng gói giá trị và tạo tác động sâu rộng hơn."
+    ]
+  },
+  {
+    id:3, part:1,
+    q:"Khi gặp một vấn đề khó khăn, phản ứng thường thấy nhất của bạn là:",
+    opts:[
+      "Cảm thấy sợ hãi, bế tắc và lập tức đi tìm giải pháp nhanh hoặc lời khuyên từ người khác.",
+      "Đang tập xem vấn đề là bài học, dùng 'thần chú' tĩnh tâm nhưng thỉnh thoảng vẫn bị cuốn theo cảm xúc.",
+      "Bình thản đón nhận, tự làm việc sâu chính mình và xem đó là cơ hội để nâng tầm tư duy."
+    ]
+  },
+  {
+    id:4, part:1,
+    q:"Trải nghiệm của bạn đối với các giải pháp phát triển bản thân trước đây ra sao?",
+    opts:[
+      "Thường mua các khóa học hứa hẹn thành công nhanh, nhưng sau đó lại thấy kiệt sức như 'uống nước muối khi khát'.",
+      "Đã học nhiều kiến thức sâu sắc nhưng chỉ dừng ở bề nổi, biết kiến thức nhưng chưa thực sự 'sống' được với nó.",
+      "Đã chuyển hóa mạnh mẽ, hiện đang ứng dụng tốt nhưng muốn chuẩn hóa để có thể giúp đỡ người khác."
+    ]
+  },
+  {
+    id:5, part:2,
+    q:"Chất lượng cuộc đối thoại nội tâm (Self-talk) của bạn mỗi ngày diễn ra như thế nào?",
+    opts:[
+      "Thường xuyên tự phán xét, trách móc và tự nhủ 'mình không thể', 'mình không đủ giỏi'.",
+      "Đang nhận diện được những suy nghĩ tự phá hoại và cố gắng dùng tự chiêm nghiệm để chuyển đổi chúng.",
+      "Hoàn toàn làm chủ tâm trí, biết cách tự chiêm nghiệm và nuôi dưỡng niềm tin vững chắc vào bản thân."
+    ]
+  },
+  {
+    id:6, part:2,
+    q:"Khi một người thân hoặc bạn bè tìm đến bạn để tâm sự vấn đề của họ, bạn thường làm gì?",
+    opts:[
+      "Lập tức đưa ra góc nhìn, lời khuyên và chỉ cho họ cách giải quyết theo ý mình.",
+      "Cố gắng lắng nghe nhiều hơn, hạn chế khuyên bảo nhưng đôi lúc vẫn bị phán xét hoặc đóng khung vấn đề.",
+      "Lắng nghe rỗng lặng, không giả định và dùng câu hỏi chất lượng để khai mở trí tuệ cho họ tự tìm câu trả lời."
+    ]
+  },
+  {
+    id:7, part:2,
+    q:"Khát khao cốt lõi của bạn đối với việc giúp đỡ người khác là gì?",
+    opts:[
+      "Lúc này tôi chỉ muốn giải quyết vấn đề cá nhân và tìm thấy sự bình yên cho riêng mình trước.",
+      "Tôi muốn giúp gia đình, đồng nghiệp hoặc đội nhóm của mình tốt lên nhưng lo sợ bản thân chưa đủ năng lực.",
+      "Việc phụng sự cuộc đời là sứ mệnh lớn nhất của tôi, tôi muốn đồng hành cùng sự phát triển của con người."
+    ]
+  },
+  {
+    id:8, part:2,
+    q:"Mức độ tin tưởng của bạn vào 'trí tuệ bên trong' của chính mình?",
+    opts:[
+      "Rất thấp. Tôi thường xuyên do dự trước mọi quyết định và phụ thuộc vào ý kiến người khác.",
+      "Đang cải thiện. Tôi đã bắt đầu lắng nghe trực giác nhưng thỉnh thoảng vẫn hoài nghi bản thân.",
+      "Tuyệt đối. Tôi có một niềm tin không lay chuyển rằng mọi câu trả lời tôi cần đều có sẵn ở bên trong."
+    ]
+  },
+  {
+    id:9, part:3,
+    q:"Nếu được lựa chọn một vai trò tương lai cho bản thân, bạn muốn hướng tới điều gì nhất?",
+    opts:[
+      "Một người bình thường sống vui vẻ, cân bằng, không còn căng thẳng hay áp lực.",
+      "Một người lãnh đạo/cha mẹ/quản lý biết ứng dụng sự tỉnh thức để làm việc hiệu quả và hòa hợp hơn.",
+      "Một người kiến tạo di sản mang giá trị mình có phụng sự cuộc đời."
+    ]
+  },
+  {
+    id:10, part:3,
+    q:"Động lực nào thúc đẩy bạn tìm đến sự đồng hành của RNI lúc này?",
+    opts:[
+      "Tìm kiếm sự thấu hiểu, một hướng đi để thoát khỏi những vòng lặp bế tắc hiện tại.",
+      "Tìm kiếm một môi trường phù hợp để học tập, vun bồi, hàm dưỡng nội tại.",
+      "Tìm kiếm một nền tảng giáo dục chuẩn quốc tế để tỏa sáng, trao giá trị và đồng hành kiến tạo cộng đồng lớn."
+    ]
+  },
+  {
+    id:11, part:3,
+    q:"Bạn sẵn sàng cam kết như thế nào cho sự phát triển bản thân trong giai đoạn tới?",
+    opts:[
+      "Có thể tham gia các khóa học ngắn hạn hoặc các buổi workshop mở rộng nhận thức.",
+      "Cam kết thời gian thực hành mỗi ngày và tham gia lộ trình chuyên sâu để tự chuyển hóa bản thân.",
+      "Cam kết cao độ (đầu tư tài chính, thời gian, tâm huyết) để học hỏi kỹ năng và nhận chứng chỉ quốc tế."
+    ]
+  },
+  {
+    id:12, part:3,
+    q:"Hiện tại, bạn định nghĩa như thế nào về khái niệm 'Khai vấn' (Coaching)?",
+    opts:[
+      "Là một dịch vụ mà người Coach sẽ tư vấn và giải quyết triệt để vấn đề cho tôi.",
+      "Là công cụ giúp tôi đối thoại với nội tâm, nâng tầm tư duy và làm chủ cảm xúc.",
+      "Là một sứ mệnh đi vào tâm trí người khác, khơi gợi nhận thức bằng những năng lực cốt lõi theo chuẩn toàn cầu."
+    ]
+  }
+];
+
+const QUIZ_RESULTS = {
+  R: {
+    stage:"Trở Về", subtitle:"Return — Tìm lại chính mình", icon:"🌱",
+    accentColor:"#78533a",
+    gradientFrom:"#fef3e8", gradientTo:"#fdfbf7",
+    borderColor:"#e8d5c0",
+    opening:`Có một điều bạn có thể cảm nhận được —\nrằng bên ngoài và bên trong đang không nói cùng một ngôn ngữ.\n\nBạn vẫn tiếp tục mỗi ngày.\nNhưng có lúc, bạn tự hỏi:\n"Mình đang sống — hay chỉ đang tồn tại?"\n\nĐây không phải điểm yếu.\nĐây là dấu hiệu rằng bên trong bạn đang thật sự thức dậy —\nđang khao khát điều gì đó sâu hơn, thật hơn.`,
+    bridge:`Điều bạn cần lúc này không phải thêm thông tin.\nKhông phải một kế hoạch mới.\n\nĐiều bạn cần — là được thấy rõ chính mình.\nVà tìm lại sợi chỉ đã kết nối bạn với con người thật của mình từ bên trong.\n\nĐó là điều RNI được tạo ra để đồng hành cùng bạn.`,
+    course:"Kết Nối Với Chính Mình & Nguồn Sáng Bên Trong",
+    courseTag:"Giai đoạn R — Học viện RNI · Miễn phí",
+    courseDesc:"Không phải để bạn trở thành người khác.\nMà để bạn nhớ lại — mình vốn là ai.",
+    benefits:[
+      "Nhận ra những rào cản vô hình đang ngăn bạn sống cuộc đời mình thật sự muốn",
+      "Kết nối lại với tiếng gọi bên trong — thứ mà bạn đã lâu không nghe thấy",
+      "Xây dựng 'tấm bản đồ nội tâm' — để tự dẫn đường trong mọi hoàn cảnh",
+      "Dám chọn lại chính mình — từ bên trong ra"
+    ],
+    quote:`"Điều quan trọng không phải làm gì thêm,\nmà là thấy rõ hơn."`
+  },
+  N: {
+    stage:"Vun Bồi", subtitle:"Nurture — Mài sáng từ bên trong", icon:"🔆",
+    accentColor:"#1a7a6e",
+    gradientFrom:"#e8f5f3", gradientTo:"#fdfbf7",
+    borderColor:"#b2ddd8",
+    opening:`Bạn đã thấy.\nBạn đã bắt đầu.\n\nCó những khoảnh khắc bạn cảm nhận được sự bình an thật sự —\nvà bạn biết đó là hướng mình muốn đi.\n\nNhưng cuộc sống hằng ngày đôi khi kéo bạn ra khỏi đó.\nVà một mình — đôi khi thật khó để không bỏ cuộc giữa đường.`,
+    bridge:`Điều bạn cần lúc này không phải thêm kiến thức.\nBạn đã có đủ để hiểu.\n\nĐiều bạn cần — là một môi trường để thực hành.\nMột nơi mà sự tỉnh thức không phải nỗ lực đơn độc,\nmà là được nuôi dưỡng mỗi ngày, cùng những người cùng hướng đi.\n\nĐó là điều RNI được tạo ra để đồng hành cùng bạn.`,
+    course:"4 Trạm Soi Sáng Trên Hành Trình Đánh Thức Viên Ngọc Bên Trong",
+    courseTag:"Giai đoạn N — Học viện RNI · Miễn phí",
+    courseDesc:"Không phải để bạn học thêm.\nMà để bạn sống sâu hơn — với những gì bạn đã biết.",
+    benefits:[
+      "Khám phá ngọn hải đăng bên trong — luôn ở đó, dù bạn có nhìn thấy hay không",
+      "Đi qua 4 Trạm Soi Sáng: Định · Tĩnh · Đủ · Hiển",
+      "Xây dựng thói quen tỉnh thức bền vững — không phụ thuộc vào cảm hứng nhất thời",
+      "Thiết kế chặng tiếp theo bằng chính ngọn sáng của mình"
+    ],
+    quote:`"Khi ta trở về bên trong,\nmọi thứ trở nên sáng."`
+  },
+  I: {
+    stage:"Lan Toả", subtitle:"Illuminate — Trao đi ánh sáng", icon:"✨",
+    accentColor:"#9b1106",
+    gradientFrom:"#fef2f2", gradientTo:"#fdfbf7",
+    borderColor:"#fecaca",
+    opening:`Bạn đã đi qua những giai đoạn không dễ dàng.\nVà bạn đã chọn ở lại — với chính mình.\n\nGiờ đây, có điều gì đó bên trong bạn không còn chỉ muốn sống tốt cho riêng mình.\nBạn muốn trao đi.\nBạn muốn trở thành người mà sự hiện diện của họ — làm cuộc sống người khác sáng hơn.`,
+    bridge:`Điều bạn cần lúc này không phải thêm trải nghiệm cá nhân.\nBạn đã có nền tảng.\n\nĐiều bạn cần — là một hệ thống chuẩn\nđể đóng gói những gì bạn đã sống, đã thấy, đã chuyển hóa\nthành giá trị có thể chạm đến ngàn người khác.\n\nĐó là điều RNI được tạo ra để đồng hành cùng bạn.`,
+    course:"Xây Dựng Sự Nghiệp Ý Nghĩa Mang Tên Bạn",
+    courseTag:"Giai đoạn I — Học viện RNI · Miễn phí",
+    courseDesc:"Không phải để bạn trở nên nổi tiếng hơn.\nMà để sứ mệnh của bạn — được sống đúng với tầm vóc của nó.",
+    benefits:[
+      "Nhận ra vì sao sự thịnh vượng bên ngoài đôi khi đi kèm cạn kiệt bên trong — và cách thoát khỏi vòng lặp đó",
+      "Hiểu bản chất thật của Khai Vấn Tỉnh Thức — theo chuẩn quốc tế",
+      "Xây dựng sự nghiệp dựa trên giá trị cốt lõi của bạn — bền vững và có tác động thật",
+      "Trở thành người đồng hành và kiến tạo cộng đồng cùng những người cùng sứ mệnh"
+    ],
+    quote:`"An vững là bình an và vững chãi cùng lúc."`
+  }
+};
+
+// ── COURSES DATA ──────────────────────────────────────────────────────────────
+const COURSES = {
+  R: {
+    id:'R',
+    title:'Kết Nối Với Chính Mình & Nguồn Sáng Bên Trong',
+    subtitle:'Giai đoạn Return — Trở Về',
+    icon:'🌱',
+    modules:[{
+      id:1, title:'Kết Nối Với Chính Mình & Nguồn Sáng Bên Trong', icon:'🌱',
+      lessons:[
+        {
+          id:'R-1-1', title:'Những rào cản ngăn bạn chạm tới cuộc đời mơ ước',
+          desc:'Khám phá 4 rào cản vô hình đang ngăn bạn sống cuộc đời mình thật sự muốn: Hiểu sai về cuộc đời · Không biết mình là ai · Niềm tin cũ · Để cảm xúc kiểm soát cuộc đời.',
+          videoId:null,
+          quiz:[
+            {q:'Rào cản nào được đề cập đầu tiên trong bài học?',opts:['Mắc kẹt trong hệ điều hành cũ','Hiểu sai về cuộc đời','Để cảm xúc kiểm soát cuộc đời','Không biết mình là ai'],correct:1},
+            {q:'Theo bài học, điều gì xảy ra khi ta để cảm xúc kiểm soát cuộc đời?',opts:['Ta trở nên mạnh mẽ hơn','Ta mất đi khả năng tự dẫn đường','Ta kết nối sâu hơn với bản thân','Ta dễ đưa ra quyết định hơn'],correct:1},
+            {q:'"Hệ điều hành cũ" trong bài học ám chỉ điều gì?',opts:['Công nghệ lỗi thời','Những niềm tin và mẫu hành vi cũ chưa được cập nhật','Môi trường sống tiêu cực','Thói quen làm việc không hiệu quả'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Trong 4 rào cản được đề cập, rào cản nào bạn thấy mình đang gặp phải nhất? Hãy viết ra một tình huống cụ thể trong cuộc sống của bạn liên quan đến rào cản đó.',placeholder:'Rào cản tôi nhận ra:\n\nTình huống cụ thể:\n\nCảm xúc tôi thường có khi gặp rào cản này:\n\nMột bước nhỏ để tôi bắt đầu tháo gỡ:\n'}
+        },
+        {
+          id:'R-1-2', title:'Dám chọn chính mình',
+          desc:'Hành trình dũng cảm nhất không phải chinh phục thế giới — mà là dám nhìn thẳng vào chính mình và chọn sống thật với con người bên trong.',
+          videoId:null,
+          quiz:[
+            {q:'"Dám chọn chính mình" có nghĩa là gì theo bài học?',opts:['Luôn ưu tiên bản thân trước người khác','Sống thật với giá trị và con người bên trong của mình','Từ chối mọi yêu cầu từ xã hội','Làm những gì mình thích bất kể hậu quả'],correct:1},
+            {q:'Điều gì thường khiến chúng ta không dám chọn chính mình?',opts:['Thiếu tiền bạc và cơ hội','Nỗi sợ bị phán xét và không được chấp nhận','Không đủ thời gian','Thiếu kiến thức và kỹ năng'],correct:1},
+            {q:'Bước đầu tiên để "dám chọn chính mình" là gì?',opts:['Thay đổi môi trường xung quanh','Nhận ra và thừa nhận con người thật của mình','Học thêm nhiều kỹ năng mới','Tìm kiếm sự đồng thuận từ người thân'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Có một lần bạn đã không dám chọn chính mình — bạn đã chọn điều gì thay thế? Và điều đó đã ảnh hưởng như thế nào đến bạn?',placeholder:'Tôi đã không dám chọn chính mình khi:\n\nThay vào đó tôi đã chọn:\n\nĐiều đó ảnh hưởng đến tôi như thế nào:\n\nNếu làm lại, tôi sẽ:\n'}
+        },
+        {
+          id:'R-1-3', title:'Kết nối chính mình & nghe lại tiếng gọi bên trong',
+          desc:'Bên trong mỗi người luôn có một tiếng gọi — nhưng cuộc sống ồn ào đã che đi tiếng gọi đó. Bài học này giúp bạn tạo khoảng lặng để nghe lại.',
+          videoId:null,
+          quiz:[
+            {q:'Theo bài học, "tiếng gọi bên trong" là gì?',opts:['Cảm xúc nhất thời khi hứng khởi','Tiếng nói sâu thẳm về giá trị và sứ mệnh thật của bạn','Lời khuyên từ những người thân yêu','Mục tiêu tài chính bạn muốn đạt được'],correct:1},
+            {q:'Điều gì thường làm chúng ta mất kết nối với bản thân?',opts:['Làm việc quá chăm chỉ','Sự ồn ào của cuộc sống bên ngoài và thói quen hướng ngoại','Thiếu định hướng nghề nghiệp','Không có đủ thời gian nghỉ ngơi'],correct:1},
+            {q:'Cách hiệu quả nhất để kết nối lại với bản thân là gì?',opts:['Đi du lịch xa','Tạo khoảng lặng và thực hành lắng nghe nội tâm','Tìm kiếm lời khuyên từ chuyên gia','Thay đổi công việc và môi trường sống'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Dành 10 phút ngồi yên lặng. Hỏi bản thân: "Điều gì đang thật sự kêu gọi tôi lúc này?" Viết ra bất cứ điều gì nảy lên, không cần lọc hay phán xét.',placeholder:'Khi tôi ngồi yên và lắng nghe, tôi cảm nhận được:\n\nĐiều đang kêu gọi tôi lúc này:\n\nTôi đã bỏ qua tiếng gọi này bao lâu rồi?\n\nMột bước nhỏ tôi có thể làm để đáp lại tiếng gọi đó:\n'}
+        },
+        {
+          id:'R-1-4', title:'Phương pháp la bàn nội tâm',
+          desc:'La bàn nội tâm là hệ thống định hướng bên trong giúp bạn luôn biết mình đang đứng ở đâu và cần đi về đâu — bất kể ngoại cảnh thay đổi ra sao.',
+          videoId:null,
+          quiz:[
+            {q:'"La bàn nội tâm" giúp bạn điều gì?',opts:['Đưa ra quyết định nhanh hơn','Luôn biết hướng đi dựa trên giá trị cốt lõi của bản thân','Tránh mọi sai lầm trong cuộc sống','Kiểm soát cảm xúc tốt hơn'],correct:1},
+            {q:'La bàn nội tâm được xây dựng từ điều gì?',opts:['Mục tiêu tài chính','Ý kiến của những người thành công','Giá trị cốt lõi và sứ mệnh cá nhân','Kế hoạch 5 năm của bạn'],correct:2},
+            {q:'Khi bạn đang đi lạc khỏi con đường của mình, la bàn nội tâm làm gì?',opts:['Tự động sửa hành vi của bạn','Phát ra tín hiệu cảm xúc để bạn nhận ra và điều chỉnh','Kết nối bạn với người thầy phù hợp','Tạo ra kế hoạch hành động mới'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Hãy xác định 3 giá trị cốt lõi quan trọng nhất với bạn. Với mỗi giá trị, viết ra một câu hỏi bạn có thể tự hỏi khi đứng trước quyết định quan trọng.',placeholder:'Giá trị cốt lõi 1:\nCâu hỏi định hướng:\n\nGiá trị cốt lõi 2:\nCâu hỏi định hướng:\n\nGiá trị cốt lõi 3:\nCâu hỏi định hướng:\n'}
+        },
+        {
+          id:'R-1-5', title:'3 khía cạnh nền tảng của một cuộc đời hạnh phúc',
+          desc:'Hạnh phúc không phải ngẫu nhiên — nó được xây trên 3 nền tảng vững chắc. Khám phá và bắt đầu vun đắp từng khía cạnh trong cuộc sống của bạn.',
+          videoId:null,
+          quiz:[
+            {q:'Ba khía cạnh nền tảng của cuộc đời hạnh phúc bao gồm điều gì?',opts:['Tiền bạc, sức khỏe, danh tiếng','Kết nối với bản thân, kết nối với người khác, đóng góp có ý nghĩa','Công việc tốt, gia đình hòa thuận, sức khỏe tốt','Thành công, tự do, tình yêu'],correct:1},
+            {q:'Theo bài học, điều gì xảy ra khi một trong ba khía cạnh bị thiếu?',opts:['Cuộc sống vẫn ổn, chỉ kém vui hơn','Toàn bộ nền tảng trở nên mất cân bằng','Chỉ ảnh hưởng đến lĩnh vực đó','Không có gì thay đổi lớn'],correct:1},
+            {q:'Khía cạnh nào thường bị bỏ qua nhất trong xã hội hiện đại?',opts:['Kết nối với người khác','Kết nối với bản thân mình','Đóng góp có ý nghĩa','Phát triển sự nghiệp'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Đánh giá từ 1-10 mức độ thỏa mãn của bạn ở 3 khía cạnh. Khía cạnh nào cần được chú ý nhất? Một hành động nhỏ bạn có thể làm ngay tuần này?',placeholder:'Kết nối với bản thân: /10\nKết nối với người khác: /10\nĐóng góp có ý nghĩa: /10\n\nKhía cạnh cần chú ý nhất:\n\nMột hành động nhỏ tôi sẽ làm tuần này:\n'}
+        }
+      ]
+    }]
+  },
+
+  N: {
+    id:'N',
+    title:'4 Trạm Soi Sáng Trên Hành Trình Đánh Thức Viên Ngọc Bên Trong',
+    subtitle:'Giai đoạn Nurture — Vun Bồi',
+    icon:'🔆',
+    modules:[{
+      id:1, title:'4 Trạm Soi Sáng Trên Hành Trình Đánh Thức Viên Ngọc Bên Trong', icon:'🔆',
+      lessons:[
+        {
+          id:'N-1-1', title:'Lý do bạn có mặt ở đây',
+          desc:'Mỗi hành trình đều bắt đầu bằng một câu hỏi: "Tôi đang ở đây để làm gì?" Bài học này giúp bạn kết nối với lý do sâu xa nhất dẫn bạn đến hành trình này.',
+          videoId:null,
+          quiz:[
+            {q:'Theo bài học, điều quan trọng nhất khi bắt đầu một hành trình phát triển là gì?',opts:['Có đủ tiền để đầu tư','Kết nối với lý do thật sự của bạn','Tìm được người thầy giỏi','Lên kế hoạch chi tiết'],correct:1},
+            {q:'"Lý do thật sự" khác với "lý do bề ngoài" như thế nào?',opts:['Lý do thật sự thường liên quan đến tiền bạc','Lý do thật sự xuất phát từ bên trong và kết nối với giá trị cốt lõi','Lý do bề ngoài mạnh mẽ hơn','Chúng không khác nhau'],correct:1},
+            {q:'Khi kết nối được với lý do thật sự, điều gì thay đổi?',opts:['Bạn không còn gặp khó khăn nữa','Động lực trở nên bền vững hơn và không phụ thuộc vào cảm hứng','Bạn đạt được mục tiêu nhanh hơn','Người khác sẽ ủng hộ bạn nhiều hơn'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Viết ra lý do thật sự khiến bạn có mặt ở đây. Không phải lý do bạn nghĩ người khác muốn nghe — mà là điều thật sự đang kêu gọi bạn từ bên trong.',placeholder:'Lý do bề ngoài tôi thường nói:\n\nLý do thật sự bên trong:\n\nNếu không làm điều này, tôi sẽ tiếc điều gì:\n'}
+        },
+        {
+          id:'N-1-2', title:'Trắc nghiệm: Ngọn hải đăng trong bạn đang sáng hay tắt?',
+          desc:'Trước khi thắp sáng, hãy biết mình đang ở đâu. Bài trắc nghiệm này giúp bạn nhìn rõ trạng thái ngọn hải đăng bên trong.',
+          videoId:null,
+          quiz:[
+            {q:'"Ngọn hải đăng bên trong" tượng trưng cho điều gì?',opts:['Tài năng thiên bẩm','Ánh sáng nội tâm — sự kết nối với bản thân và giá trị cốt lõi','Thành công sự nghiệp','Mạng lưới quan hệ xã hội'],correct:1},
+            {q:'Dấu hiệu nào cho thấy ngọn hải đăng đang "tắt"?',opts:['Bạn quá bận rộn với công việc','Cảm thấy trống rỗng, mất phương hướng dù đang thành công bề ngoài','Bạn không thích giao tiếp xã hội','Bạn thích ở một mình'],correct:1},
+            {q:'Bước đầu tiên để thắp sáng lại ngọn hải đăng là gì?',opts:['Thay đổi công việc ngay lập tức','Nhận ra và thừa nhận trạng thái hiện tại của mình','Tìm kiếm lời khuyên từ người thành công','Đặt mục tiêu tài chính mới'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Trả lời thành thật: Ngọn hải đăng trong bạn đang ở trạng thái nào? Sáng rực, le lói, hay gần tắt? Điều gì đang làm nó mờ đi?',placeholder:'Trạng thái ngọn hải đăng của tôi (sáng rực / le lói / gần tắt):\n\nDấu hiệu tôi nhận ra:\n\nĐiều đang làm nó mờ đi:\n\nĐiều nuôi dưỡng nó:\n'}
+        },
+        {
+          id:'N-1-3', title:'Thắp sáng lại ngọn hải đăng bên trong',
+          desc:'Ngọn hải đăng không bao giờ tắt hoàn toàn — nó chỉ bị che khuất. Bài học này cung cấp những công cụ thiết thực để gỡ bỏ những lớp che phủ.',
+          videoId:null,
+          quiz:[
+            {q:'Tại sao ngọn hải đăng bên trong "không bao giờ tắt hoàn toàn"?',opts:['Vì con người luôn có hy vọng','Vì ánh sáng nội tâm là bản chất của mỗi người, chỉ bị che khuất chứ không mất đi','Vì ta luôn có người hỗ trợ','Vì cuộc sống luôn có cơ hội mới'],correct:1},
+            {q:'Công cụ nào hiệu quả nhất để thắp sáng lại?',opts:['Đọc thêm sách phát triển bản thân','Thực hành tỉnh thức và kết nối với khoảnh khắc hiện tại','Tham gia nhiều khóa học hơn','Thay đổi môi trường sống'],correct:1},
+            {q:'Điều gì xảy ra khi ngọn hải đăng được thắp sáng trở lại?',opts:['Mọi vấn đề tự biến mất','Bạn có định hướng rõ ràng và năng lượng để hành động từ bên trong ra','Người xung quanh sẽ thay đổi theo','Bạn không còn cảm thấy khó khăn nữa'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Nhớ lại một khoảnh khắc bạn cảm thấy ngọn hải đăng sáng rực nhất — bạn đang làm gì, ở đâu, với ai? Điều gì trong khoảnh khắc đó có thể mang lại cho cuộc sống hiện tại?',placeholder:'Khoảnh khắc ngọn hải đăng tôi sáng nhất:\n\nTôi đang làm gì:\n\nĐiều khiến nó sáng:\n\nCách tôi mang điều đó vào cuộc sống hiện tại:\n'}
+        },
+        {
+          id:'N-1-4', title:'Trạm soi sáng — Định',
+          desc:'Định là nền tảng đầu tiên — sự rõ ràng về bạn là ai, bạn muốn gì và tại sao. Khi có Định, mọi quyết định trở nên nhẹ nhàng và tự nhiên hơn.',
+          videoId:null,
+          quiz:[
+            {q:'"Định" trong hành trình soi sáng có nghĩa là gì?',opts:['Có kế hoạch tài chính rõ ràng','Sự rõ ràng về bản sắc, giá trị và hướng đi của bản thân','Quyết tâm không từ bỏ','Tìm được công việc ổn định'],correct:1},
+            {q:'Khi thiếu "Định", điều gì thường xảy ra?',opts:['Bạn làm việc ít hiệu quả hơn','Bạn dễ bị cuốn theo ý kiến người khác và mất phương hướng','Bạn cảm thấy cô đơn hơn','Bạn khó kết bạn hơn'],correct:1},
+            {q:'Thực hành nào giúp củng cố "Định" mỗi ngày?',opts:['Lập danh sách việc cần làm','Tự hỏi "Hôm nay tôi muốn sống như thế nào?" và hành động từ câu trả lời đó','Đọc tin tức mỗi sáng','Tập thể dục đều đặn'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Hoàn thành 3 câu: "Tôi là người..." / "Điều quan trọng nhất với tôi là..." / "Tôi đang hướng tới..."',placeholder:'Tôi là người...\n\nĐiều quan trọng nhất với tôi là...\n\nTôi đang hướng tới...\n\nKhi tôi sống đúng với "Định" của mình, tôi cảm thấy:\n'}
+        },
+        {
+          id:'N-1-5', title:'Trạm soi sáng — Tĩnh',
+          desc:'"Tĩnh" không phải im lặng bên ngoài — mà là sự bình an không bị xáo trộn từ bên trong. Khi có Tĩnh, bạn có thể đối mặt với bất kỳ bão tố nào.',
+          videoId:null,
+          quiz:[
+            {q:'"Tĩnh" trong hành trình soi sáng là gì?',opts:['Trạng thái không có suy nghĩ','Sự bình an nội tâm không bị xáo trộn bởi ngoại cảnh','Thái độ thụ động với cuộc sống','Sự im lặng về mặt thể xác'],correct:1},
+            {q:'Khác biệt giữa "Tĩnh" thật sự và "Tĩnh" giả tạo là gì?',opts:['Tĩnh thật sự cần nhiều năm tu tập','Tĩnh thật sự đến từ bên trong, còn tĩnh giả tạo là né tránh cảm xúc','Tĩnh giả tạo tốt hơn cho sức khỏe','Không có sự khác biệt'],correct:1},
+            {q:'Thực hành nào giúp phát triển "Tĩnh"?',opts:['Tránh xa mọi nguồn gây stress','Ngồi với cảm xúc khó chịu mà không phản ứng — quan sát và buông bỏ','Ngủ nhiều hơn','Giảm các mối quan hệ xã hội'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Lần tới khi cảm thấy bị xáo trộn, thử thực hành: Dừng lại, nhận ra cảm xúc đang có, đặt tay lên ngực và thở sâu 3 lần. Sau đó viết lại trải nghiệm này.',placeholder:'Tình huống khiến tôi bị xáo trộn:\n\nCảm xúc tôi nhận ra:\n\nSau khi thực hành Tĩnh, tôi cảm thấy:\n\nĐiều tôi học được:\n'}
+        },
+        {
+          id:'N-1-6', title:'Trạm soi sáng — Đủ',
+          desc:'"Đủ" không phải dừng phát triển — mà là biết ơn và trân trọng những gì đang có, trong khi vẫn tiếp tục lớn lên.',
+          videoId:null,
+          quiz:[
+            {q:'"Đủ" trong hành trình soi sáng có nghĩa là gì?',opts:['Không cần phấn đấu thêm nữa','Cảm giác trọn vẹn và biết ơn trong khoảnh khắc hiện tại','Hài lòng với mức tối thiểu','Từ bỏ tham vọng'],correct:1},
+            {q:'Điều gì xảy ra khi ta sống trong trạng thái "không bao giờ đủ"?',opts:['Ta đạt được nhiều hơn','Ta mãi chạy đuổi theo mà không bao giờ thực sự hạnh phúc','Ta trở nên thành công hơn','Ta học hỏi nhanh hơn'],correct:1},
+            {q:'Thực hành biết ơn có liên quan gì đến "Đủ"?',opts:['Không liên quan gì','Biết ơn giúp ta nhận ra những gì đang có — nền tảng của cảm giác "Đủ"','Biết ơn chỉ là phép lịch sự','Biết ơn khiến ta ít tham vọng hơn'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Viết ra 5 điều bạn đang có mà trước đây bạn từng mong ước. Cảm nhận sự "Đủ" đó. Sau đó viết ra một điều bạn muốn phát triển thêm — từ nền tảng của sự đủ đầy đó.',placeholder:'5 điều tôi đang có mà từng mong ước:\n1.\n2.\n3.\n4.\n5.\n\nCảm giác khi nhận ra điều này:\n\nMột điều tôi muốn phát triển thêm (từ sự đủ đầy):\n'}
+        },
+        {
+          id:'N-1-7', title:'Trạm soi sáng — Hiển',
+          desc:'"Hiển" là khi ánh sáng bên trong bắt đầu tỏa ra — không phải vì bạn cố gắng thể hiện, mà vì bạn đang sống đúng với bản thân.',
+          videoId:null,
+          quiz:[
+            {q:'"Hiển" trong hành trình soi sáng là gì?',opts:['Được nhiều người biết đến','Ánh sáng bên trong tự nhiên tỏa ra khi bạn sống đúng với bản thân','Thành công sự nghiệp rực rỡ','Được công nhận bởi xã hội'],correct:1},
+            {q:'Sự khác biệt giữa "Hiển" thật sự và việc "thể hiện" là gì?',opts:['Chúng giống nhau hoàn toàn','"Hiển" đến tự nhiên từ bên trong, còn "thể hiện" là cố gắng tạo ấn tượng bên ngoài','"Thể hiện" tốt hơn cho sự nghiệp','"Hiển" cần nhiều nỗ lực hơn'],correct:1},
+            {q:'Khi đạt được "Hiển", điều gì thay đổi trong cuộc sống bạn?',opts:['Bạn không còn gặp thử thách nữa','Sự hiện diện của bạn tự nhiên truyền cảm hứng và tạo tác động tích cực','Bạn trở nên nổi tiếng hơn','Mọi người đồng ý với bạn hơn'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Hãy tưởng tượng phiên bản "Hiển" nhất của bạn — người đang sống hoàn toàn đúng với bản thân. Người đó đang làm gì? Nói gì? Ảnh hưởng đến người khác như thế nào?',placeholder:'Phiên bản "Hiển" của tôi đang:\n\nHọ đang nói và làm:\n\nTác động của họ đến người xung quanh:\n\nMột bước nhỏ để tôi tiến gần hơn đến phiên bản đó:\n'}
+        },
+        {
+          id:'N-1-8', title:'Thiết kế chặng tiếp theo rực rỡ',
+          desc:'Bạn đã đi qua 4 Trạm Soi Sáng. Bây giờ là lúc thiết kế chặng tiếp theo của hành trình — không phải bằng kế hoạch cứng nhắc, mà bằng sự rõ ràng từ bên trong.',
+          videoId:null,
+          quiz:[
+            {q:'Sự khác biệt giữa "thiết kế" và "lên kế hoạch" trong bài học là gì?',opts:['Chúng hoàn toàn giống nhau','Thiết kế xuất phát từ giá trị bên trong, còn lên kế hoạch thường từ áp lực bên ngoài','Lên kế hoạch hiệu quả hơn','Thiết kế chỉ dành cho nghệ sĩ'],correct:1},
+            {q:'Nền tảng để thiết kế chặng tiếp theo là gì?',opts:['Phân tích xu hướng thị trường','Sự rõ ràng từ 4 trạm: Định - Tĩnh - Đủ - Hiển','Lời khuyên từ người thành công','Số liệu tài chính cụ thể'],correct:1},
+            {q:'Điều gì khiến thiết kế này trở nên "rực rỡ"?',opts:['Nó bao gồm nhiều mục tiêu lớn','Nó được xây dựng từ ánh sáng bên trong và phù hợp với bản chất thật của bạn','Nó được nhiều người đồng thuận','Nó có lộ trình chi tiết từng ngày'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Dựa trên 4 trạm soi sáng bạn đã đi qua, thiết kế chặng tiếp theo: Bạn muốn trở thành ai? Bạn muốn sống như thế nào? Một hành động đầu tiên bạn sẽ làm?',placeholder:'Sau hành trình 4 trạm, tôi muốn trở thành:\n\nCuộc sống tôi đang thiết kế:\n\nGiá trị sẽ dẫn dắt tôi:\n\nHành động đầu tiên tôi sẽ làm trong 7 ngày tới:\n'}
+        },
+        {
+          id:'N-1-9', title:'Thực hành sống ý nghĩa mỗi ngày',
+          desc:'Hành trình không kết thúc ở bài học cuối cùng — nó bắt đầu mỗi sáng bạn thức dậy. Bài học này tặng bạn những thực hành đơn giản để sống ý nghĩa mỗi ngày.',
+          videoId:null,
+          quiz:[
+            {q:'Theo bài học, "sống ý nghĩa" cần điều kiện gì?',opts:['Phải đạt được những mục tiêu lớn trước','Không cần điều kiện gì — nó có thể bắt đầu ngay từ hôm nay, từ những khoảnh khắc nhỏ','Phải có nhiều thời gian rảnh','Phải thành công về tài chính trước'],correct:1},
+            {q:'Thực hành nào được gợi ý để bắt đầu ngày mới?',opts:['Kiểm tra tin tức và mạng xã hội','Dành vài phút kết nối với ý định sống của ngày hôm đó','Lên danh sách việc cần làm ngay khi thức dậy','Tập thể dục ngay lập tức'],correct:1},
+            {q:'Bí quyết để duy trì thực hành lâu dài là gì?',opts:['Ý chí và kỷ luật tuyệt đối','Bắt đầu nhỏ, nhất quán và kết nối với lý do thật sự của bạn','Tìm người giám sát bạn mỗi ngày','Đặt mục tiêu thật lớn để có động lực'],correct:1}
+          ],
+          practice:{type:'journal',prompt:'Thiết kế "nghi thức sáng" của riêng bạn — 3 hành động nhỏ (mỗi cái chỉ 5 phút) giúp bạn bắt đầu ngày mới từ bên trong ra. Cam kết thử trong 7 ngày liên tiếp.',placeholder:'Nghi thức sáng của tôi:\n1. (5 phút):\n2. (5 phút):\n3. (5 phút):\n\nLý do tôi chọn những hành động này:\n\nCam kết: Tôi sẽ thử trong 7 ngày bắt đầu từ ngày:\n'}
+        }
+      ]
+    }]
+  },
+
+  I: {
+    id:'I',
+    title:'Xây Dựng Sự Nghiệp Ý Nghĩa Mang Tên Bạn',
+    subtitle:'Giai đoạn Illuminate — Lan Toả',
+    icon:'✨',
+    modules:[
+      {
+        id:1, title:'Khai Vấn Tỉnh Thức — Con Đường Trở Về Nội Tâm', icon:'🌿',
+        lessons:[
+          {
+            id:'I-1-1', title:'Sự thịnh vượng bên ngoài và sự cạn kiệt bên trong',
+            desc:'Bài học khám phá nghịch lý của thời đại mới: khi con người sở hữu đầy đủ tiện nghi vật chất nhưng lại nghèo túng và kiệt quệ về nội tâm.',
+            videoId:'76rOAHAgwVo',
+            quiz:[
+              {q:'Lý do khiến con người hiện đại dù sở hữu nhiều vật chất nhưng vẫn cảm thấy trống rỗng là gì?',opts:['Do công nghệ phát triển quá nhanh','Do thiếu các mối quan hệ xã hội','Do chỉ tập trung vào các điều kiện ngoại cảnh mà quên mất việc nuôi dưỡng tâm hồn','Do không có đủ kiến thức chuyên môn'],correct:2},
+              {q:'"Nghịch lý" của thế giới hiện đại được mô tả như thế nào?',opts:['Giàu có về tài sản nhưng nghèo nàn về tâm hồn; đầy đủ tiện nghi nhưng kiệt quệ về nội tâm','Có nhiều thời gian nhưng không biết cách sử dụng','Làm việc ít nhưng muốn đạt thành quả lớn','Có quá nhiều lựa chọn dẫn đến không thể quyết định'],correct:0},
+              {q:'Áp lực từ kỳ vọng xã hội và sự so sánh không ngừng dẫn đến tình trạng nào?',opts:['Sự giàu có bền vững về tinh thần','Khả năng thích nghi tốt hơn','Kiệt quệ cảm xúc, căng thẳng mãn tính và mất kết nối với chính mình','Sự thăng tiến nhanh trong sự nghiệp'],correct:2}
+            ],
+            practice:{type:'journal',prompt:'Viết ra danh sách 3 thành tựu bên ngoài bạn đã đạt được và tự vấn xem cảm giác hài lòng đó kéo dài trong bao lâu. Sau đó, liệt kê 1 hoạt động giúp bạn cảm thấy bình an từ bên trong.',placeholder:'Thành tựu 1: ... → Cảm giác hài lòng kéo dài: ...\nThành tựu 2: ... → Cảm giác hài lòng kéo dài: ...\nThành tựu 3: ... → Cảm giác hài lòng kéo dài: ...\n\nHoạt động bình an từ bên trong: ...'}
+          },
+          {
+            id:'I-1-2', title:'Cuộc khủng hoảng niềm tin',
+            desc:'Video phân tích sâu về "gốc rễ" của sự bất ổn hiện nay: sự mất niềm tin vào chính mình.',
+            videoId:'GSea5du0njI',
+            quiz:[
+              {q:'Điều gì được coi là "gốc rễ" của cuộc khủng hoảng niềm tin?',opts:['Sự phản bội từ những người xung quanh','Sự biến động của nền kinh tế thế giới','Mất niềm tin vào chính mình và giá trị tự thân','Thiếu niềm tin vào các giải pháp công nghệ mới'],correct:2},
+              {q:'Tại sao các giải pháp bên ngoài thường không giải quyết được sự bất ổn nội tâm?',opts:['Vì chúng quá đắt đỏ','Vì chúng giống như "nước muối", chỉ mang lại cảm giác tạm thời và khiến ta thêm kiệt sức','Vì chúng không cung cấp đủ thông tin','Vì xã hội không công nhận các giải pháp đó'],correct:1},
+              {q:'Gốc rễ của sự bình an và hạnh phúc thực sự nằm ở đâu?',opts:['Ở sự thay đổi hoàn hảo của hoàn cảnh bên ngoài','Ở việc được xã hội công nhận','Ở trạng thái nội tâm và việc quay về bên trong để nhận diện chính mình','Ở khả năng kiểm soát mọi biến động'],correct:2}
+            ],
+            practice:{type:'journal',prompt:'Nhận diện 1 tình huống gần đây bạn cảm thấy mất kiểm soát. Thay vì đi tìm lời khuyên ngay lập tức, hãy dành 15 phút để "quay về bên trong", quan sát trạng thái nội tâm của mình lúc đó.',placeholder:'Tình huống tôi cảm thấy mất kiểm soát:\n\nKhi tôi "quay về bên trong", tôi nhận ra:\n\nTrạng thái nội tâm của tôi lúc đó là:\n'}
+          },
+          {
+            id:'I-1-3', title:'Khai vấn tỉnh thức — con đường trở về nội tâm',
+            desc:'Bài học tập trung vào việc khơi dậy trí tuệ nội tại để bạn đứng vững trước bão giông cuộc đời.',
+            videoId:'9jmrTIGg6mM',
+            quiz:[
+              {q:'Trong hình ảnh "cây cổ thụ", yếu tố nào quyết định khả năng đứng vững trước bão giông?',opts:['Những cành lá vươn cao','Tán bóng râm rộng lớn','Bộ rễ đâm sâu và mạnh mẽ vào lòng đất (nội tâm)','Sự chăm sóc từ môi trường bên ngoài'],correct:2},
+              {q:'Trái tim của "Khai vấn tỉnh thức" tại RNI tập trung vào mục tiêu cốt lõi nào?',opts:['Cung cấp các câu trả lời định sẵn cho khách hàng','Nuôi dưỡng nội tâm bình an, sáng suốt để làm chủ cuộc sống và khơi dậy trí tuệ nội tại','Giải quyết nhanh các vấn đề thực tế trước mắt','Xây dựng một bản đồ lộ trình sự nghiệp cố định'],correct:1},
+              {q:'Năng lực "tỉnh thức" của người Coach có vai trò gì trong phiên khai vấn?',opts:['Giúp Coach đưa ra lời khuyên chính xác hơn','Kiến tạo không gian để trí tuệ của bản thân và khách hàng được sinh khởi','Giúp khách hàng nhanh chóng quên đi nỗi đau','Dùng để thuyết phục khách hàng thay đổi theo ý mình'],correct:1}
+            ],
+            practice:{type:'journal',prompt:'Hãy chọn một vấn đề đang làm bạn trăn trở và đặt cho mình một câu hỏi khai vấn: "Nếu tôi có trí tuệ nội tại hoàn hảo, tôi sẽ nhìn nhận vấn đề này như thế nào?"',placeholder:'Vấn đề đang làm tôi trăn trở:\n\nNếu tôi có trí tuệ nội tại hoàn hảo, tôi sẽ nhìn nhận vấn đề này là:\n\nBước nhỏ tôi có thể làm ngay hôm nay:\n'}
+          }
+        ]
+      },
+      {
+        id:2, title:'Trở Thành Người Coach Của Chính Mình', icon:'🧭',
+        lessons:[
+          {
+            id:'I-2-1', title:'Giá trị thực sự của khai vấn',
+            desc:'Nội dung tập trung vào 3 giá trị cốt lõi: Khai phóng · Khai mở · Khám phá.',
+            videoId:'H4V0tShRoR4',
+            quiz:[
+              {q:'Khác biệt lớn nhất giữa lời khuyên thông thường và khai vấn là gì?',opts:['Khai vấn đưa ra lời khuyên chuyên sâu hơn','Khai vấn không đưa ra câu trả lời hay lời khuyên mà dùng câu hỏi chất lượng để khai phóng tiềm năng','Lời khuyên giúp giải quyết vấn đề nhanh hơn khai vấn','Khai vấn chỉ tập trung vào những điều tích cực'],correct:1},
+              {q:'Trạng thái "tâm trí rỗng lặng" của người Coach giúp ích gì?',opts:['Giúp Coach ghi nhớ được nhiều thông tin hơn','Giúp Coach chuẩn bị sẵn câu trả lời tiếp theo','Giúp tháo bỏ lớp kính giả định để trí tuệ khởi sinh và khám phá chân thực con người khách hàng','Giúp Coach không cảm thấy mệt mỏi'],correct:2},
+              {q:'Tại sao xã hội hiện đại "thừa lời khuyên nhưng thiếu câu hỏi chất lượng"?',opts:['Vì mọi người đều quá thông minh','Vì con người có xu hướng muốn chứng tỏ giá trị bằng cách đưa ra quan điểm cá nhân thay vì khai phóng tâm thức người khác','Vì lời khuyên luôn là giải pháp tốt nhất','Vì việc đặt câu hỏi mất quá nhiều thời gian'],correct:1}
+            ],
+            practice:{type:'text',prompt:'Luyện tập "lắng nghe rỗng lặng" trong 5 phút với người thân: lắng nghe mà không giả định, không phán xét và không chuẩn bị lời khuyên trong đầu. Sau khi thực hành xong, hãy tiếp tục bài học tiếp theo.'}
+          },
+          {
+            id:'I-2-2', title:'Bài kiểm tra kết nối chính mình',
+            desc:'Video giúp bạn tự đánh giá mức độ kết nối với bản thân qua việc nhận diện các biểu hiện như do dự, lạc lõng hay nỗi sợ đối diện với thế giới nội tâm.',
+            videoId:'IZDvNTotncA',
+            quiz:[
+              {q:'Biểu hiện nào cho thấy một người đang thực sự "mất kết nối" với bản thân?',opts:['Thường xuyên đọc sách về phát triển bản thân','Luôn do dự trước quyết định, cảm thấy lạc lõng ngay cả khi đang làm việc và sợ nhìn sâu vào thế giới nội tâm','Muốn giúp đỡ người khác thay đổi tốt hơn','Thích làm việc độc lập thay vì làm việc nhóm'],correct:1},
+              {q:'"Cuộc dịch chuyển" quan trọng nhất để làm chủ tâm trí là gì?',opts:['Thay đổi công việc và nơi ở','Tìm kiếm một người thầy bên ngoài để dẫn dắt','Kết nối được với "người bạn mang tên chính mình" và tin vào những câu trả lời bên trong','Học cách thuyết phục người khác đồng ý với mình'],correct:2},
+              {q:'"Vấn đề thực sự" mà nhiều người gặp phải không phải là các triệu chứng lo âu, mà là gì?',opts:['Thiếu kỹ năng giao tiếp','Chưa thực hiện được "những cuộc dịch chuyển" trong nhận thức để làm chủ tâm trí','Không tìm được người Coach giỏi','Quá bận rộn với công việc hàng ngày'],correct:1}
+            ],
+            practice:{type:'journal',prompt:'Hãy làm một bài kiểm tra nhỏ: "Nếu căn phòng nội tâm của bạn là một nơi tối tăm bạn muốn khóa chặt, hãy viết xuống 1 lý do vì sao bạn lại sợ mở cánh cửa đó ra."',placeholder:'Lý do tôi sợ mở cánh cửa nội tâm:\n\nCảm xúc tôi nhận ra khi viết điều này:\n\nNếu tôi dũng cảm mở cánh cửa đó, tôi nghĩ tôi sẽ thấy:\n'}
+          },
+          {
+            id:'I-2-3', title:'Sự dịch chuyển 1 — Nhận thức về vấn đề',
+            desc:'Thay đổi tư duy từ "sợ và né tránh vấn đề" sang việc coi vấn đề là "người thầy" phục vụ sự phát triển.',
+            videoId:'W2r6-MaFt_M',
+            quiz:[
+              {q:'"Dịch chuyển nhận thức về vấn đề" có nghĩa là coi vấn đề như thế nào?',opts:['Là một chướng ngại vật cần biến đi ngay','Là một phần của cuộc sống, một "người thầy" giúp ta hiểu rõ về chính mình hơn','Là một dấu hiệu của sự kém cỏi','Là một điều xui xẻo cần tìm người giải cứu'],correct:1},
+              {q:'Câu "thần chú" nào giúp đưa mình về tâm thế bình thản?',opts:['"Tôi phải giải quyết việc này ngay lập tức."','"Hãy để cuộc sống diễn ra... Tôi tin tưởng trực giác và trí tuệ bên trong luôn dẫn dắt cho tôi."','"Tại sao chuyện này lại xảy ra với tôi?"','"Giá mà mọi chuyện thuận lợi hơn."'],correct:1},
+              {q:'Khi thực hành 3 câu "thần chú", mục đích chính là gì?',opts:['Để giải quyết vấn đề ngay lập tức','Để thuyết phục bản thân rằng vấn đề không tồn tại','Để đưa mình vào tâm thế phù hợp, bình thản và vững vàng','Để chờ đợi người khác đến giúp đỡ'],correct:2}
+            ],
+            practice:{type:'journal',prompt:'Khi gặp một hiện thực chưa như ý, thay vì phản kháng, hãy dừng lại 1 phút, đọc to 3 câu "thần chú" và tự hỏi: "Tình huống này đang dạy tôi điều gì?"',placeholder:'Tình huống chưa như ý tôi đang đối diện:\n\nSau khi đọc 3 câu thần chú, tôi cảm thấy:\n\nTình huống này đang dạy tôi:\n'}
+          },
+          {
+            id:'I-2-4', title:'Sự dịch chuyển 2 — Đối thoại với chính mình',
+            desc:'Khám phá sức mạnh của các cuộc hội thoại nội tâm và kỹ thuật "Self-coach" để kiểm chứng sự thật đằng sau những suy nghĩ tự phá hoại.',
+            videoId:'tpReRPp7wfw',
+            quiz:[
+              {q:'Điều gì quan trọng hơn những gì người khác nói về bạn?',opts:['Những gì bạn đạt được trong sự nghiệp','Cách bạn giao tiếp trước đám đông','Những gì bạn đang nói với chính mình hàng ngày (Self-talk)','Ý kiến của những chuyên gia trong ngành'],correct:2},
+              {q:'Câu hỏi nào có tác dụng "Self-coach" hiệu quả khi bạn nghĩ "mình không thể làm được"?',opts:['"Tại sao mình lại yếu đuối như vậy?"','"Người thành công sẽ làm gì trong lúc này?"','"Đây là sự thực hay chỉ là một suy nghĩ?"','"Mình có nên từ bỏ để bớt áp lực không?"'],correct:2},
+              {q:'Mục đích của câu hỏi "Đây là sự thực hay chỉ là một suy nghĩ?" là gì?',opts:['Để chứng minh mình luôn đúng','Để loại bỏ hoàn toàn mọi suy nghĩ trong đầu','Để kiểm chứng tính xác thực của những niềm tin giới hạn đang ngăn cản bước tiến của mình','Để tìm kiếm sự đồng cảm từ người khác'],correct:2}
+            ],
+            practice:{type:'journal',prompt:'Ghi chép lại các cuộc hội thoại nội tâm trong 1 buổi sáng. Nếu thấy suy nghĩ "mình kém cỏi", hãy hỏi ngược lại: "Mình thực sự kém cỏi hay mình đang có trải nghiệm khiến mình cảm thấy chưa trọn vẹn?"',placeholder:'Các suy nghĩ nội tâm tôi nhận ra sáng nay:\n\nKhi tôi đặt câu hỏi "Đây là sự thực hay chỉ là suy nghĩ?", tôi nhận ra:\n\nCâu self-talk tích cực tôi muốn thay thế:\n'}
+          },
+          {
+            id:'I-2-5', title:'Sự dịch chuyển 3 — Tư duy vượt thoát',
+            desc:'Hướng dẫn cách nâng tầm tư duy — thay vì chỉ dùng tư duy tích cực thông thường, bạn sẽ học cách nhìn nhận từ một tầm cao mới.',
+            videoId:'vObU2k-ulHA',
+            quiz:[
+              {q:'Điểm khác biệt giữa "Tư duy tích cực" và "Tư duy tự khai vấn" khi đối diện nỗi sợ thất bại?',opts:['Tư duy tích cực tập trung vào lỗi sai, tư duy khai vấn tập trung vào giải pháp','Cả hai đều giống nhau về bản chất','Tư duy tích cực cố gắng tạo động lực, còn tư duy khai vấn đặt câu hỏi để nhận diện tiềm năng vô hạn của hiện tại','Tư duy tích cực hiệu quả hơn tư duy khai vấn'],correct:2},
+              {q:'Mọi sự thay đổi thực sự đến từ đâu?',opts:['Từ các con số vận mệnh của mỗi người','Từ sự tự thân chuyển hóa và nhận lãnh trách nhiệm về chính mình','Từ các công cụ thần kỳ bên ngoài','Từ việc người khác chỉ cho mình phải làm gì'],correct:1},
+              {q:'Theo tinh thần của Khai vấn tỉnh thức, ai là người có sức mạnh quyết định số phận của bạn?',opts:['Những con số vận mệnh hoặc công cụ bói toán','Một người Coach có kinh nghiệm lâu năm','Chính bạn, thông qua việc nhận lãnh trách nhiệm và thực hiện sự tự thân chuyển hóa','Hoàn cảnh gia đình và môi trường xã hội'],correct:2}
+            ],
+            practice:{type:'journal',prompt:'Chuyển đổi suy nghĩ: "Nếu thất bại thì sao?" sang câu hỏi tự khai vấn: "Tôi đang lo lắng về một điều chưa xảy ra hay tôi đang tập trung vào tiềm năng vô hạn của hiện tại?"',placeholder:'Nỗi sợ thất bại tôi đang mang:\n\nKhi tôi hỏi "Tôi đang tập trung vào điều gì?", tôi nhận ra:\n\nTiềm năng vô hạn của tôi trong hiện tại là:\n'}
+          }
+        ]
+      },
+      {
+        id:3, title:'Lộ Trình Trở Thành Nhà Khai Vấn Quốc Tế', icon:'🌸',
+        lessons:[
+          {
+            id:'I-3-1', title:'Khai vấn dành cho những con người can đảm',
+            desc:'Nội dung tôn vinh sự can đảm của người Coach khi dám bước vào "vùng đất vô định" trong tâm trí con người mà không có bản đồ sẵn có.',
+            videoId:'O-rQZV7NoZc',
+            quiz:[
+              {q:'Tại sao nghề khai vấn được gọi là "con đường không lối"?',opts:['Vì không có tài liệu giảng dạy chính thống','Vì mỗi phiên khai vấn là một hành trình vào vùng đất vô định, không có bản đồ hay công thức cố định','Vì nghề này không đòi hỏi bất kỳ kỹ năng nào','Vì người Coach luôn phải tự đi một mình'],correct:1},
+              {q:'"Can đảm" trong nghề Coach được định nghĩa như thế nào?',opts:['Luôn biết chắc chắn kết quả của phiên khai vấn','Sẵn lòng bước đi cùng khách hàng ngay cả khi chính mình và họ chưa biết hướng đi kế tiếp','Luôn đưa ra những giải pháp mạnh mẽ cho khách hàng','Không bao giờ cảm thấy lo lắng hay sợ hãi'],correct:1},
+              {q:'Thông điệp cốt lõi dành cho người mới bắt đầu hành trình làm Coach là gì?',opts:['Bạn phải đạt được mọi bằng cấp trước khi bắt đầu','Bạn cần có một bản đồ chi tiết cho mọi phiên khai vấn','Làm Coach không có nghĩa là biết hết tất cả; chỉ cần sự can đảm, lòng khát khao giúp đỡ và cam kết học hỏi','Bạn nên đợi cho đến khi mình không còn nỗi lo lắng nào'],correct:2}
+            ],
+            practice:{type:'journal',prompt:'Viết về một lần bạn dám bước vào một sự "không chắc chắn" trong cuộc sống. Điều gì đã giúp bạn vượt qua sự mơ hồ đó?',placeholder:'Lần tôi bước vào sự không chắc chắn:\n\nNhững gì đã giúp tôi vượt qua:\n\nBài học tôi mang theo từ trải nghiệm đó:\n'}
+          },
+          {
+            id:'I-3-2', title:'Hành trang cho người khai vấn tỉnh thức',
+            desc:'Phân tích 8 năng lực cốt lõi theo khung chuẩn EMCC, bắt đầu từ sự hiểu biết sâu sắc về bản thân.',
+            videoId:'8vJpK8xcfB0',
+            quiz:[
+              {q:'Năng lực cốt lõi đầu tiên và quan trọng nhất theo khung EMCC là gì?',opts:['Xây dựng mối quan hệ','Sử dụng mô hình khai vấn','Hiểu biết về bản thân (Understanding Self)','Quản lý hợp đồng'],correct:2},
+              {q:'"Hành trang tâm hồn" của một người Coach bao gồm những yếu tố nào?',opts:['Chỉ cần nắm vững các kỹ thuật và mô hình','Sự tĩnh tại bên trong, lòng thấu hiểu, kiên nhẫn và một trái tim rộng mở','Sự tự tin tuyệt đối và không bao giờ mắc lỗi','Khả năng thuyết phục khách hàng nghe theo ý mình'],correct:1},
+              {q:'Tại sao việc đạt được các chứng chỉ quốc tế về khai vấn đang trở thành xu hướng?',opts:['Để có thể thu phí khách hàng cao hơn','Vì khách hàng ngày càng thông thái và đòi hỏi sự đồng hành từ những người có chuyên môn được kiểm chứng','Để cạnh tranh với các ngành nghề tư vấn khác','Để chứng minh mình đã học hết mọi kiến thức về tâm lý'],correct:1}
+            ],
+            practice:{type:'journal',prompt:'Tự chấm điểm từ 1-10 cho 8 năng lực cốt lõi của EMCC. Chọn ra 1 năng lực thấp nhất và lập kế hoạch cải thiện trong tuần này.',placeholder:'1. Hiểu biết về bản thân: /10\n2. Cam kết & đạo đức: /10\n3. Xây dựng hợp đồng: /10\n4. Xây dựng mối quan hệ: /10\n5. Lắng nghe tích cực: /10\n6. Đặt câu hỏi hiệu quả: /10\n7. Thiết kế hành động: /10\n8. Đánh giá & đo lường: /10\n\nNăng lực tôi chọn cải thiện:\nKế hoạch cụ thể:\n'}
+          },
+          {
+            id:'I-3-3', title:'Xây dựng sự nghiệp mang tên bạn',
+            desc:'Video truyền cảm hứng về việc xây dựng "nhân hiệu từ gốc" — dựa trên quan điểm, tư duy và giá trị thật từ bên trong con người bạn.',
+            videoId:'31kOT248-f0',
+            quiz:[
+              {q:'Bài học quan trọng nhất về "nhân hiệu từ gốc" là gì?',opts:['Tập trung vào việc đánh bóng hình ảnh bên ngoài','Sử dụng các kỹ thuật truyền thông hiện đại nhất','Xây dựng dựa trên quan điểm, tư duy và giá trị thật từ bên trong con người bạn','Luôn xuất hiện đầy tự tin trước đám đông'],correct:2},
+              {q:'Hình ảnh "dòng suối" được dùng để mô tả phong cách của Ruby Nguyen mang ý nghĩa gì?',opts:['Sự mạnh mẽ, quyết liệt trong tư duy','Sự thay đổi không ngừng nghỉ của các phương pháp','Sự uyển chuyển, nhẹ nhàng len lỏi vào tâm can người nhận và mang lại cảm giác an lành mà mạnh mẽ từ bên trong','Sự dồi dào về kiến thức và thông tin'],correct:2},
+              {q:'Sự thay đổi lớn nhất mà các học viên RNI thường cảm nhận được sau hành trình khai vấn là gì?',opts:['Tìm được một công việc lương cao hơn ngay lập tức','Thay đổi cách nhìn nhận chính mình và tìm thấy bình an nội tại','Không còn gặp bất kỳ thử thách nào trong cuộc sống','Trở thành một người hoàn hảo không sai sót'],correct:1}
+            ],
+            practice:{type:'text',prompt:'Ngồi tĩnh lặng và tưởng tượng sự nghiệp của bạn như một dòng suối. Bạn muốn "dòng suối" đó mang lại cảm giác gì cho những người chạm vào nó? Hãy dành vài phút trong tĩnh lặng để cảm nhận hình ảnh đó, rồi tiếp tục bài học tiếp theo.'}
+          },
+          {
+            id:'I-3-4', title:'Lộ trình khai vấn tỉnh thức',
+            desc:'Cung cấp bản đồ chi tiết để trở thành Coach chuyên nghiệp đạt chứng chỉ quốc tế EMCC.',
+            videoId:'y_tem1VDUW0',
+            quiz:[
+              {q:'Bước nào được coi là "không thể thiếu" để một người Coach tự theo dõi và đánh giá sự phát triển?',opts:['Tích lũy thật nhanh số giờ khai vấn mà không cần xem lại','Chỉ tham gia các phiên giám sát với người Coach cấp cao','Thực hành phản chiếu (Reflective Practice) thông qua ghi chép nhật ký để chiêm nghiệm sau mỗi phiên','Tìm kiếm sự chấp nhận từ tất cả các khách hàng'],correct:2},
+              {q:'Việc đạt chứng chỉ quốc tế EMCC mang lại giá trị lớn nhất nào cho người Coach?',opts:['Một mức lương cố định hàng tháng','Sự công nhận về năng lực chuyên môn, uy tín và cơ hội kết nối với cộng đồng Coach quốc tế','Quyền được đưa ra lời khuyên cho mọi người','Khả năng giải quyết mọi vấn đề trong cuộc sống cá nhân'],correct:1},
+              {q:'Bước "Giám sát khai vấn" (Supervision) giúp ích gì?',opts:['Giúp Coach có thêm nhiều khách hàng mới','Giúp đánh giá và nhận phản hồi từ Coach cấp cao để đảm bảo sự hiệu quả và chuyên nghiệp','Giúp Coach nhanh chóng hoàn thành số giờ yêu cầu','Giúp Coach không phải tự mình suy nghĩ về các phiên khai vấn'],correct:1}
+            ],
+            practice:{type:'journal',prompt:'Bắt đầu viết "Nhật ký tự phản tư" (Reflective Journal) cho ngày hôm nay. Ghi lại 1 điều bạn đã học được về cách mình phản ứng trước một sự việc trong ngày.',placeholder:'Sự việc xảy ra hôm nay:\n\nCách tôi phản ứng:\n\nNếu nhìn lại, tôi sẽ phản ứng khác đi như thế nào:\n\nĐiều tôi học được về chính mình:\n'}
+          }
+        ]
+      },
+      {
+        id:4, title:'Hỏi Đáp', icon:'💬', noPracticeAndQuiz:true,
+        lessons:[
+          {id:'I-4-1',title:'Làm thế nào để tôn trọng sự khác biệt nhưng vẫn giữ được sự hòa hợp trong mối quan hệ gia đình?',videoId:'D3f--MBWKkg',quiz:[{q:'Bạn đã xem xong video hỏi đáp này chưa?',opts:['Rồi, tôi đã xem xong và có thêm hiểu biết mới','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'I-4-2',title:'Làm thế nào để nhanh thấy câu trả lời từ bên trong?',videoId:'SZqg9L6-TuQ',quiz:[{q:'Bạn đã xem xong video hỏi đáp này chưa?',opts:['Rồi, tôi đã xem xong và có thêm hiểu biết mới','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'I-4-3',title:'Làm thế nào để biết mình có đang đi lệch với chính mình?',videoId:'tIw5ZK_9sIQ',quiz:[{q:'Bạn đã xem xong video hỏi đáp này chưa?',opts:['Rồi, tôi đã xem xong và có thêm hiểu biết mới','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'I-4-4',title:'Giá trị của khai vấn tỉnh thức trong việc lãnh đạo doanh nghiệp',videoId:'XvsHoZ89woA',quiz:[{q:'Bạn đã xem xong video hỏi đáp này chưa?',opts:['Rồi, tôi đã xem xong và có thêm hiểu biết mới','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'I-4-5',title:'Làm thế nào để nuôi dưỡng sự chuyển hóa sau khi rời lớp học?',videoId:'D5Fkf7443qQ',quiz:[{q:'Bạn đã xem xong video hỏi đáp này chưa?',opts:['Rồi, tôi đã xem xong và có thêm hiểu biết mới','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'I-4-6',title:'Ngoài Mindful Coaching RNI còn có chương trình nào đưa khai vấn tỉnh thức vào nữa không?',videoId:'e_4BffK2hhM',quiz:[{q:'Bạn đã xem xong video hỏi đáp này chưa?',opts:['Rồi, tôi đã xem xong và có thêm hiểu biết mới','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'I-4-7',title:'Liệu khai vấn tỉnh thức chuyên sâu của Học viện RNI có phải là giải pháp?',videoId:'GRyj22xf6N8',quiz:[{q:'Bạn đã xem xong video hỏi đáp này chưa?',opts:['Rồi, tôi đã xem xong và có thêm hiểu biết mới','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'I-4-8',title:'Đâu là trọng tâm để người coach chuyên nghiệp cần ưu tiên nắm vững?',videoId:'5umNR8M3R24',quiz:[{q:'Bạn đã xem xong video hỏi đáp này chưa?',opts:['Rồi, tôi đã xem xong và có thêm hiểu biết mới','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'I-4-9',title:'Liệu khai vấn có cần thiết cho người làm kinh doanh muốn phát triển doanh nghiệp?',videoId:'k69ICOGTENw',quiz:[{q:'Bạn đã xem xong video hỏi đáp này chưa?',opts:['Rồi, tôi đã xem xong và có thêm hiểu biết mới','Chưa, tôi sẽ xem lại'],correct:0}],practice:null}
+        ]
+      },
+      {
+        id:5, title:'Câu Chuyện Dưỡng Tâm Cùng Khai Vấn Tỉnh Thức', icon:'✨', noPracticeAndQuiz:true,
+        lessons:[
+          {id:'I-5-1',title:'U60 có rào cản công nghệ, công việc bận rộn có phù hợp học phát triển bản thân?',videoId:'JJFPVbUm_Qo',quiz:[{q:'Bài học nào từ câu chuyện này truyền cảm hứng cho bạn nhất?',opts:['Không bao giờ quá muộn để bắt đầu hành trình trở về với chính mình','Cần phải có nhiều kinh nghiệm mới bắt đầu được','Chỉ người trẻ mới có thể học khai vấn','Khai vấn chỉ dành cho người có nhiều thời gian'],correct:0}],practice:null},
+          {id:'I-5-2',title:'Chủ doanh nghiệp đang mông lung, bế tắc, vô định đã cứu vãn hôn nhân và xây dựng gia đình hạnh phúc như thế nào?',videoId:'4J7ojdJUcgQ',quiz:[{q:'Điều gì giúp vượt qua giai đoạn bế tắc, mông lung trong câu chuyện này?',opts:['Tìm thấy kết nối với bản thân thông qua khai vấn tỉnh thức','Thay đổi công việc ngay lập tức','Tự cô lập bản thân để suy nghĩ','Tìm kiếm sự giúp đỡ từ nhiều người khác'],correct:0}],practice:null},
+          {id:'I-5-3',title:'Học phát triển bản thân rất nhiều, đã học khai vấn nơi khác có nên đầu tư học khai vấn tỉnh thức hay không?',videoId:'clEEPmTR4-4',quiz:[{q:'Điều gì tạo nên sự khác biệt của chương trình Khai vấn tỉnh thức RNI so với nơi khác?',opts:['Kết hợp tỉnh thức nội tâm với kỹ năng coach chuyên nghiệp','Chỉ tập trung vào kỹ thuật coach','Chỉ tập trung vào nội tâm mà không có kỹ năng','Giống như các chương trình coach khác'],correct:0}],practice:null},
+          {id:'I-5-4',title:'Người trẻ mặc cảm tự ti về bản thân - nói gì về khai vấn?',videoId:'5b3SZ-0pt6E',quiz:[{q:'Điều gì quan trọng hơn tuổi tác và kinh nghiệm để bắt đầu hành trình khai vấn?',opts:['Sự chân thật, khiêm tốn và sẵn sàng học hỏi','Bằng cấp và chứng chỉ','Kinh nghiệm sống nhiều năm','Mạng lưới khách hàng rộng lớn'],correct:0}],practice:null},
+          {id:'I-5-5',title:'Hành trình bừng nở của một người mẹ trầm cảm, người vợ, người bác sĩ?',videoId:'ao_pazFVjiY',quiz:[{q:'Khai vấn tỉnh thức hỗ trợ bác sĩ và chuyên gia y tế như thế nào?',opts:['Giúp kết hợp sức mạnh tâm trí với chuyên môn y học để hỗ trợ bệnh nhân toàn diện hơn','Thay thế hoàn toàn phương pháp y học truyền thống','Chỉ dành riêng cho những người không có chuyên môn y tế','Giúp bác sĩ làm việc ít đi'],correct:0}],practice:null}
+        ]
+      }
+    ]
+  }
+};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const getModules = (courseId) => COURSES[courseId]?.modules || [];
+const getAllLessons = (courseId) =>
+  getModules(courseId).flatMap(m => m.lessons.map(l => ({...l, moduleId:m.id})));
+
+function getLessonIndex(lessonId, courseId) {
+  return getAllLessons(courseId).findIndex(l => l.id === lessonId);
+}
+function isLessonUnlocked(lessonId, progress, courseId) {
+  const all = getAllLessons(courseId);
+  const idx = all.findIndex(l => l.id === lessonId);
+  if(idx === 0) return true;
+  return !!progress[all[idx-1].id];
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+function ProgressBar({value, max, className=''}) {
+  const pct = Math.round((value/max)*100);
+  return (
+    <div className={`w-full bg-rni-100 rounded-full h-2 ${className}`}>
+      <div className="progress-bar bg-gradient-to-r from-rni-600 to-gold-500 h-2 rounded-full"
+        style={{width:`${pct}%`}}/>
+    </div>
+  );
+}
+
+function Btn({children, onClick, variant='primary', size='md', disabled=false, className=''}) {
+  const base = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all focus:outline-none active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed';
+  const V = {
+    primary:'bg-rni-600 text-white hover:bg-rni-700 shadow-md hover:shadow-lg',
+    secondary:'bg-white text-rni-600 border-2 border-rni-200 hover:border-rni-400',
+    gold:'bg-gradient-to-r from-gold-500 to-gold-400 text-white shadow-md hover:shadow-lg',
+    ghost:'text-rni-600 hover:bg-rni-50',
+  };
+  const S = {sm:'px-4 py-2 text-xs', md:'px-5 py-2.5 text-sm', lg:'px-8 py-3.5 text-base'};
+  return (
+    <button onClick={onClick} disabled={disabled}
+      className={`${base} ${V[variant]} ${S[size]} ${className}`}>
+      {children}
+    </button>
+  );
+}
+
+// ── QUIZ SCREENS ──────────────────────────────────────────────────────────────
+function PreQuizScreen({onStart}) {
+  return (
+    <div className="min-h-screen hero-bg flex flex-col items-center justify-center px-4 py-12 relative">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <svg className="dandelion absolute -right-10 top-20 w-72 h-72" viewBox="0 0 200 200" fill="none">
+          <circle cx="100" cy="100" r="7" fill="#9b1106"/>
+          {[...Array(24)].map((_,i)=>{
+            const a=(i/24)*Math.PI*2,r=60,x=100+Math.cos(a)*r,y=100+Math.sin(a)*r;
+            return <g key={i}>
+              <line x1="100" y1="100" x2={x} y2={y} stroke="#9b1106" strokeWidth="0.5" opacity="0.4"/>
+              <circle cx={x} cy={y} r="3" fill="none" stroke="#9b1106" strokeWidth="0.5" opacity="0.5"/>
+            </g>;
+          })}
+        </svg>
+        <svg className="dandelion absolute -left-10 bottom-32 w-56 h-56" viewBox="0 0 200 200" fill="none">
+          <circle cx="100" cy="100" r="5" fill="#f59e0b"/>
+          {[...Array(18)].map((_,i)=>{
+            const a=(i/18)*Math.PI*2,r=50,x=100+Math.cos(a)*r,y=100+Math.sin(a)*r;
+            return <g key={i}>
+              <line x1="100" y1="100" x2={x} y2={y} stroke="#f59e0b" strokeWidth="0.5" opacity="0.3"/>
+              <circle cx={x} cy={y} r="2.5" fill="none" stroke="#f59e0b" strokeWidth="0.5" opacity="0.4"/>
+            </g>;
+          })}
+        </svg>
+      </div>
+
+      <div className="max-w-md w-full text-center relative z-10 slide-up">
+        <div className="mb-8 float">
+          <LogoMark className="mx-auto h-16 w-16 text-2xl"/>
+        </div>
+
+        <div className="inline-flex items-center gap-2 bg-white border border-rni-200 rounded-full px-4 py-1.5 text-xs font-semibold text-rni-700 shadow-sm mb-6">
+          <span>✦</span><span>12 câu hỏi · khoảng 5 phút · kết quả cá nhân hoá</span>
+        </div>
+
+        <h1 className="font-heading text-4xl sm:text-5xl font-black text-gray-900 mb-4 leading-tight">
+          Bạn đang ở đâu trên<br/>
+          <span className="rni-text-gradient">hành trình của mình?</span>
+        </h1>
+
+        <div className="text-gray-500 text-base leading-relaxed mb-8 space-y-1">
+          <p>Không cần chuẩn bị gì.</p>
+          <p>Không có câu trả lời đúng hay sai.</p>
+          <p className="mt-3">Chỉ cần một chút thành thật với chính mình —<br/>
+          và để những câu hỏi này chạm tới nơi bạn thật sự đang đứng.</p>
+          <p className="mt-2 text-sm text-gray-400">Kết quả sẽ cho bạn thấy hành trình nào đang chờ bạn ở RNI.</p>
+        </div>
+
+        <button onClick={onStart}
+          className="pulse-btn inline-flex items-center gap-3 bg-rni-600 text-white font-semibold text-base px-10 py-4 rounded-2xl shadow-lg hover:bg-rni-700 transition-all active:scale-95 mb-8">
+          Bắt đầu <span>→</span>
+        </button>
+
+        <p className="text-xs text-gray-400 italic leading-relaxed">
+          "Hiểu mình là món quà lớn nhất ta dành cho thế giới này."<br/>
+          <span className="font-medium not-italic">— Ruby Nguyễn</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function QuizTransition({onDone}) {
+  useEffect(()=>{
+    const t = setTimeout(onDone, 2500);
+    return ()=>clearTimeout(t);
+  },[onDone]);
+
+  return (
+    <div className="min-h-screen hero-bg flex items-center justify-center px-6">
+      <div className="max-w-sm text-center fade-in">
+        <div className="text-5xl mb-6 float">🌿</div>
+        <div className="text-gray-600 text-base leading-loose space-y-1">
+          <p>Hãy đặt điện thoại xuống một chút.</p>
+          <p>Hít thở.</p>
+          <p className="mt-2">Và đọc mỗi câu hỏi bằng cả sự chú tâm.</p>
+        </div>
+        <p className="text-gray-400 text-sm italic mt-6">
+          Câu trả lời đầu tiên nảy ra trong lòng bạn — thường là thật nhất.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function QuizScreen({onDone}) {
+  const [idx, setIdx]           = useState(0);
+  const [answers, setAnswers]   = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [animating, setAnimating] = useState(false);
+
+  const q = QUIZ_QUESTIONS[idx];
+  const partLabels = {
+    1:"Bạn đang thấy gì ở chính mình lúc này?",
+    2:"Bạn đang nuôi dưỡng điều gì bên trong?",
+    3:"Bạn đang hướng về đâu?"
+  };
+  const partIntros = {
+    1:"Không cần suy nghĩ quá nhiều. Hãy chọn điều gần với bạn nhất lúc này.",
+    2:"Quan sát thật nhẹ nhàng — không cần đánh giá bản thân.",
+    3:"Đây là phần cuối — hãy để trực giác dẫn lối."
+  };
+  const isFirstOfPart = idx === 0 || QUIZ_QUESTIONS[idx-1].part !== q.part;
+  const pct = Math.round(((idx+1)/QUIZ_QUESTIONS.length)*100);
+
+  const handleSelect = (i) => {
+    if(animating) return;
+    setSelected(i);
+    setAnimating(true);
+    setTimeout(()=>{
+      const newAnswers = [...answers, i];
+      setAnswers(newAnswers);
+      setSelected(null);
+      setAnimating(false);
+      if(idx < QUIZ_QUESTIONS.length - 1){
+        setIdx(idx+1);
+      } else {
+        const counts = {0:0,1:0,2:0};
+        newAnswers.forEach(a => counts[a]++);
+        let result = 'R';
+        if(counts[2] >= counts[1] && counts[2] >= counts[0]) result = 'I';
+        else if(counts[1] >= counts[0] && counts[1] >= counts[2]) result = 'N';
+        onDone(result);
+      }
+    }, 350);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col hero-bg">
+      {/* Top bar */}
+      <div className="bg-white border-b border-rni-100 px-4 py-3 sticky top-0 z-20">
+        <div className="max-w-lg mx-auto">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-rni-500 font-semibold">{partLabels[q.part]}</p>
+            <span className="text-xs text-gray-400 font-medium">{idx+1} / {QUIZ_QUESTIONS.length}</span>
+          </div>
+          <ProgressBar value={idx+1} max={QUIZ_QUESTIONS.length}/>
+        </div>
+      </div>
+
+      <div className="flex-1 flex items-start justify-center px-4 py-8">
+        <div className="max-w-lg w-full">
+
+          {isFirstOfPart && (
+            <div className="mb-5 text-center fade-in">
+              <span className="inline-block bg-rni-50 border border-rni-100 text-rni-600 text-xs font-semibold px-4 py-1.5 rounded-full mb-2">
+                Phần {q.part}
+              </span>
+              <p className="text-gray-400 text-sm italic">{partIntros[q.part]}</p>
+            </div>
+          )}
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-5 fade-in">
+            <p className="font-display text-xl font-semibold text-gray-900 leading-relaxed">{q.q}</p>
+          </div>
+
+          <div className="space-y-3">
+            {q.opts.map((opt,i)=>(
+              <button key={i} onClick={()=>handleSelect(i)}
+                className={`option-btn w-full text-left p-4 rounded-2xl border-2 text-sm leading-relaxed transition-all ${
+                  selected===i
+                    ? 'border-rni-500 bg-rni-50 shadow-md option-selected'
+                    : 'border-gray-200 bg-white hover:border-rni-300 hover:bg-rni-50'
+                }`}>
+                <span className={`inline-flex w-7 h-7 rounded-full border-2 mr-3 items-center justify-center text-xs font-bold flex-shrink-0 align-middle ${
+                  selected===i
+                    ? 'border-rni-500 bg-rni-500 text-white'
+                    : 'border-gray-300 text-gray-400'
+                }`}>{String.fromCharCode(65+i)}</span>
+                {opt}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QuizLoading({onDone}) {
+  useEffect(()=>{
+    const t = setTimeout(onDone, 2800);
+    return ()=>clearTimeout(t);
+  },[onDone]);
+
+  return (
+    <div className="min-h-screen hero-bg flex items-center justify-center px-6">
+      <div className="max-w-sm text-center fade-in">
+        <div className="text-5xl mb-6 float">✦</div>
+        <p className="font-display text-2xl text-gray-700 italic mb-3">Đang lắng nghe bạn...</p>
+        <p className="text-gray-500 text-sm leading-relaxed">
+          Mỗi câu trả lời bạn vừa chọn<br/>là một mảnh của bức tranh thật.
+        </p>
+        <p className="text-gray-400 text-xs italic mt-4">Một khoảnh khắc nữa thôi.</p>
+      </div>
+    </div>
+  );
+}
+
+function QuizResultScreen({result, onContinue}) {
+  const r = QUIZ_RESULTS[result];
+
+  return (
+    <div className="min-h-screen py-10 px-4"
+      style={{background:`linear-gradient(150deg,${r.gradientFrom} 0%,${r.gradientTo} 100%)`}}>
+      <div className="max-w-lg mx-auto slide-up">
+
+        <div className="text-center mb-6">
+          <span className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-xs font-semibold text-gray-500 shadow-sm">
+            ✦ Hành trình của bạn
+          </span>
+        </div>
+
+        {/* Result header */}
+        <div className="bg-white rounded-3xl shadow-lg overflow-hidden mb-5"
+          style={{border:`2px solid ${r.borderColor}`}}>
+          <div className="px-8 py-8 text-center"
+            style={{background:`linear-gradient(135deg,${r.gradientFrom} 0%,white 100%)`}}>
+            <div className="text-5xl mb-4">{r.icon}</div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Bạn đang ở giai đoạn</p>
+            <h1 className="font-heading text-4xl font-black mb-1" style={{color:r.accentColor}}>
+              {r.stage}
+            </h1>
+            <p className="text-gray-500 text-sm italic">{r.subtitle}</p>
+          </div>
+
+          <div className="px-7 py-6 border-t border-gray-100">
+            {r.opening.split('\n').map((line,i)=>(
+              <p key={i} className={`text-gray-700 text-sm leading-relaxed ${line===''?'mt-3':''}`}>
+                {line.startsWith('"') ? <em className="text-gray-500">{line}</em> : line}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        {/* Bridge */}
+        <div className="rounded-2xl px-6 py-5 mb-5"
+          style={{background:`${r.accentColor}08`, border:`1px solid ${r.borderColor}`}}>
+          {r.bridge.split('\n').map((line,i)=>(
+            <p key={i} className={`text-sm leading-relaxed ${line===''?'mt-2':''}`}
+              style={{color: (line.includes('thấy rõ')||line.includes('môi trường')||line.includes('hệ thống chuẩn')) ? r.accentColor : '#4b5563',
+                      fontWeight: (line.includes('thấy rõ')||line.includes('môi trường')||line.includes('hệ thống chuẩn')) ? '600' : '400'}}>
+              {line}
+            </p>
+          ))}
+        </div>
+
+        {/* Course card */}
+        <div className="bg-white rounded-3xl shadow-lg overflow-hidden mb-6"
+          style={{border:`2px solid ${r.borderColor}`}}>
+          <div className="px-7 py-5 border-b border-gray-100">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">✦ Hành trình dành cho bạn</p>
+            <h2 className="font-heading text-xl font-black text-gray-900 leading-snug mb-2">{r.course}</h2>
+            <span className="text-xs px-3 py-1 rounded-full font-semibold"
+              style={{background:`${r.accentColor}15`, color:r.accentColor}}>
+              {r.courseTag}
+            </span>
+          </div>
+
+          <div className="px-7 py-5">
+            {r.courseDesc.split('\n').map((line,i)=>(
+              <p key={i} className="text-gray-500 text-sm italic leading-relaxed">{line}</p>
+            ))}
+            <ul className="mt-5 space-y-3">
+              {r.benefits.map((b,i)=>(
+                <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold mt-0.5"
+                    style={{background:`${r.accentColor}15`, color:r.accentColor}}>✦</span>
+                  {b}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="px-7 pb-7">
+            <button onClick={onContinue}
+              className="w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg transition-all active:scale-95 pulse-btn"
+              style={{background:`linear-gradient(135deg,${r.accentColor} 0%,#c41a0a 100%)`}}>
+              Đăng ký để bắt đầu ngay →
+            </button>
+          </div>
+        </div>
+
+        {/* Quote */}
+        <div className="text-center pb-8">
+          {r.quote.split('\n').map((line,i)=>(
+            <p key={i} className="text-gray-400 text-sm italic">{line}</p>
+          ))}
+          <p className="text-gray-500 text-xs font-medium mt-1">— Ruby Nguyễn</p>
+        </div>
+
+        <div className="text-center border-t border-gray-100 pt-5 pb-4">
+          <p className="text-xs text-gray-400">
+            <span className="font-semibold text-rni-600">Học viện RNI</span>
+            {' '}· Return · Nurture · Illuminate
+          </p>
+          <p className="text-xs text-gray-400 italic mt-1">
+            "Mỗi người đều mang trong mình một ngọn sáng.<br/>
+            Chúng tôi ở đây — để cùng bạn tìm lại nó."
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+// ── REGISTER SCREEN ───────────────────────────────────────────────────────────
+function RegisterScreen({courseId, onDone}) {
+  const [name,  setName]  = useState('');
+  const [email, setEmail] = useState('');
+  const [err,   setErr]   = useState('');
+  const course = COURSES[courseId];
+  const r = QUIZ_RESULTS[courseId];
+
+  const submit = () => {
+    if(!name.trim())  return setErr('Bạn chưa nhập tên.');
+    if(!email.trim() || !email.includes('@')) return setErr('Email chưa hợp lệ.');
+    setErr('');
+    onDone(name.trim(), email.trim());
+  };
+
+  return (
+    <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full slide-up">
+
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <LogoMark className="mx-auto h-16 w-16"/>
+          <p className="text-gray-400 text-xs mt-3">Học viện RNI · Return · Nurture · Illuminate</p>
+        </div>
+
+        {/* Course badge */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-6"
+          style={{border:`2px solid ${r?.borderColor||'#fecaca'}`}}>
+          <div className="px-6 py-4 flex items-center gap-4"
+            style={{background:`linear-gradient(135deg,${r?.gradientFrom||'#fef2f2'} 0%,white 100%)`}}>
+            <span className="text-3xl">{course?.icon}</span>
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Khoá học của bạn</p>
+              <p className="font-heading font-black text-sm text-gray-900 leading-snug">{course?.title}</p>
+              <p className="text-xs mt-0.5" style={{color:r?.accentColor}}>{course?.subtitle}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 className="font-heading font-black text-xl text-gray-900 mb-1">Đăng ký tham gia</h2>
+          <p className="text-gray-400 text-sm mb-6">Để bắt đầu hành trình, bạn chỉ cần điền thông tin bên dưới.</p>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Họ và tên *</label>
+              <input
+                type="text"
+                value={name}
+                onChange={e=>setName(e.target.value)}
+                onKeyDown={e=>e.key==='Enter' && submit()}
+                placeholder="Tên bạn là gì?"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Email *</label>
+              <input
+                type="email"
+                value={email}
+                onChange={e=>setEmail(e.target.value)}
+                onKeyDown={e=>e.key==='Enter' && submit()}
+                placeholder="email@example.com"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"
+              />
+            </div>
+          </div>
+
+          {err && (
+            <p className="text-rni-600 text-xs mt-3 font-medium">⚠ {err}</p>
+          )}
+
+          <button onClick={submit}
+            className="w-full mt-5 py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 hover:opacity-90"
+            style={{background:`linear-gradient(135deg,${r?.accentColor||'#9b1106'} 0%,#c41a0a 100%)`}}>
+            Bắt đầu hành trình của tôi →
+          </button>
+
+          <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed">
+            Thông tin của bạn được bảo mật tuyệt đối.<br/>
+            Chúng tôi không chia sẻ dữ liệu với bên thứ ba.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── WELCOME SCREEN ────────────────────────────────────────────────────────────
+function WelcomeScreen({userName, courseId, onStart}) {
+  const course = COURSES[courseId];
+  const r = QUIZ_RESULTS[courseId];
+  const allLessons = getAllLessons(courseId);
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12"
+      style={{background:`linear-gradient(150deg,${r?.gradientFrom||'#fef2f2'} 0%,#fdfbf7 100%)`}}>
+      <div className="max-w-md w-full text-center bounce-in">
+
+        <div className="mb-6 float">
+          <LogoMark className="mx-auto h-16 w-16"/>
+        </div>
+
+        <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-xs font-semibold text-gray-500 shadow-sm mb-6">
+          <span>{course?.icon}</span>
+          <span>Giai đoạn {courseId} — {r?.stage}</span>
+        </div>
+
+        <h1 className="font-heading text-4xl sm:text-5xl font-black text-gray-900 mb-3 leading-tight">
+          Chào mừng,<br/>
+          <span className="rni-text-gradient">{userName}!</span>
+        </h1>
+
+        <p className="font-display text-lg text-gray-600 italic mb-2 leading-relaxed">
+          {course?.title}
+        </p>
+        <p className="text-gray-400 text-sm mb-8">
+          {allLessons.length} bài học · {getModules(courseId).length} chủ đề · Miễn phí hoàn toàn
+        </p>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-8 text-left">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Hành trình của bạn bao gồm</p>
+          {getModules(courseId).map((m,i)=>(
+            <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+              <span className="text-lg">{m.icon}</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-800">{m.title}</p>
+                <p className="text-xs text-gray-400">{m.lessons.length} bài học</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button onClick={onStart}
+          className="w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg transition-all active:scale-95 pulse-btn mb-4"
+          style={{background:`linear-gradient(135deg,${r?.accentColor||'#9b1106'} 0%,#c41a0a 100%)`}}>
+          Bắt đầu học ngay →
+        </button>
+
+        <p className="text-xs text-gray-400 italic">
+          "Mỗi hành trình ngàn dặm đều bắt đầu bằng một bước chân."
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── CELEBRATION POPUP ─────────────────────────────────────────────────────────
+function CelebrationPopup({lesson, onClose, onNext, hasNext}) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center bounce-in">
+        <div className="text-5xl mb-4 float">🎉</div>
+        <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Hoàn thành!</h3>
+        <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+          Bạn đã hoàn thành<br/>
+          <strong className="text-gray-800">"{lesson.title}"</strong>
+        </p>
+        <div className="space-y-3">
+          {hasNext && (
+            <button onClick={onNext}
+              className="w-full py-3 rounded-xl bg-rni-600 text-white font-semibold text-sm hover:bg-rni-700 transition-all active:scale-95">
+              Bài tiếp theo →
+            </button>
+          )}
+          <button onClick={onClose}
+            className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-gray-300 transition-all">
+            Quay về tổng quan
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── PRACTICE BOX ─────────────────────────────────────────────────────────────
+function PracticeBox({practice, lessonId}) {
+  const key = `rni-journal-${lessonId}`;
+  const [text, setText] = useState(()=>localStorage.getItem(key)||'');
+  const [saved, setSaved] = useState(false);
+
+  const save = () => {
+    localStorage.setItem(key, text);
+    setSaved(true);
+    setTimeout(()=>setSaved(false), 2000);
+  };
+
+  if(!practice) return null;
+
+  return (
+    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-lg">✍️</span>
+        <h4 className="font-semibold text-gray-800 text-sm">Thực hành</h4>
+      </div>
+      <p className="text-gray-600 text-sm leading-relaxed mb-4">{practice.prompt}</p>
+      {practice.type === 'journal' && (
+        <>
+          <textarea
+            value={text}
+            onChange={e=>setText(e.target.value)}
+            placeholder={practice.placeholder}
+            rows={6}
+            className="w-full border-2 border-amber-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 bg-white resize-none transition-colors"
+          />
+          <div className="flex items-center justify-between mt-3">
+            <span className="text-xs text-gray-400">{text.length} ký tự</span>
+            <button onClick={save}
+              className="px-4 py-2 rounded-lg text-xs font-semibold transition-all active:scale-95"
+              style={{background: saved ? '#10b981' : '#9b1106', color:'white'}}>
+              {saved ? '✓ Đã lưu' : 'Lưu ghi chép'}
+            </button>
+          </div>
+        </>
+      )}
+      {practice.type === 'text' && (
+        <div className="bg-white border border-amber-200 rounded-xl px-4 py-3">
+          <p className="text-amber-700 text-xs font-medium">💡 Thực hành offline — không cần ghi chép trên app</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── LESSON VIEW ───────────────────────────────────────────────────────────────
+function LessonView({lesson, progress, courseId, onComplete, onBack}) {
+  const [tab, setTab]           = useState('video');
+  const [quizIdx, setQuizIdx]   = useState(0);
+  const [picked, setPicked]     = useState(null);
+  const [checked, setChecked]   = useState(false);
+  const [quizDone, setQuizDone] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [score, setScore]       = useState(0);
+
+  const allLessons = getAllLessons(courseId);
+  const lessonIdx  = allLessons.findIndex(l=>l.id===lesson.id);
+  const nextLesson = allLessons[lessonIdx+1] || null;
+  const mod        = getModules(courseId).find(m=>m.lessons.some(l=>l.id===lesson.id));
+  const isSimple   = mod?.noPracticeAndQuiz;
+  const isCompleted = !!progress[lesson.id];
+
+  const handleCheck = () => {
+    if(picked===null) return;
+    setChecked(true);
+    if(picked === lesson.quiz[quizIdx].correct) setScore(s=>s+1);
+  };
+
+  const handleNext = () => {
+    if(quizIdx < lesson.quiz.length-1){
+      setQuizIdx(quizIdx+1);
+      setPicked(null);
+      setChecked(false);
+    } else {
+      setQuizDone(true);
+    }
+  };
+
+  const handleComplete = () => {
+    onComplete(lesson.id);
+    setShowCelebration(true);
+  };
+
+  const handleNextLesson = () => {
+    setShowCelebration(false);
+    if(nextLesson) {
+      onComplete(lesson.id);
+      onBack();
+    }
+  };
+
+  const tabs = isSimple
+    ? [{id:'video', label:'📹 Video'}]
+    : [{id:'video', label:'📹 Video'}, {id:'quiz', label:'📝 Kiểm tra'}, {id:'practice', label:'✍️ Thực hành'}];
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-20">
+        <div className="max-w-2xl mx-auto flex items-center gap-3">
+          <button onClick={onBack}
+            className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0">
+            ←
+          </button>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-gray-400 truncate">{mod?.title}</p>
+            <p className="text-sm font-semibold text-gray-900 leading-tight truncate">{lesson.title}</p>
+          </div>
+          {isCompleted && (
+            <span className="flex-shrink-0 bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+              ✓ Hoàn thành
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      {tabs.length > 1 && (
+        <div className="bg-white border-b border-gray-100 px-4">
+          <div className="max-w-2xl mx-auto flex">
+            {tabs.map(t=>(
+              <button key={t.id} onClick={()=>setTab(t.id)}
+                className={`px-5 py-3 text-sm font-semibold transition-colors ${
+                  tab===t.id ? 'tab-active' : 'tab-inactive'
+                }`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-2xl mx-auto px-4 py-6">
+
+        {/* VIDEO TAB */}
+        {tab==='video' && (
+          <div className="space-y-5 fade-in">
+            {lesson.videoId ? (
+              <div className="video-wrap">
+                <iframe
+                  src={`https://www.youtube.com/embed/${lesson.videoId}?rel=0&modestbranding=1`}
+                  title={lesson.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen/>
+              </div>
+            ) : (
+              <div className="bg-gray-900 rounded-2xl flex items-center justify-center"
+                style={{aspectRatio:'16/9'}}>
+                <div className="text-center text-white">
+                  <div className="text-5xl mb-3">🎬</div>
+                  <p className="text-sm font-medium opacity-70">Video sẽ sớm ra mắt</p>
+                  <p className="text-xs opacity-40 mt-1">Đang trong quá trình sản xuất</p>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <h2 className="font-heading font-black text-lg text-gray-900 mb-2 leading-snug">{lesson.title}</h2>
+              <p className="text-gray-500 text-sm leading-relaxed">{lesson.desc}</p>
+            </div>
+
+            {isSimple && !isCompleted && (
+              <button onClick={handleComplete}
+                className="w-full py-3.5 rounded-xl bg-rni-600 text-white font-semibold text-sm shadow-md hover:bg-rni-700 transition-all active:scale-95">
+                Đánh dấu hoàn thành ✓
+              </button>
+            )}
+
+            {!isSimple && (
+              <div className="grid grid-cols-2 gap-3">
+                <button onClick={()=>setTab('quiz')}
+                  className="py-3 rounded-xl border-2 border-rni-200 text-rni-600 font-semibold text-sm hover:bg-rni-50 transition-all">
+                  📝 Làm kiểm tra
+                </button>
+                <button onClick={()=>setTab('practice')}
+                  className="py-3 rounded-xl border-2 border-amber-200 text-amber-700 font-semibold text-sm hover:bg-amber-50 transition-all">
+                  ✍️ Thực hành
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* QUIZ TAB */}
+        {tab==='quiz' && !isSimple && (
+          <div className="fade-in">
+            {!quizDone ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-semibold text-gray-500">Câu {quizIdx+1} / {lesson.quiz.length}</p>
+                  <span className="text-xs text-gray-400">{score} điểm</span>
+                </div>
+                <ProgressBar value={quizIdx+1} max={lesson.quiz.length} className="mb-4"/>
+
+                <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                  <p className="font-display text-base font-semibold text-gray-900 leading-relaxed">
+                    {lesson.quiz[quizIdx].q}
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  {lesson.quiz[quizIdx].opts.map((opt,i)=>{
+                    let cls = 'border-2 border-gray-200 bg-white';
+                    if(checked){
+                      if(i===lesson.quiz[quizIdx].correct) cls = 'border-2 border-green-500 bg-green-50';
+                      else if(i===picked) cls = 'border-2 border-red-400 bg-red-50';
+                    } else if(picked===i) cls = 'border-2 border-rni-400 bg-rni-50';
+                    return (
+                      <button key={i}
+                        onClick={()=>!checked && setPicked(i)}
+                        className={`w-full text-left p-4 rounded-2xl text-sm leading-relaxed transition-all ${cls} ${!checked?'hover:border-rni-300':''}`}>
+                        <span className={`inline-flex w-6 h-6 rounded-full border-2 mr-3 items-center justify-center text-xs font-bold flex-shrink-0 align-middle ${
+                          checked && i===lesson.quiz[quizIdx].correct ? 'border-green-500 bg-green-500 text-white' :
+                          checked && i===picked ? 'border-red-400 bg-red-400 text-white' :
+                          picked===i ? 'border-rni-500 bg-rni-500 text-white' :
+                          'border-gray-300 text-gray-400'
+                        }`}>{String.fromCharCode(65+i)}</span>
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {!checked ? (
+                  <button onClick={handleCheck} disabled={picked===null}
+                    className="w-full py-3.5 rounded-xl bg-rni-600 text-white font-semibold text-sm shadow-md hover:bg-rni-700 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
+                    Kiểm tra đáp án
+                  </button>
+                ) : (
+                  <div className="space-y-3">
+                    <div className={`rounded-xl px-4 py-3 text-sm font-semibold ${
+                      picked===lesson.quiz[quizIdx].correct
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-50 text-red-600'
+                    }`}>
+                      {picked===lesson.quiz[quizIdx].correct
+                        ? '✓ Chính xác! Bạn hiểu đúng rồi.'
+                        : `✗ Chưa đúng. Đáp án là: ${String.fromCharCode(65+lesson.quiz[quizIdx].correct)}.`}
+                    </div>
+                    <button onClick={handleNext}
+                      className="w-full py-3.5 rounded-xl bg-rni-600 text-white font-semibold text-sm shadow-md hover:bg-rni-700 transition-all active:scale-95">
+                      {quizIdx < lesson.quiz.length-1 ? 'Câu tiếp theo →' : 'Xem kết quả'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8 fade-in">
+                <div className="text-5xl mb-4">{score===lesson.quiz.length?'🏆':score>=lesson.quiz.length/2?'⭐':'📖'}</div>
+                <h3 className="font-heading font-black text-2xl text-gray-900 mb-2">
+                  {score} / {lesson.quiz.length} câu đúng
+                </h3>
+                <p className="text-gray-500 text-sm mb-6">
+                  {score===lesson.quiz.length
+                    ? 'Xuất sắc! Bạn nắm vững bài học này rồi.'
+                    : score>=lesson.quiz.length/2
+                    ? 'Tốt lắm! Bạn đã hiểu phần lớn bài học.'
+                    : 'Hãy xem lại video để củng cố thêm nhé!'}
+                </p>
+                {!isCompleted && (
+                  <button onClick={handleComplete}
+                    className="w-full py-3.5 rounded-xl bg-rni-600 text-white font-semibold text-sm shadow-md hover:bg-rni-700 transition-all active:scale-95 mb-3">
+                    Đánh dấu hoàn thành ✓
+                  </button>
+                )}
+                <button onClick={()=>{ setQuizIdx(0); setPicked(null); setChecked(false); setQuizDone(false); setScore(0); }}
+                  className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-gray-300 transition-all">
+                  Làm lại
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* PRACTICE TAB */}
+        {tab==='practice' && !isSimple && (
+          <div className="space-y-5 fade-in">
+            <PracticeBox practice={lesson.practice} lessonId={lesson.id}/>
+            {!isCompleted && (
+              <button onClick={handleComplete}
+                className="w-full py-3.5 rounded-xl bg-rni-600 text-white font-semibold text-sm shadow-md hover:bg-rni-700 transition-all active:scale-95">
+                Đánh dấu hoàn thành ✓
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {showCelebration && (
+        <CelebrationPopup
+          lesson={lesson}
+          onClose={onBack}
+          onNext={handleNextLesson}
+          hasNext={!!nextLesson}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function Dashboard({userName, courseId, progress, onLesson, onCert}) {
+  const [expandedMod, setExpandedMod] = useState(1);
+  const course     = COURSES[courseId];
+  const modules    = getModules(courseId);
+  const allLessons = getAllLessons(courseId);
+  const r          = QUIZ_RESULTS[courseId];
+  const done       = allLessons.filter(l=>progress[l.id]).length;
+  const total      = allLessons.length;
+  const allDone    = done === total;
+  const pct        = Math.round((done/total)*100);
+
+  // Find next lesson
+  const nextLesson = allLessons.find(l=>!progress[l.id]);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+
+      {/* Header */}
+      <div className="bg-white border-b border-gray-100 px-4 py-4 sticky top-0 z-20">
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <LogoMark className="h-10 w-10 text-sm"/>
+            <div>
+              <p className="font-heading font-black text-sm text-gray-900 leading-tight line-clamp-1">{course?.title}</p>
+              <p className="text-xs text-gray-400">{course?.subtitle}</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-xs font-semibold text-rni-600">{pct}%</p>
+            <p className="text-xs text-gray-400">{done}/{total} bài</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 py-5 space-y-5">
+
+        {/* Hero card */}
+        <div className="rounded-2xl overflow-hidden shadow-sm"
+          style={{background:`linear-gradient(135deg,${r?.accentColor||'#9b1106'} 0%,#c41a0a 60%,#d97706 100%)`}}>
+          <div className="px-6 py-5 text-white">
+            <p className="text-sm opacity-80 mb-0.5">Xin chào,</p>
+            <h2 className="font-heading font-black text-2xl mb-3">{userName} ✦</h2>
+            <ProgressBar value={done} max={total} className="mb-2 [&>div]:bg-white [&]:bg-white/30"/>
+            <div className="flex items-center justify-between">
+              <p className="text-xs opacity-75">{done} / {total} bài học hoàn thành</p>
+              <p className="text-xs font-bold">{pct}%</p>
+            </div>
+          </div>
+          {nextLesson && (
+            <div className="bg-black/20 px-6 py-3 flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-xs mb-0.5">Tiếp tục học</p>
+                <p className="text-white font-semibold text-sm truncate max-w-xs">{nextLesson.title}</p>
+              </div>
+              <button onClick={()=>onLesson(nextLesson)}
+                className="flex-shrink-0 bg-white text-rni-700 font-bold text-xs px-4 py-2 rounded-xl hover:bg-rni-50 transition-colors active:scale-95">
+                Vào học →
+              </button>
+            </div>
+          )}
+          {allDone && (
+            <div className="bg-black/20 px-6 py-3 flex items-center justify-between">
+              <p className="text-white font-semibold text-sm">🎓 Bạn đã hoàn thành khoá học!</p>
+              <button onClick={onCert}
+                className="flex-shrink-0 bg-white text-rni-700 font-bold text-xs px-4 py-2 rounded-xl hover:bg-rni-50 transition-colors active:scale-95">
+                Nhận chứng chỉ →
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Modules */}
+        {modules.map(mod=>{
+          const modLessons = mod.lessons;
+          const modDone    = modLessons.filter(l=>progress[l.id]).length;
+          const isExpanded = expandedMod === mod.id;
+
+          return (
+            <div key={mod.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-hover">
+
+              {/* Module header */}
+              <button
+                onClick={()=>setExpandedMod(isExpanded ? null : mod.id)}
+                className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-gray-50 transition-colors">
+                <span className="text-2xl flex-shrink-0">{mod.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 text-sm leading-snug">{mod.title}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <ProgressBar value={modDone} max={modLessons.length} className="flex-1 h-1.5 [&]:bg-gray-100"/>
+                    <span className="text-xs text-gray-400 flex-shrink-0">{modDone}/{modLessons.length}</span>
+                  </div>
+                </div>
+                <span className="text-gray-400 flex-shrink-0">{isExpanded?'▲':'▼'}</span>
+              </button>
+
+              {/* Lessons list */}
+              {isExpanded && (
+                <div className="border-t border-gray-100">
+                  {modLessons.map((lesson,idx)=>{
+                    const unlocked = isLessonUnlocked(lesson.id, progress, courseId);
+                    const completed = !!progress[lesson.id];
+                    const isCurrent = !completed && unlocked;
+                    return (
+                      <button
+                        key={lesson.id}
+                        onClick={()=>unlocked && onLesson(lesson)}
+                        disabled={!unlocked}
+                        className={`w-full flex items-center gap-4 px-5 py-3.5 text-left border-b border-gray-50 last:border-0 transition-all ${
+                          unlocked
+                            ? 'hover:bg-rni-50 cursor-pointer'
+                            : 'module-locked cursor-not-allowed'
+                        } ${isCurrent ? 'bg-rni-50/50' : ''}`}>
+
+                        {/* Status icon */}
+                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${
+                          completed
+                            ? 'bg-green-500 border-green-500 text-white'
+                            : isCurrent
+                            ? 'bg-rni-600 border-rni-600 text-white'
+                            : 'bg-white border-gray-300 text-gray-400'
+                        }`}>
+                          {completed ? '✓' : !unlocked ? '🔒' : idx+1}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm font-medium leading-snug truncate ${
+                            completed ? 'text-gray-500 line-through' : isCurrent ? 'text-rni-700 font-semibold' : 'text-gray-700'
+                          }`}>{lesson.title}</p>
+                          {isCurrent && (
+                            <p className="text-xs text-rni-500 font-medium mt-0.5">Tiếp tục →</p>
+                          )}
+                        </div>
+
+                        {unlocked && !completed && (
+                          <span className="flex-shrink-0 text-gray-300">›</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Cert button if all done */}
+        {allDone && (
+          <button onClick={onCert}
+            className="w-full py-4 rounded-2xl font-semibold text-white text-sm shadow-lg transition-all active:scale-95"
+            style={{background:'linear-gradient(135deg,#f59e0b 0%,#d97706 100%)'}}>
+            🎓 Nhận chứng chỉ hoàn thành
+          </button>
+        )}
+
+        {/* Footer */}
+        <div className="text-center py-4 border-t border-gray-100">
+          <p className="text-xs text-gray-400">
+            <span className="font-semibold text-rni-600">Học viện RNI</span>
+            {' '}· Return · Nurture · Illuminate
+          </p>
+          <p className="text-xs text-gray-300 italic mt-1">
+            "Mỗi người đều mang trong mình một ngọn sáng."
+          </p>
+        </div>
+      </div>
+
+      {/* Chat button */}
+      <div className="fixed bottom-6 right-4 z-30">
+        <button
+          onClick={()=>window.open('https://udify.app/chatbot/iRRHff5wqLnKt2ct','_blank')}
+          className="bg-rni-600 text-white rounded-full shadow-lg hover:bg-rni-700 transition-all active:scale-95 flex items-center gap-2 px-4 py-3">
+          <span className="text-lg">💬</span>
+          <span className="text-xs font-semibold hidden sm:inline">Chat với RNI</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── CERT SCREEN ───────────────────────────────────────────────────────────────
+function CertScreen({userName, courseId, onBack}) {
+  const canvasRef = useRef(null);
+  const course    = COURSES[courseId];
+  const r         = QUIZ_RESULTS[courseId];
+
+  useEffect(()=>{
+    const canvas = canvasRef.current;
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    // Background
+    ctx.fillStyle = '#fdfbf7';
+    ctx.fillRect(0,0,W,H);
+
+    // Outer border
+    ctx.strokeStyle = r?.accentColor||'#9b1106';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(24,24,W-48,H-48);
+
+    // Inner border
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(36,36,W-72,H-72);
+
+    // Corner decorations
+    const corners = [[50,50],[W-50,50],[50,H-50],[W-50,H-50]];
+    corners.forEach(([x,y])=>{
+      ctx.fillStyle = r?.accentColor||'#9b1106';
+      ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill();
+    });
+
+    // Header
+    ctx.fillStyle = r?.accentColor||'#9b1106';
+    ctx.font = 'bold 15px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('HỌC VIỆN RNI', W/2, 90);
+
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '11px Montserrat, sans-serif';
+    ctx.fillText('Return · Nurture · Illuminate', W/2, 110);
+
+    // Divider
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(W/2-80, 125); ctx.lineTo(W/2+80, 125); ctx.stroke();
+
+    // Certificate title
+    ctx.fillStyle = '#1a1a1a';
+    ctx.font = 'italic 13px Cormorant Garamond, serif';
+    ctx.fillText('Chứng Nhận Hoàn Thành', W/2, 155);
+
+    // Name
+    ctx.fillStyle = r?.accentColor||'#9b1106';
+    ctx.font = 'bold 28px Cormorant Garamond, serif';
+    ctx.fillText(userName, W/2, 200);
+
+    // Divider under name
+    ctx.strokeStyle = r?.accentColor||'#9b1106';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(W/2-120, 215); ctx.lineTo(W/2+120, 215); ctx.stroke();
+
+    // Course name
+    ctx.fillStyle = '#374151';
+    ctx.font = '11px Be Vietnam Pro, sans-serif';
+    ctx.fillText('đã hoàn thành khoá học', W/2, 240);
+
+    // Wrap course title
+    ctx.fillStyle = '#1a1a1a';
+    ctx.font = 'bold 13px Montserrat, sans-serif';
+    const words = (course?.title||'').split(' ');
+    let line='', y=265;
+    words.forEach(w=>{
+      const test = line+w+' ';
+      if(ctx.measureText(test).width > W-120 && line!==''){
+        ctx.fillText(line.trim(), W/2, y); y+=20; line=w+' ';
+      } else { line=test; }
+    });
+    if(line.trim()) ctx.fillText(line.trim(), W/2, y);
+
+    // Stage badge
+    ctx.fillStyle = r?.accentColor||'#9b1106';
+    ctx.font = 'italic 11px Cormorant Garamond, serif';
+    ctx.fillText(`Giai đoạn ${courseId} — ${r?.stage}`, W/2, y+25);
+
+    // Date
+    const today = new Date().toLocaleDateString('vi-VN',{day:'numeric',month:'long',year:'numeric'});
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '10px Be Vietnam Pro, sans-serif';
+    ctx.fillText(today, W/2, H-80);
+
+    // Signature line
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(W/2-60,H-58); ctx.lineTo(W/2+60,H-58); ctx.stroke();
+    ctx.fillStyle = '#374151';
+    ctx.font = 'bold 11px Montserrat, sans-serif';
+    ctx.fillText('Ruby Nguyễn', W/2, H-46);
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '9px Be Vietnam Pro, sans-serif';
+    ctx.fillText('Founder — Học viện RNI', W/2, H-34);
+
+  },[userName, courseId]);
+
+  const download = () => {
+    const a = document.createElement('a');
+    a.download = `RNI_Certificate_${userName.replace(/\s+/g,'_')}.png`;
+    a.href = canvasRef.current.toDataURL('image/png');
+    a.click();
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-20">
+        <div className="max-w-2xl mx-auto flex items-center gap-3">
+          <button onClick={onBack}
+            className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors">
+            ←
+          </button>
+          <h2 className="font-heading font-black text-base text-gray-900">Chứng chỉ hoàn thành</h2>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 py-8 flex-1">
+        <div className="text-center mb-6 bounce-in">
+          <div className="text-5xl mb-3 float">🎓</div>
+          <h1 className="font-heading font-black text-2xl text-gray-900 mb-1">Chúc mừng, {userName}!</h1>
+          <p className="text-gray-500 text-sm">Bạn đã hoàn thành khoá học<br/><strong>{course?.title}</strong></p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-5 overflow-auto">
+          <canvas ref={canvasRef} width={520} height={380}
+            className="max-w-full mx-auto block rounded-xl shadow-sm"/>
+        </div>
+
+        <div className="space-y-3">
+          <button onClick={download}
+            className="w-full py-3.5 rounded-xl bg-rni-600 text-white font-semibold text-sm shadow-md hover:bg-rni-700 transition-all active:scale-95">
+            ⬇ Tải chứng chỉ về máy
+          </button>
+          <button onClick={onBack}
+            className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-gray-300 transition-all">
+            Quay về tổng quan
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── APP ───────────────────────────────────────────────────────────────────────
+function App() {
+  const [screen,     setScreen]     = useState('preQuiz');
+  const [userName,   setUserName]   = useState('');
+  const [quizResult, setQuizResult] = useState(null);
+  const [courseId,   setCourseId]   = useState(null);
+  const [lesson,     setLesson]     = useState(null);
+  const [progress,   setProgress]   = useState(()=>{
+    try{ return JSON.parse(localStorage.getItem('rni-progress')||'{}'); }
+    catch{ return {}; }
+  });
+
+  useEffect(()=>{
+    localStorage.setItem('rni-progress', JSON.stringify(progress));
+  },[progress]);
+
+  // Nếu đã đăng ký → vào thẳng dashboard
+  useEffect(()=>{
+    const n = localStorage.getItem('rni-name');
+    const c = localStorage.getItem('rni-course');
+    if(n && c){
+      setUserName(n);
+      setCourseId(c);
+      setScreen('dashboard');
+    }
+  },[]);
+
+  const done = (id) => setProgress(p=>({...p,[id]:true}));
+
+  if(screen==='preQuiz')
+    return <PreQuizScreen onStart={()=>setScreen('quizTransition')}/>;
+
+  if(screen==='quizTransition')
+    return <QuizTransition onDone={()=>setScreen('quiz')}/>;
+
+  if(screen==='quiz')
+    return <QuizScreen onDone={(r)=>{
+      setQuizResult(r);
+      setCourseId(r);
+      setScreen('quizLoading');
+    }}/>;
+
+  if(screen==='quizLoading')
+    return <QuizLoading onDone={()=>setScreen('quizResult')}/>;
+
+  if(screen==='quizResult')
+    return <QuizResultScreen result={quizResult} onContinue={()=>setScreen('register')}/>;
+
+  if(screen==='register')
+    return <RegisterScreen courseId={courseId} onDone={(n,e)=>{
+      setUserName(n);
+      localStorage.setItem('rni-name', n);
+      localStorage.setItem('rni-email', e);
+      localStorage.setItem('rni-course', courseId);
+      setScreen('welcome');
+    }}/>;
+
+  if(screen==='welcome')
+    return <WelcomeScreen userName={userName} courseId={courseId} onStart={()=>setScreen('dashboard')}/>;
+
+  if(screen==='cert')
+    return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')}/>;
+
+  if(screen==='lesson' && lesson)
+    return <LessonView lesson={lesson} progress={progress} courseId={courseId}
+      onComplete={done} onBack={()=>{ setLesson(null); setScreen('dashboard'); }}/>;
+
+  return <Dashboard userName={userName} courseId={courseId} progress={progress}
+    onLesson={l=>{ setLesson(l); setScreen('lesson'); }}
+    onCert={()=>setScreen('cert')}/>;
+}
+
+// ── MOUNT ─────────────────────────────────────────────────────────────────────
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>

@@ -68,14 +68,35 @@ body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:#fdfbf7;color:
 const {useState,useEffect,useRef,useCallback,useMemo}=React;
 
 /* ─── LOGO ─────────────────────────────────────────────────────── */
+const LOGO_URL='https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/0644dc7-fbcf-467e-636f-42e05621a3fc_Ti_ng_N_i_T_T_m.png';
+// Dùng ảnh logo thật từ file upload — base64 inline để luôn hiển thị
+const LOGO_SRC='/LOGO_RNI-_ÂM_BẢN.png';
 function LogoSVG({size=40}){
   return(
-    <div style={{width:size,height:size,background:'#9b1106',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-      <svg width={size*.7} height={size*.7} viewBox="0 0 40 40" fill="none">
-        <circle cx="20" cy="15" r="5" fill="white" opacity=".9"/>
-        {[...Array(8)].map((_,i)=>{const a=(i/8)*Math.PI*2,r=12,x=20+Math.cos(a)*r,y=15+Math.sin(a)*r;return <g key={i}><line x1={20+Math.cos(a)*6} y1={15+Math.sin(a)*6} x2={x} y2={y} stroke="white" strokeWidth="1" opacity=".6"/><circle cx={x} cy={y} r="1.5" fill="white" opacity=".5"/></g>})}
-        <text x="20" y="34" textAnchor="middle" fill="white" fontSize="8" fontFamily="Montserrat,sans-serif" fontWeight="800" opacity=".95">RNI</text>
-      </svg>
+    <img
+      src="https://i.imgur.com/placeholder.png"
+      onError={e=>{e.target.onerror=null;e.target.style.display='none';e.target.nextSibling.style.display='flex';}}
+      alt="RNI"
+      style={{width:size,height:size,borderRadius:10,objectFit:'cover',flexShrink:0,display:'block'}}
+    />
+  );
+}
+// Logo component dùng ảnh thật — đường dẫn tương đối hoặc base64
+function Logo({size=48,className=''}){
+  return(
+    <div style={{width:size,height:size,flexShrink:0}} className={className}>
+      <img
+        src="LOGO_RNI-_ÂM_BẢN.png"
+        alt="Học viện RNI"
+        style={{width:'100%',height:'100%',objectFit:'contain',borderRadius:10}}
+        onError={e=>{
+          e.target.style.display='none';
+          const fb=document.createElement('div');
+          fb.style.cssText=`width:${size}px;height:${size}px;background:#9b1106;border-radius:10px;display:flex;align-items:center;justify-content:center;`;
+          fb.innerHTML='<span style="color:white;font-family:Montserrat,sans-serif;font-weight:800;font-size:'+Math.round(size*.22)+'px">RNI</span>';
+          e.target.parentNode.appendChild(fb);
+        }}
+      />
     </div>
   );
 }
@@ -98,26 +119,35 @@ const QUIZ_QUESTIONS=[
 
 const QUIZ_RESULTS={
   R:{stage:"Trở Về",subtitle:"Return — Tìm lại chính mình",icon:"🌱",accent:"#78533a",gradFrom:"#fef3e8",gradTo:"#fdfbf7",border:"#e8d5c0",
-    rubyVideoId:null,// placeholder — bạn điền video ID cô Ruby chia sẻ cho giai đoạn R
-    opening:`Có một điều bạn có thể cảm nhận được —\nrằng bên ngoài và bên trong đang không nói cùng một ngôn ngữ.\n\nBạn vẫn tiếp tục mỗi ngày.\nNhưng có lúc, bạn tự hỏi:\n"Mình đang sống — hay chỉ đang tồn tại?"\n\nĐây không phải điểm yếu.\nĐây là dấu hiệu rằng bên trong bạn đang thật sự thức dậy —\nđang khao khát điều gì đó sâu hơn, thật hơn.`,
-    bridge:`Điều bạn cần lúc này không phải thêm thông tin hay kế hoạch mới.\n\nĐiều bạn cần — là được thấy rõ chính mình.\nVà tìm lại sợi chỉ đã kết nối bạn với con người thật của mình từ bên trong.`,
-    course:"Kết Nối Với Chính Mình & Nguồn Sáng Bên Trong",courseTag:"Giai đoạn R — Miễn phí",
+    rubyVideoId:"XuBpnS93Ks0",
+    stageLabel:"Return",
+    opening:`Bạn thương mến,\n\nCó một thực tại lặng lẽ mà có lẽ bạn đang cảm nhận rất rõ: bên ngoài và bên trong bạn dường như không còn nói cùng một ngôn ngữ.\n\nBạn vẫn bước đi mỗi ngày, vẫn hoàn thành mọi vai trò một cách "tạm ổn". Nhưng trong những khoảng lặng hiếm hoi, một câu hỏi bỗng hiện lên nhức nhối: "Mình đang thực sự sống, hay chỉ đang loay hoay để tồn tại cho đúng kịch bản của cuộc đời?".\n\nXin hãy hiểu rằng, cảm giác trống trải hay hoang mang ấy không phải là một "lỗi sai", cũng không phải là sự yếu đuối. Đó chính là khoảnh khắc "bừng tỉnh". Là tiếng gọi từ bản thể chân thực đang thúc giục bạn tìm về một hiện thực sâu sắc và chân thật hơn những gì đang hiển lộ.\n\nLúc này, điều bạn cần không phải là chất thêm vào ba lô những thông tin hay những kế hoạch vĩ đại mới. Thứ bạn thực sự cần là dũng khí để thực hiện một "Phép Trừ" cho tâm hồn.\n\nĐể được dừng lại và thôi chạy trốn khỏi chính mình.\nĐể được thấy rõ những giá trị cốt lõi đang bị che lấp bởi kỳ vọng của số đông.\nĐể thực hiện cuộc thiên di lớn nhất đời người: trở về đánh thức viên ngọc quý vốn đã luôn ở đó, sẵn sàng để tỏa rạng từ bên trong bạn.\n\n"Cuộc đời thật đẹp không phải khi nó hoàn hảo, mà khi dù không hoàn hảo, ta vẫn có thể bình thản đón nhận và sống đúng với bản thể chân thật của mình."\n\nKhi bạn chọn bước đi để tìm lại sợi dây kết nối ấy, con đường mới sẽ tự khắc mở ra dưới chân bạn.`,
+    courseHeader:"KẾT NỐI VỚI CHÍNH MÌNH & NGUỒN SÁNG BÊN TRONG",
+    courseSubtag:"Khóa học miễn phí · Giai đoạn Return · Học viện RNI",
+    courseIntro:"",
+    course:"Kết Nối Với Chính Mình & Nguồn Sáng Bên Trong",courseTag:"Giai đoạn Return — Miễn phí",
     benefits:["Nhận ra 4 rào cản vô hình đang ngăn bạn sống cuộc đời mình thật sự muốn","Kết nối lại với tiếng gọi bên trong — thứ mà bạn đã lâu không nghe thấy","Xây dựng 'la bàn nội tâm' — để tự dẫn đường trong mọi hoàn cảnh","Dám chọn lại chính mình — từ bên trong ra"],
-    quote:`"Điều quan trọng không phải làm gì thêm,\nmà là thấy rõ hơn."`},
+    quote:`"Khi bạn thấy rõ chính mình,\ncon đường tự khắc hiện ra dưới chân bạn\nmà không cần một nỗ lực tìm kiếm nào từ bên ngoài."`},
   N:{stage:"Vun Bồi",subtitle:"Nurture — Mài sáng từ bên trong",icon:"🔆",accent:"#1a7a6e",gradFrom:"#e8f5f3",gradTo:"#fdfbf7",border:"#b2ddd8",
-    rubyVideoId:null,// placeholder — video cô Ruby cho N
-    opening:`Bạn đã thấy.\nBạn đã bắt đầu.\n\nCó những khoảnh khắc bạn cảm nhận được sự bình an thật sự —\nvà bạn biết đó là hướng mình muốn đi.\n\nNhưng cuộc sống hằng ngày đôi khi kéo bạn ra khỏi đó.\nVà một mình — đôi khi thật khó để không bỏ cuộc giữa đường.`,
-    bridge:`Điều bạn cần lúc này không phải thêm kiến thức.\nBạn đã có đủ để hiểu.\n\nĐiều bạn cần — là một môi trường để thực hành.\nMột nơi sự tỉnh thức không phải nỗ lực đơn độc,\nmà được nuôi dưỡng mỗi ngày.`,
-    course:"4 Trạm Soi Sáng Trên Hành Trình Đánh Thức Viên Ngọc Bên Trong",courseTag:"Giai đoạn N — Miễn phí",
-    benefits:["Khám phá ngọn hải đăng bên trong — luôn ở đó, dù bạn có nhìn thấy hay không","Đi qua 4 Trạm Soi Sáng: Định · Tĩnh · Đủ · Hiển","Xây dựng thói quen tỉnh thức bền vững — không phụ thuộc vào cảm hứng","Thiết kế chặng tiếp theo bằng chính ngọn sáng của mình"],
-    quote:`"Khi ta trở về bên trong,\nmọi thứ trở nên sáng."`},
+    rubyVideoId:"9iTza3U6KZk",
+    stageLabel:"Nurture",
+    opening:`Bạn thương mến,\n\nChúc mừng bạn vì đã chọn "thức dậy". Việc nhận diện được chính mình giữa dòng đời hối hả là một món quà lớn lao mà không phải ai cũng đủ duyên để chạm tới. Bạn đã có những khoảnh khắc tỉnh thức thật đẹp, nơi tâm hồn được thực sự tự do và hiện diện.\n\nTuy nhiên, việc giữ vững ánh sáng ấy trước những "cơn gió" của đời thường là một thử thách không nhỏ.\n\nGiai đoạn này, điều bạn cần không phải là thêm lý thuyết, mà là những công cụ thực tế để:\n\n• Tự quan sát: Nhìn thấu những biến động bên trong mà không phán xét.\n• Làm chủ cảm xúc: Để mỗi cơn sóng đi qua là một bài học.\n• Duy trì cam kết: Tạo "đà" để sự chuyển hóa trở thành một dòng chảy tự nhiên và bền bỉ.\n\nKhi bạn làm chủ được thế giới bên trong, hành trình trở về sẽ không còn là một nỗ lực mệt mỏi, mà là sự tự do tự tại. Hãy cùng trang bị chiếc la bàn nội tâm để bạn vững vàng làm chủ cuộc đời mình, bạn nhé.\n\nChào mừng bạn đến với hành trình này — nơi chúng ta cùng vun bồi và tỏa sáng.`,
+    courseHeader:"4 TRẠM SOI SÁNG TRÊN HÀNH TRÌNH ĐÁNH THỨC VIÊN NGỌC BÊN TRONG",
+    courseSubtag:"Khóa học miễn phí · Giai đoạn Nurture · Học viện RNI",
+    courseIntro:"Đây là không gian được tạo ra dành riêng cho những người đang trên hành trình chuyển hoá — như bạn. Không phải để học thêm lý thuyết, mà để sống sâu hơn với những gì bạn đã biết.",
+    course:"4 Trạm Soi Sáng Trên Hành Trình Đánh Thức Viên Ngọc Bên Trong",courseTag:"Giai đoạn Nurture — Miễn phí",
+    benefits:["Khám phá ngọn hải đăng bên trong — thứ luôn ở đó, dù bạn có nhìn thấy hay không","Đi qua 4 Trạm Soi Sáng: Định · Tĩnh · Đủ · Hiển","Xây dựng thói quen tỉnh thức bền vững, không phụ thuộc vào cảm hứng nhất thời","Thiết kế chặng tiếp theo của cuộc đời bằng chính ngọn hải đăng của chính mình"],
+    quote:`"Viên ngọc trong bạn vốn đã luôn tỏa sáng.\nNhững gì chúng ta làm không phải là tạo ra ánh sáng đó,\nmà là lau đi những lớp bụi mờ của sự kỳ vọng và nỗi sợ\nđể ánh sáng ấy được hiển lộ."`},
   I:{stage:"Lan Toả",subtitle:"Illuminate — Trao đi ánh sáng",icon:"✨",accent:"#9b1106",gradFrom:"#fef2f2",gradTo:"#fdfbf7",border:"#fecaca",
-    rubyVideoId:null,// placeholder — video cô Ruby cho I
-    opening:`Bạn đã đi qua những giai đoạn không dễ dàng.\nVà bạn đã chọn ở lại — với chính mình.\n\nGiờ đây, có điều gì đó bên trong bạn không còn chỉ muốn sống tốt cho riêng mình.\nBạn muốn trao đi.\nBạn muốn trở thành người mà sự hiện diện của họ — làm cuộc sống người khác sáng hơn.`,
-    bridge:`Điều bạn cần — là một hệ thống chuẩn\nđể đóng gói những gì bạn đã sống, đã thấy, đã chuyển hóa\nthành giá trị có thể chạm đến ngàn người khác.`,
-    course:"Xây Dựng Sự Nghiệp Ý Nghĩa Mang Tên Bạn",courseTag:"Giai đoạn I — Miễn phí",
-    benefits:["Nhận ra vì sao sự thịnh vượng bên ngoài đôi khi đi kèm cạn kiệt bên trong","Hiểu bản chất thật của Khai Vấn Tỉnh Thức — theo chuẩn quốc tế","Xây dựng sự nghiệp dựa trên giá trị cốt lõi — bền vững và có tác động thật","Trở thành người đồng hành và kiến tạo cộng đồng"],
-    quote:`"An vững là bình an và vững chãi cùng lúc."`}
+    rubyVideoId:"XETvW5VPFjs",
+    stageLabel:"Illuminate",
+    opening:`Bạn thương mến,\n\nTôi biết bạn là người có thực lực và tâm huyết. Những năm tháng qua, bạn đã miệt mài tích lũy kiến thức và xây dựng một nền tảng chuyên môn vững chãi. Nhưng có lẽ, vẫn có một câu hỏi thường trực trong lòng bạn: "Làm sao để những gì mình biết thực sự chạm đến tâm hồn và tạo ra sự chuyển hóa sâu sắc cho những người tìm đến mình?"\n\nTrong một kỷ nguyên mà kiến thức và thông tin có thể được tìm thấy ở bất cứ đâu nhờ công nghệ và AI, thì năng lực tạo ra Sự Chuyển Hóa thực sự chính là ưu thế cạnh tranh duy nhất không thể thay thế. Đó chính là ranh giới giữa một người chỉ đơn thuần cung cấp thông tin và một người thực sự làm thay đổi cuộc đời.\n\nGiai đoạn này, điều bạn cần không phải là nạp thêm kiến thức mới, mà là một hệ thống công cụ và phương pháp chuẩn mực để "đóng gói" toàn bộ giá trị bản thân thành những kết quả có thật cho khách hàng. Khi bạn sở hữu chiếc chìa khóa để khơi dậy sức mạnh nội tại của người khác, sự nghiệp của bạn sẽ không còn là một cuộc đua tranh đầy áp lực, mà trở thành một hành trình phụng sự đầy tự do và ý nghĩa.\n\n"Bạn không cần trở thành người khác. Bạn chỉ cần đưa những gì mình vốn có vào một cấu trúc đúng đắn, để ánh sáng của bạn được tỏa rạng xa hơn."\n\nBạn đã sẵn sàng để biến những giá trị mình đang có thành một di sản thực sự chưa?`,
+    courseHeader:"XÂY DỰNG SỰ NGHIỆP Ý NGHĨA MANG TÊN BẠN",
+    courseSubtag:"Khóa học miễn phí · Giai đoạn Illuminate · Học viện RNI",
+    courseIntro:"Đây là không gian giáo dục được tâm huyết xây dựng dành riêng cho những tâm hồn như bạn — những người đã đủ đầy bên trong và đang khao khát trở thành cầu nối giúp kết nối và chuyển hóa cho đời.",
+    course:"Xây Dựng Sự Nghiệp Ý Nghĩa Mang Tên Bạn",courseTag:"Giai đoạn Illuminate — Miễn phí",
+    benefits:["Hiểu vì sao sự thịnh vượng bên ngoài có thể đi kèm với cạn kiệt bên trong — và cách thoát khỏi vòng lặp đó","Nắm vững bản chất thật sự của Khai Vấn Tỉnh Thức theo chuẩn quốc tế","Xây dựng sự nghiệp mang tên bạn — dựa trên giá trị cốt lõi và hệ thống bền vững","Đồng hành và kiến tạo cộng đồng với những người cùng sứ mệnh"],
+    quote:`"Khi bạn thực sự chuyển hóa từ gốc,\nsự hiện diện của bạn chính là món quà giá trị nhất\nbạn có thể trao tặng cho cuộc đời." — Ruby Nguyen`}
 };
 
 /* ─── UPSELL PRODUCTS ───────────────────────────────────────────── */
@@ -454,36 +484,39 @@ function PreQuizScreen({onStart}){
         <circle cx="100" cy="100" r="5" fill="#f59e0b"/>
         {[...Array(16)].map((_,i)=>{const a=(i/16)*Math.PI*2,r=46,x=100+Math.cos(a)*r,y=100+Math.sin(a)*r;return<g key={i}><line x1="100" y1="100" x2={x} y2={y} stroke="#f59e0b" strokeWidth=".5" opacity=".4"/><circle cx={x} cy={y} r="2" fill="none" stroke="#f59e0b" strokeWidth=".5" opacity=".5"/></g>;})}
       </svg>
-      <div className="max-w-md w-full text-center relative z-10 slide-up">
-        <div className="float mb-8 flex justify-center"><LogoSVG size={56}/></div>
-        <div className="inline-flex items-center gap-2 bg-white border border-rni-100 rounded-full px-4 py-1.5 text-xs font-semibold text-rni-700 shadow-sm mb-6">
-          <span>✦</span><span>12 câu hỏi · 5 phút · kết quả cá nhân hoá</span>
+      <div className="w-full max-w-2xl text-center relative z-10 slide-up px-4">
+        <div className="float mb-8 flex justify-center">
+          <Logo size={60}/>
         </div>
-        <h1 className="font-heading text-4xl sm:text-5xl font-black text-gray-900 mb-5 leading-tight">
-          Bạn đang ở đâu trên<br/>
-          <span className="rni-text">hành trình của mình?</span>
+        <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-black text-gray-900 mb-6 leading-tight">
+          Bạn đang ở đâu trên hành trình của mình?
         </h1>
-        <div className="text-gray-500 text-base leading-loose mb-8 space-y-1">
-          <p>Không cần chuẩn bị gì. Không có câu trả lời đúng hay sai.</p>
-          <p className="mt-2">Chỉ cần một chút thành thật với chính mình —<br/>và để những câu hỏi này chạm tới nơi bạn thật sự đang đứng.</p>
-          <p className="text-sm text-gray-400 mt-2">Kết quả sẽ cho bạn thấy hành trình nào đang chờ bạn ở RNI.</p>
+        <div className="text-gray-600 text-base sm:text-lg leading-relaxed mb-5 space-y-3 max-w-xl mx-auto">
+          <p>Không có câu trả lời đúng hay sai. Chỉ cần một chút thành thật với chính mình —</p>
+          <p>Sau đây là những bài trắc nghiệm ngắn để giúp bạn xác định một cách sáng rõ. Khi bạn biết mình đang ở đâu, bạn sẽ biết mình cần điều gì tiếp theo.</p>
         </div>
-        <button onClick={onStart} className="pulse-glow inline-flex items-center gap-3 text-white font-semibold text-base px-10 py-4 rounded-2xl shadow-lg transition-all active:scale-95 mb-8" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
-          Bắt đầu <span className="text-xl">→</span>
+        <button onClick={onStart} className="pulse-glow inline-flex items-center gap-3 text-white font-semibold text-base px-12 py-4 rounded-2xl shadow-lg transition-all active:scale-95 mb-8" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+          Bắt đầu →
         </button>
-        <p className="text-xs text-gray-400 italic leading-relaxed">
-          "Hiểu mình là món quà lớn nhất ta dành cho thế giới này."<br/>
-          <span className="font-semibold not-italic">— Ruby Nguyễn</span>
-        </p>
+        <div className="border-t border-gray-200 pt-6 max-w-xl mx-auto">
+          <p className="text-gray-500 text-sm leading-relaxed mb-2">Và hãy nhớ rằng dù bạn đang ở chặng nào, có một sự thật không đổi đó là bên trong bạn luôn có một viên ngọc quý và</p>
+          <p className="font-display text-base text-gray-700 italic leading-relaxed">
+            "Thế giới này cần bạn và những giá trị chỉ bạn mới có thể tạo ra."
+          </p>
+          <p className="text-sm text-gray-500 font-medium mt-1">— Ruby Nguyen</p>
+        </div>
       </div>
     </div>
   );
 }
 
-function QuizTransition({onDone}){
+function QuizTransition({onDone,onBack}){
   useEffect(()=>{const t=setTimeout(onDone,2500);return()=>clearTimeout(t);},[]);
   return(
-    <div className="min-h-screen hero-bg flex items-center justify-center px-6">
+    <div className="min-h-screen hero-bg flex items-center justify-center px-6 relative">
+      <button onClick={onBack} className="absolute top-4 left-4 flex items-center gap-1 text-gray-400 hover:text-gray-700 text-sm font-medium transition-colors">
+        ← Quay lại
+      </button>
       <div className="max-w-sm text-center fade-in">
         <div className="text-5xl mb-6 float">🌿</div>
         <div className="text-gray-600 text-base leading-loose">
@@ -497,7 +530,7 @@ function QuizTransition({onDone}){
   );
 }
 
-function QuizScreen({onDone}){
+function QuizScreen({onDone,onBack}){
   const [idx,setIdx]=useState(0);
   const [answers,setAnswers]=useState([]);
   const [sel,setSel]=useState(null);
@@ -516,7 +549,12 @@ function QuizScreen({onDone}){
       if(idx<QUIZ_QUESTIONS.length-1){setIdx(idx+1);}
       else{
         const c={0:0,1:0,2:0};na.forEach(a=>c[a]++);
-        let r='R';if(c[2]>=c[1]&&c[2]>=c[0])r='I';else if(c[1]>=c[0]&&c[1]>=c[2])r='N';
+        // Tie-break logic: nếu bằng nhau hoàn toàn → R; ưu tiên C>B>A
+        let r='R';
+        if(c[2]>c[1]&&c[2]>c[0])r='I';
+        else if(c[1]>c[0]&&c[1]>=c[2])r='N';
+        else if(c[2]===c[1]&&c[2]>c[0])r='I';
+        // mọi trường hợp tie còn lại về R
         onDone(r);
       }
     },320);
@@ -526,9 +564,12 @@ function QuizScreen({onDone}){
     <div className="min-h-screen flex flex-col hero-bg">
       <div className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-20">
         <div className="max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-semibold text-rni-500">{partLabels[q.part]}</p>
-            <span className="text-xs text-gray-400 font-medium">{idx+1}/{QUIZ_QUESTIONS.length}</span>
+          <div className="flex items-center gap-3 mb-2">
+            <button onClick={onBack} className="text-gray-400 hover:text-gray-700 text-sm font-medium transition-colors flex-shrink-0">← Quay lại</button>
+            <div className="flex-1 flex items-center justify-between">
+              <p className="text-xs font-semibold text-rni-500 truncate">{partLabels[q.part]}</p>
+              <span className="text-xs text-gray-400 font-medium flex-shrink-0 ml-2">{idx+1}/{QUIZ_QUESTIONS.length}</span>
+            </div>
           </div>
           <PBar val={idx+1} max={QUIZ_QUESTIONS.length}/>
         </div>
@@ -572,71 +613,94 @@ function QuizLoading({onDone}){
 }
 
 /* ─── QUIZ RESULT ─────────────────────────────────────────────── */
-function QuizResultScreen({result,onContinue}){
+function QuizResultScreen({result,onContinue,onBack}){
   const r=QUIZ_RESULTS[result];
-  // pick upsell for after ruby video
+  const [showDetail,setShowDetail]=useState(false);
   const upsellItems=UPSELL.filter(u=>u.courses.includes(result)).slice(0,2);
 
+  // Step 1: show Ruby video. Step 2: show full detail
+  if(!showDetail){
+    return(
+      <div className="min-h-screen py-10 px-4" style={{background:`linear-gradient(150deg,${r.gradFrom} 0%,${r.gradTo} 100%)`}}>
+        <div className="max-w-lg mx-auto slide-up">
+          <button onClick={onBack} className="flex items-center gap-1 text-gray-400 hover:text-gray-700 text-sm font-medium transition-colors mb-6">
+            ← Làm lại
+          </button>
+          {/* stage badge */}
+          <div className="text-center mb-5">
+            <div className="text-4xl mb-3">{r.icon}</div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Bạn đang ở giai đoạn</p>
+            <h1 className="font-heading text-4xl font-black mb-0.5" style={{color:r.accent}}>{r.stage}</h1>
+            <p className="text-gray-500 text-sm italic">{r.subtitle}</p>
+          </div>
+
+          {/* Ruby video */}
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 mb-5">
+            <div className="px-5 pt-5 pb-3">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Lời nhắn từ Ruby Nguyễn</p>
+              <p className="text-sm font-semibold text-gray-800">Cô Ruby chia sẻ dành riêng cho bạn ở giai đoạn {r.stageLabel}</p>
+            </div>
+            <div className="px-5 pb-5">
+              <div className="video-outer">
+                <iframe src={`https://www.youtube.com/embed/${r.rubyVideoId}?rel=0&modestbranding=1`} title="Ruby chia sẻ" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen/>
+              </div>
+            </div>
+          </div>
+
+          {/* upsell after video */}
+          {upsellItems.length>0&&(
+            <div className="mb-5 space-y-3">
+              <p className="text-xs text-gray-400 text-center">Có thể bạn cũng quan tâm</p>
+              {upsellItems.map(u=><UpsellCard key={u.id} product={u}/>)}
+            </div>
+          )}
+
+          <button onClick={()=>setShowDetail(true)} className="w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg transition-all active:scale-95 pulse-glow" style={{background:`linear-gradient(135deg,${r.accent},#c41a0a)`}}>
+            Đến khoá học của tôi →
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 2: full detail
   return(
     <div className="min-h-screen py-10 px-4" style={{background:`linear-gradient(150deg,${r.gradFrom} 0%,${r.gradTo} 100%)`}}>
       <div className="max-w-lg mx-auto slide-up">
-        {/* badge */}
-        <div className="text-center mb-6">
+        <button onClick={()=>setShowDetail(false)} className="flex items-center gap-1 text-gray-400 hover:text-gray-700 text-sm font-medium transition-colors mb-6">
+          ← Quay lại
+        </button>
+        {/* stage header */}
+        <div className="text-center mb-5">
           <span className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-xs font-semibold text-gray-500 shadow-sm">✦ Hành trình của bạn</span>
         </div>
-        {/* result card */}
+        {/* opening text */}
         <div className="bg-white rounded-3xl shadow-lg overflow-hidden mb-5" style={{border:`2px solid ${r.border}`}}>
-          <div className="px-7 py-7 text-center" style={{background:`linear-gradient(135deg,${r.gradFrom} 0%,white 100%)`}}>
-            <div className="text-5xl mb-3">{r.icon}</div>
+          <div className="px-7 py-6 text-center" style={{background:`linear-gradient(135deg,${r.gradFrom} 0%,white 100%)`}}>
+            <div className="text-4xl mb-2">{r.icon}</div>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Bạn đang ở giai đoạn</p>
-            <h1 className="font-heading text-4xl font-black mb-1" style={{color:r.accent}}>{r.stage}</h1>
+            <h1 className="font-heading text-3xl font-black mb-0.5" style={{color:r.accent}}>{r.stage}</h1>
             <p className="text-gray-500 text-sm italic">{r.subtitle}</p>
           </div>
           <div className="px-7 py-5 border-t border-gray-100">
             {r.opening.split('\n').map((line,i)=>(
               <p key={i} className={`text-gray-700 text-sm leading-relaxed ${line===''?'mt-3':''}`}>
-                {line.startsWith('"')?<em className="text-gray-500">{line}</em>:line}
+                {line.startsWith('"')?<em className="text-gray-500 font-display text-base">{line}</em>:line}
               </p>
             ))}
           </div>
         </div>
 
-        {/* Ruby video */}
-        {r.rubyVideoId?(
-          <div className="mb-5">
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
-              <div className="px-5 pt-5 pb-2">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Lời nhắn từ Ruby Nguyễn</p>
-                <p className="text-sm font-semibold text-gray-800">Cô Ruby chia sẻ dành riêng cho bạn</p>
-              </div>
-              <div className="px-5 pb-5">
-                <div className="video-outer"><iframe src={`https://www.youtube.com/embed/${r.rubyVideoId}?rel=0&modestbranding=1`} title="Ruby chia sẻ" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen/></div>
-              </div>
-            </div>
-            {/* upsell after video */}
-            {upsellItems.length>0&&(
-              <div className="mt-4 space-y-3">
-                <p className="text-xs text-gray-400 text-center">Có thể bạn cũng quan tâm</p>
-                {upsellItems.map(u=><UpsellCard key={u.id} product={u}/>)}
-              </div>
-            )}
-          </div>
-        ):(
-          <div className="bg-rni-50 border border-rni-100 rounded-2xl px-5 py-4 mb-5">
-            {r.bridge.split('\n').map((line,i)=>(
-              <p key={i} className={`text-sm leading-relaxed ${line===''?'mt-2':''}`} style={{color:r.accent,fontWeight:line.includes('thấy rõ')||line.includes('môi trường')||line.includes('hệ thống')?'600':'400',opacity:line.includes('thấy rõ')||line.includes('môi trường')||line.includes('hệ thống')?1:.85}}>{line}</p>
-            ))}
-          </div>
-        )}
-
         {/* course card */}
         <div className="bg-white rounded-3xl shadow-lg overflow-hidden mb-5" style={{border:`2px solid ${r.border}`}}>
           <div className="px-7 py-5 border-b border-gray-100">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">✦ Hành trình dành cho bạn</p>
-            <h2 className="font-heading text-xl font-black text-gray-900 leading-snug mb-2">{r.course}</h2>
-            <span className="text-xs px-3 py-1 rounded-full font-semibold" style={{background:`${r.accent}15`,color:r.accent}}>{r.courseTag}</span>
+            <h2 className="font-heading text-lg font-black text-gray-900 leading-snug mb-1">{r.courseHeader}</h2>
+            <span className="text-xs px-3 py-1 rounded-full font-semibold" style={{background:`${r.accent}15`,color:r.accent}}>{r.courseSubtag}</span>
+            {r.courseIntro&&<p className="text-gray-500 text-sm italic leading-relaxed mt-3">{r.courseIntro}</p>}
           </div>
           <div className="px-7 py-5">
+            <p className="text-xs font-semibold text-gray-500 mb-3">Bạn sẽ được đồng hành để:</p>
             <ul className="space-y-3">
               {r.benefits.map((b,i)=>(
                 <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
@@ -648,14 +712,13 @@ function QuizResultScreen({result,onContinue}){
           </div>
           <div className="px-7 pb-7">
             <button onClick={onContinue} className="w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg transition-all active:scale-95 pulse-glow" style={{background:`linear-gradient(135deg,${r.accent},#c41a0a)`}}>
-              Đăng ký để bắt đầu ngay →
+              Bắt đầu khoá học miễn phí →
             </button>
           </div>
         </div>
 
         <div className="text-center pb-8">
-          {r.quote.split('\n').map((l,i)=><p key={i} className="text-gray-400 text-sm italic">{l}</p>)}
-          <p className="text-gray-500 text-xs font-medium mt-1">— Ruby Nguyễn</p>
+          {r.quote.split('\n').map((l,i)=><p key={i} className="text-gray-400 text-sm italic leading-relaxed">{l}</p>)}
         </div>
         <div className="text-center border-t border-gray-100 pt-5 pb-4">
           <p className="text-xs text-gray-400"><span className="font-semibold text-rni-600">Học viện RNI</span> · Return · Nurture · Illuminate</p>
@@ -667,7 +730,7 @@ function QuizResultScreen({result,onContinue}){
 }
 
 /* ─── REGISTER ────────────────────────────────────────────────── */
-function RegisterScreen({courseId,onDone}){
+function RegisterScreen({courseId,onDone,onBack}){
   const [name,setName]=useState('');
   const [email,setEmail]=useState('');
   const [err,setErr]=useState('');
@@ -683,38 +746,42 @@ function RegisterScreen({courseId,onDone}){
   return(
     <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full slide-up">
+        <button onClick={onBack} className="flex items-center gap-1 text-gray-400 hover:text-gray-700 text-sm font-medium transition-colors mb-6">
+          ← Quay lại
+        </button>
         <div className="text-center mb-7">
-          <div className="float inline-block mb-3"><LogoSVG size={50}/></div>
+          <div className="flex justify-center mb-3"><Logo size={54}/></div>
           <p className="text-gray-400 text-xs">Học viện RNI · Return · Nurture · Illuminate</p>
+          <p className="text-gray-500 text-xs mt-0.5">Khoá học miễn phí từ Học viện RNI · Đăng ký để bắt đầu</p>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-5" style={{border:`2px solid ${r?.border||'#fecaca'}`}}>
-          <div className="px-6 py-4 flex items-center gap-4" style={{background:`linear-gradient(135deg,${r?.gradFrom||'#fef2f2'},white)`}}>
-            <span className="text-3xl">{course?.icon}</span>
-            <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Khoá học của bạn</p>
-              <p className="font-heading font-black text-sm text-gray-900 leading-snug">{course?.title}</p>
-              <p className="text-xs mt-0.5" style={{color:r?.accent}}>{course?.subtitle}</p>
-            </div>
-          </div>
+
+        {/* social links */}
+        <div className="flex items-center justify-center gap-5 mb-6 text-xs text-gray-500">
+          <a href="https://www.facebook.com/groups/767075350423065" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-rni-600 transition-colors">Facebook</a>
+          <a href="https://www.youtube.com/@RubyNguyen.RNI" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-rni-600 transition-colors">YouTube</a>
+          <a href="https://rni.institute" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-rni-600 transition-colors">rni.institute</a>
         </div>
+
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="font-heading font-black text-xl text-gray-900 mb-1">Đăng ký tham gia</h2>
-          <p className="text-gray-400 text-sm mb-5">Chỉ cần thêm một bước nhỏ — để hành trình chính thức bắt đầu.</p>
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Họ và tên *</label>
-              <input type="text" value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&submit()} placeholder="Tên bạn là gì?" className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Họ và tên</label>
+              <input type="text" value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&submit()} placeholder="Nguyễn Văn A" className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
+              <p className="text-amber-600 text-xs mt-1.5 leading-relaxed">
+                ⚠ Họ tên chính xác bạn đăng ký tại đây sẽ được thể hiện trên chứng chỉ khoá học khi bạn hoàn thành.
+              </p>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Email *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==='Enter'&&submit()} placeholder="email@example.com" className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
+              <p className="text-gray-400 text-xs mt-1.5">Để nhận chứng chỉ hoàn thành và các giá trị khác từ Học viện RNI.</p>
             </div>
           </div>
           {err&&<p className="text-rni-600 text-xs mt-3 font-medium">⚠ {err}</p>}
           <button onClick={submit} className="w-full mt-5 py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 hover:opacity-90" style={{background:`linear-gradient(135deg,${r?.accent||'#9b1106'},#c41a0a)`}}>
-            Bắt đầu hành trình của tôi →
+            Bắt đầu hành trình
           </button>
-          <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed">Thông tin của bạn được bảo mật tuyệt đối.</p>
+          <p className="text-center text-xs text-gray-400 mt-3">Hoàn toàn miễn phí</p>
         </div>
       </div>
     </div>
@@ -731,7 +798,7 @@ function WelcomeScreen({userName,courseId,onStart}){
   return(
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12" style={{background:`linear-gradient(150deg,${r?.gradFrom||'#fef2f2'},#fdfbf7)`}}>
       <div className="max-w-md w-full text-center bounce-in">
-        <div className="mb-5 float flex justify-center"><LogoSVG size={54}/></div>
+        <div className="mb-5 float flex justify-center"><Logo size={54}/></div>
         <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-xs font-semibold text-gray-500 shadow-sm mb-5">
           <span>{course?.icon}</span><span>Giai đoạn {courseId} — {r?.stage}</span>
         </div>
@@ -1099,7 +1166,7 @@ function Dashboard({userName,courseId,progress,onLesson,onCert}){
       <div className="bg-white border-b border-gray-100 px-4 py-4 sticky top-0 z-20">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <LogoSVG size={38}/>
+            <Logo size={38}/>
             <div>
               <p className="font-heading font-black text-sm text-gray-900 leading-tight line-clamp-1">{course?.title}</p>
               <p className="text-xs text-gray-400">{course?.subtitle}</p>
@@ -1383,12 +1450,12 @@ function App(){
   const reset=()=>{try{localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');localStorage.removeItem('rni-email');}catch{}setScreen('preQuiz');setUserName('');setCourseId(null);setProgress({});};
 
   if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('quizTransition')}/>;
-  if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')}/>;
-  if(screen==='quiz')return <QuizScreen onDone={r=>{setQuizResult(r);setCourseId(r);setScreen('quizLoading');}}/>;
+  if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('preQuiz')}/>;
+  if(screen==='quiz')return <QuizScreen onDone={r=>{setQuizResult(r);setCourseId(r);setScreen('quizLoading');}} onBack={()=>setScreen('quizTransition')}/>;
   if(screen==='quizLoading')return <QuizLoading onDone={()=>setScreen('quizResult')}/>;
-  if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={()=>setScreen('register')}/>;
-  if(screen==='register')return <RegisterScreen courseId={courseId} onDone={(n,e)=>{setUserName(n);try{localStorage.setItem('rni-name',n);localStorage.setItem('rni-email',e);localStorage.setItem('rni-course',courseId);}catch{}setScreen('welcome');}}/>;
-  if(screen==='welcome')return <WelcomeScreen userName={userName} courseId={courseId} onStart={()=>setScreen('dashboard')}/>;
+  if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={()=>setScreen('register')} onBack={()=>setScreen('quiz')}/>;
+  // Skip welcome — go straight to dashboard after register
+  if(screen==='register')return <RegisterScreen courseId={courseId} onBack={()=>setScreen('quizResult')} onDone={(n,e)=>{setUserName(n);try{localStorage.setItem('rni-name',n);localStorage.setItem('rni-email',e);localStorage.setItem('rni-course',courseId);}catch{}setScreen('dashboard');}}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}}/>;
   return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')}/>;

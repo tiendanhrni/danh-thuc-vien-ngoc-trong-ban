@@ -608,11 +608,10 @@ function QuizResultScreen({result,onContinue,onBack}){
           <button onClick={onBack} className="flex items-center gap-1 text-gray-400 hover:text-gray-700 text-sm font-medium transition-colors mb-6">
             ← Làm lại
           </button>
-          {/* stage badge */}
+          {/* stage badge — no icon, stage name in #9b1106 */}
           <div className="text-center mb-5">
-            <div className="text-4xl mb-3">{r.icon}</div>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Bạn đang ở giai đoạn</p>
-            <h1 className="font-heading text-4xl font-black mb-0.5" style={{color:r.accent}}>{r.stage}</h1>
+            <h1 className="font-heading text-4xl font-black mb-0.5" style={{color:'#9b1106'}}>{r.stage}</h1>
             <p className="text-gray-500 text-sm italic">{r.subtitle}</p>
           </div>
 
@@ -642,8 +641,10 @@ function QuizResultScreen({result,onContinue,onBack}){
   }
 
   // Step 2: full detail — wider block, bold quote, share at bottom, no footer tagline
-  const shareUrl = encodeURIComponent(window.location.href);
-  const shareText = encodeURIComponent(`Tôi vừa khám phá ra mình đang ở giai đoạn ${r.stage} trong hành trình phát triển bản thân tại Học viện RNI! Bạn thử xem mình đang ở đâu nhé 👇`);
+  const pageUrl = window.location.href;
+  const shareText = `Tôi vừa khám phá ra mình đang ở giai đoạn ${r.stage} trong hành trình phát triển bản thân tại Học viện RNI! Bạn thử xem mình đang ở đâu nhé`;
+  const shareUrlEnc = encodeURIComponent(pageUrl);
+  const shareTextEnc = encodeURIComponent(shareText);
 
   return(
     <div className="min-h-screen py-10 px-4" style={{background:`linear-gradient(150deg,${r.gradFrom} 0%,${r.gradTo} 100%)`}}>
@@ -658,9 +659,8 @@ function QuizResultScreen({result,onContinue,onBack}){
         {/* opening text — wider */}
         <div className="bg-white rounded-3xl shadow-lg overflow-hidden mb-5" style={{border:`2px solid ${r.border}`}}>
           <div className="px-8 py-7 text-center" style={{background:`linear-gradient(135deg,${r.gradFrom} 0%,white 100%)`}}>
-            <div className="text-4xl mb-2">{r.icon}</div>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">Bạn đang ở giai đoạn</p>
-            <h1 className="font-heading text-3xl font-black mb-0.5" style={{color:r.accent}}>{r.stage}</h1>
+            <h1 className="font-heading text-3xl font-black mb-0.5" style={{color:'#9b1106'}}>{r.stage}</h1>
             <p className="text-gray-500 text-sm italic">{r.subtitle}</p>
           </div>
           <div className="px-8 py-6 border-t border-gray-100">
@@ -713,17 +713,18 @@ function QuizResultScreen({result,onContinue,onBack}){
         <div className="text-center pb-8">
           <p className="text-xs text-gray-400 mb-3">Chia sẻ kết quả với bạn bè</p>
           <div className="flex items-center justify-center gap-3">
-            <a href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${shareText}`} target="_blank" rel="noopener noreferrer"
+            <a href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrlEnc}`} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs font-semibold transition-all hover:opacity-90 active:scale-95"
               style={{background:'#1877f2'}}>
               Facebook
             </a>
-            <a href={`https://zalo.me/share/url?url=${shareUrl}&title=${shareText}`} target="_blank" rel="noopener noreferrer"
+            <a href={`https://social-plugins.line.me/lineit/share?url=${shareUrlEnc}`} target="_blank" rel="noopener noreferrer"
+              onClick={e=>{e.preventDefault();const zaloUrl='zalo://sharing?href='+shareUrlEnc+'&text='+shareTextEnc;window.open('https://zalo.me/','_blank');}}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs font-semibold transition-all hover:opacity-90 active:scale-95"
               style={{background:'#0068ff'}}>
               Zalo
             </a>
-            <button onClick={()=>{try{navigator.clipboard.writeText(window.location.href);alert('Đã sao chép link!');}catch{}}}
+            <button onClick={()=>{try{navigator.clipboard.writeText(pageUrl).then(()=>alert('Đã sao chép link!'));}catch{alert('Link: '+pageUrl);}}}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-gray-600 text-xs font-semibold border-2 border-gray-200 transition-all hover:border-gray-300 active:scale-95">
               Sao chép link
             </button>
@@ -748,21 +749,19 @@ function RegisterScreen({courseId,onDone,onBack}){
     if(!email.trim()||!email.includes('@'))return setErr('Email chưa hợp lệ.');
     setErr('');setLoading(true);
     try{
-      // Gửi data đến Kajabi Forms — dùng no-cors để tránh CORS block
-      // Kajabi vẫn nhận được data dù response bị opaque
-      await fetch('https://www.rni.institute/forms/2149572661/submissions',{
+      // Dùng đúng action URL và field names từ Kajabi form HTML
+      await fetch('https://www.rni.institute/forms/2149572661/form_submissions',{
         method:'POST',
         mode:'no-cors',
         headers:{'Content-Type':'application/x-www-form-urlencoded'},
         body:new URLSearchParams({
-          'form[name]':name.trim(),
-          'form[email]':email.trim(),
-          'utf8':'✓'
+          'utf8':'✓',
+          'form_submission[name]':name.trim(),
+          'form_submission[email]':email.trim()
         }).toString()
       });
     }catch(e){
-      // Lỗi network — vẫn cho vào khoá học
-      console.warn('Form submit:',e);
+      console.warn('Kajabi form submit:',e);
     }finally{
       setLoading(false);
       onDone(name.trim(),email.trim());
@@ -1486,27 +1485,69 @@ function App(){
   const [progress,setProgress]=useState(()=>{try{return JSON.parse(localStorage.getItem('rni-progress')||'{}');}catch{return{};}});
 
   useEffect(()=>{try{localStorage.setItem('rni-progress',JSON.stringify(progress));}catch{}},[progress]);
+
+  // Khôi phục trạng thái khi quay lại trang
   useEffect(()=>{
     try{
       const n=localStorage.getItem('rni-name');
       const c=localStorage.getItem('rni-course');
-      if(n&&c){setUserName(n);setCourseId(c);setScreen('dashboard');}
+      const savedScreen=localStorage.getItem('rni-screen');
+      const savedResult=localStorage.getItem('rni-quiz-result');
+
+      if(n&&c){
+        // Đã đăng ký → vào dashboard
+        setUserName(n);setCourseId(c);
+        // Nếu đang ở bước cert thì giữ nguyên
+        if(savedScreen==='cert'){setScreen('cert');}
+        else{setScreen('dashboard');}
+      } else if(savedResult){
+        // Đã làm quiz xong nhưng chưa đăng ký → về quizResult
+        setQuizResult(savedResult);setCourseId(savedResult);
+        setScreen('quizResult');
+      }
+      // Còn lại → preQuiz (mặc định)
     }catch{}
   },[]);
 
+  // Lưu screen hiện tại (chỉ các bước quan trọng)
+  useEffect(()=>{
+    try{
+      if(['cert','dashboard'].includes(screen)){
+        localStorage.setItem('rni-screen',screen);
+      } else {
+        localStorage.removeItem('rni-screen');
+      }
+    }catch{}
+  },[screen]);
+
   const done=(id)=>setProgress(p=>({...p,[id]:true}));
-  const reset=()=>{try{localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');localStorage.removeItem('rni-email');}catch{}setScreen('preQuiz');setUserName('');setCourseId(null);setProgress({});};
+  const reset=()=>{
+    try{
+      localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');
+      localStorage.removeItem('rni-email');localStorage.removeItem('rni-screen');
+      localStorage.removeItem('rni-quiz-result');
+    }catch{}
+    setScreen('preQuiz');setUserName('');setCourseId(null);setQuizResult(null);setProgress({});
+  };
 
   if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('quizTransition')}/>;
   if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('preQuiz')}/>;
-  if(screen==='quiz')return <QuizScreen onDone={r=>{setQuizResult(r);setCourseId(r);setScreen('quizLoading');}} onBack={()=>setScreen('quizTransition')}/>;
+  if(screen==='quiz')return <QuizScreen onDone={r=>{
+    setQuizResult(r);setCourseId(r);
+    try{localStorage.setItem('rni-quiz-result',r);}catch{}
+    setScreen('quizLoading');
+  }} onBack={()=>setScreen('quizTransition')}/>;
   if(screen==='quizLoading')return <QuizLoading onDone={()=>setScreen('quizResult')}/>;
   if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={()=>setScreen('register')} onBack={()=>setScreen('quiz')}/>;
-  // Skip welcome — go straight to dashboard after register
   if(screen==='register')return <RegisterScreen courseId={courseId} onBack={()=>setScreen('quizResult')} onDone={(n,e)=>{
     const name=n||'Học viên';
     setUserName(name);
-    try{localStorage.setItem('rni-name',name);if(e)localStorage.setItem('rni-email',e);localStorage.setItem('rni-course',courseId);}catch{}
+    try{
+      localStorage.setItem('rni-name',name);
+      if(e)localStorage.setItem('rni-email',e);
+      localStorage.setItem('rni-course',courseId);
+      localStorage.removeItem('rni-quiz-result');// đã đăng ký, không cần giữ quiz result
+    }catch{}
     setScreen('dashboard');
   }}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;

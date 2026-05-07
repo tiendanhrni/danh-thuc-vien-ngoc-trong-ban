@@ -142,12 +142,19 @@ const UPSELL=[
 
 /* ─── COURSES DATA ───────────────────────────────────────────────── */
 const COURSES={
-  R:{id:'R',title:'Kết Nối Với Chính Mình & Nguồn Sáng Bên Trong',subtitle:'Giai đoạn Return — Trở Về',icon:'🌱',accent:'#78533a',
-    modules:[{id:1,title:'Kết Nối Với Chính Mình & Nguồn Sáng Bên Trong',icon:'🌱',
+  R:{id:'R',title:'Kết Nối Với Chính Mình & Nguồn Sáng Bên Trong',subtitle:'Giai đoạn Return — Trở Về',icon:'◈',accent:'#9b1106',
+    modules:[
+      {id:1,title:'Kết Nối Với Chính Mình & Nguồn Sáng Bên Trong',icon:'◈',
       lessons:[
         {id:'R-1-1',title:'Những rào cản ngăn bạn chạm tới cuộc đời mơ ước',
           desc:'Bài học này sẽ giúp bạn nhìn thấu 4 rào cản vô hình đang giam cầm bạn trong vùng an toàn – từ việc hiểu sai về cuộc sống, lạc lối trong định vị bản thân, mắc kẹt trong "hệ điều hành cũ", cho đến việc để những nỗi sợ hãi thao túng. Thay vì tiếp tục vòng lặp cố gắng nhưng vẫn bế tắc, bạn sẽ học cách "thay rễ" tư duy để kiến tạo lại bộ nền tảng nội tâm của mình.',
-          videoId:null,
+          videos:[
+            {id:'R-1-1a',title:'Rào cản #1: Hiểu sai về cuộc đời',videoId:'yoAMWOufyaE'},
+            {id:'R-1-1b',title:'Rào cản #2: Không biết mình là ai, mãi đi tìm ý nghĩa ở bên ngoài',videoId:'VIm_IwWHLYw'},
+            {id:'R-1-1c',title:'Rào cản #3: Mắc kẹt trong "hệ điều hành cũ"',videoId:'n0UUmU9mbeI'},
+            {id:'R-1-1d',title:'Rào cản #4: Bạn để cảm xúc kiểm soát cuộc đời mình',videoId:'15uUyUUjF-c'},
+          ],
+          videoId:'yoAMWOufyaE',
           quiz:[
             {q:'Theo bài học, việc nhìn cuộc đời như một "đường thẳng" sẽ dẫn đến hệ quả gì?',opts:['Giúp ta nhanh chóng đạt được hạnh phúc thực sự.','Khiến ta luôn sống trong cuộc đua, chờ đợi tương lai mà quên mất hiện tại.'],correct:1},
             {q:'Rào cản "mắc kẹt trong hệ điều hành cũ" được hiểu là gì?',opts:['Vận hành cuộc đời theo những hệ thống niềm tin cũ chưa bao giờ được cập nhật.','Mắc kẹt trong những công nghệ cũ kỹ không chịu thay đổi.'],correct:0},
@@ -157,7 +164,7 @@ const COURSES={
           practice:{type:'journal',prompt:'Hãy viết ra 3 danh xưng/vai trò mà bạn đang gắn cho mình (Ví dụ: Tôi là người hướng nội, Tôi là nhân viên văn phòng, Tôi phải luôn mạnh mẽ). Sau đó tự hỏi: "Nếu không có những nhãn mác này, tôi thực sự muốn sống một ngày của mình như thế nào?"',placeholder:'3 danh xưng tôi đang gắn cho mình:\n1.\n2.\n3.\n\nNếu không có những nhãn mác này, tôi thực sự muốn:\n'}},
         {id:'R-1-2',title:'Dám chọn chính mình',
           desc:'Bạn đã bao giờ từ bỏ một mong muốn cháy bỏng chỉ vì sự an toàn, hay phải nhượng bộ để làm hài lòng kỳ vọng của người khác chưa? Bài học này trao cho bạn chiếc chìa khóa của lòng can đảm — hệ thống 3 bước thực hành để nhận diện "bộ lọc cũ" đang chi phối mình và ra quyết định dựa trên phiên bản xuất sắc nhất của bản thân.',
-          videoId:null,
+          videoId:'TdMCFrbYxXs',
           quiz:[
             {q:'Chìa khóa để có một cuộc đời ý nghĩa theo nội dung bài học là gì?',opts:['Chọn con đường an toàn và ổn định nhất.','Có can đảm để lựa chọn con đường phù hợp với chính mình.'],correct:1},
             {q:'Bước đầu tiên trong quá trình "Dám chọn chính mình" là:',opts:['Tái lập hệ điều hành nội tâm.','Nhận diện "bộ lọc cũ" đang kiểm soát cách bạn lựa chọn.'],correct:1},
@@ -167,7 +174,7 @@ const COURSES={
           practice:{type:'journal',prompt:'Chọn 1 điều bạn đang trì hoãn vì lý do "chưa đủ điều kiện" hay "sợ mất an toàn". Viết ra:\n(1) Điều tệ nhất có thể xảy ra nếu làm là gì?\n(2) Điều tuyệt vời nhất có thể xảy ra nếu thành công là gì?\n(3) Nếu chịu trách nhiệm 100%, bạn sẽ làm hành động nhỏ nào ngay hôm nay?',placeholder:'Điều tôi đang trì hoãn:\n\nĐiều tệ nhất có thể xảy ra:\n\nĐiều tuyệt vời nhất có thể xảy ra:\n\nHành động nhỏ tôi sẽ làm hôm nay:\n'}},
         {id:'R-1-3',title:'Kết nối chính mình & nghe lại tiếng gọi bên trong',
           desc:'Đây là một hành trình tĩnh lặng đưa bạn quay trở về bên trong. Bạn sẽ khám phá 4 nguyên nhân gốc rễ khiến ta đánh mất chính mình — như việc não bộ luôn ưu tiên sinh tồn hơn là tự do, hay thói quen đi tìm một "đáp án đúng" duy nhất. Khi bạn bật lại công tắc hiện diện, bạn sẽ tìm thấy kim chỉ nam rõ ràng và nguồn sức mạnh nội tại không gì lay chuyển được.',
-          videoId:null,
+          videoId:'CUNCNfbA-30',
           quiz:[
             {q:'Hình ảnh "chiếc kim la bàn bị nhiễm từ" trong bài học có ý nghĩa gì?',opts:['Chiếc la bàn bị hỏng do để lâu không dùng.','Tiếng nói bên trong của ta bị kéo lệch bởi định kiến, kỳ vọng và nỗi sợ từ bên ngoài.'],correct:1},
             {q:'Đâu KHÔNG phải là nguyên nhân gốc rễ khiến ta mất kết nối với chính mình?',opts:['Não bộ ưu tiên chế độ "sinh tồn" hơn là "tự do".','Mong muốn khám phá thế giới xung quanh một cách mãnh liệt.'],correct:1},
@@ -177,7 +184,7 @@ const COURSES={
           practice:{type:'journal',prompt:'Dành 15 phút tĩnh lặng hoàn toàn, ngắt mọi thiết bị điện tử. Quan sát xem tâm trí bạn đang "phóng" về tương lai (lo âu) hay "lùi" về quá khứ (nuối tiếc). Chấp nhận những suy nghĩ đó và từ từ kéo sự chú ý về hơi thở hiện tại.',placeholder:'Khi tôi dừng lại và quan sát, tâm trí tôi đang:\n\nSuy nghĩ tôi nhận ra nhiều nhất:\n\nCảm giác khi tôi kéo sự chú ý về hơi thở:\n'}},
         {id:'R-1-4',title:'Phương pháp la bàn nội tâm',
           desc:'Bài học này sẽ trang bị cho bạn công cụ thực chiến mang tên F.E.E.L để biến cảm xúc từ "kẻ thù" thành "đài phát thanh" dẫn lối. Không chỉ vậy, bạn sẽ được hướng dẫn cách "thử nghiệm cuộc đời mới" thông qua những phép thử nhỏ rủi ro thấp và tự tay xây dựng lại 4 nền tảng vững chãi cho nội tâm.',
-          videoId:null,
+          videoId:'kjLx0B4V65M',
           quiz:[
             {q:'Trong công thức quản trị cảm xúc F.E.E.L, chữ F (Face) có nghĩa là gì?',opts:['Phản kháng và đè nén những cảm xúc tiêu cực.','Đối diện cảm xúc, chấp nhận nó như một người đưa tin.'],correct:1},
             {q:'Khi cảm thấy tức giận, theo bước E (Embrace - Chấp nhận), bạn nên tự hỏi câu gì?',opts:['Giới hạn nào của tôi đang bị xâm phạm?','Tại sao người khác lại làm mình bực mình như vậy?'],correct:0},
@@ -187,7 +194,7 @@ const COURSES={
           practice:{type:'journal',prompt:'Lần tới khi bạn có một cảm xúc khó chịu (như lo lắng hoặc tức giận), hãy áp dụng công thức F.E.E.L. Viết: "Mình đang cảm thấy gì? Điều gì kích hoạt nó? Cảm giác này đang cố báo hiệu/bảo vệ mình khỏi điều gì? Mình sẽ hành động thế nào?"',placeholder:'Cảm xúc tôi đang có:\n\nĐiều gì đã kích hoạt nó:\n\nCảm giác này đang cố bảo vệ tôi khỏi:\n\nHành động tôi sẽ chọn:\n'}},
         {id:'R-1-5',title:'3 khía cạnh nền tảng của một cuộc đời hạnh phúc',
           desc:'Bài học này sẽ chia sẻ với bạn về 3 khía cạnh nền tảng cốt lõi mà bạn phải ưu tiên đầu tư để có một cuộc đời thực sự viên mãn — làm bạn với Cảm xúc (sự giàu có nội tâm), xây dựng Mối quan hệ thông qua tình yêu vô điều kiện từ hành động, và định nghĩa lại Sự nghiệp như một con đường gieo "nghiệp lành".',
-          videoId:null,
+          videoId:'_AJywEH1nOI',
           quiz:[
             {q:'Trong câu chuyện của lão thiền sư, "quả óc chó" tượng trưng cho điều gì?',opts:['Những mục tiêu và khía cạnh nền tảng có ý nghĩa trọng đại với cuộc đời.','Những công việc lặt vặt hàng ngày mà chúng ta phải giải quyết.'],correct:0},
             {q:'Theo nghiên cứu kéo dài 80 năm của Đại học Harvard, yếu tố số 1 quyết định hạnh phúc và tuổi thọ là gì?',opts:['Tài chính, sự nghiệp và thành công.','Những mối quan hệ, kết nối ấm áp và ý nghĩa với những người xung quanh.'],correct:1},
@@ -195,15 +202,20 @@ const COURSES={
             {q:'"Sự nghiệp" thực sự được hiểu là gì?',opts:['Một công việc mang lại danh tiếng và tiền bạc.','Là một con đường để tạo ra "nghiệp lành", gieo hạt giống tốt cho mình và người khác.'],correct:1}
           ],
           practice:{type:'journal',prompt:'Hãy xác định 1 mối quan hệ quan trọng nhất hiện tại của bạn (có thể là mối quan hệ với chính bản thân bạn). Viết xuống và thực hiện ngay 1 hành động cụ thể để nuôi dưỡng mối quan hệ đó trong tuần này.',placeholder:'Mối quan hệ tôi muốn nuôi dưỡng:\n\nHành động cụ thể tôi sẽ làm:\n\nTôi sẽ làm vào ngày/giờ:\n'}}
-      ],
-      qaLessons:[
-        {id:'R-qa-1',title:'Hỏi đáp về khoá học Return',videoId:null},
-        {id:'R-qa-2',title:'Chia sẻ từ học viên Return',videoId:null}
-      ],
-      storyLessons:[
-        {id:'R-st-1',title:'Câu chuyện chuyển hoá — Giai đoạn Trở Về',videoId:null}
-      ]
-    }]
+      ]},
+      {id:2,title:'Hỏi Đáp — Một người hỏi, nhiều người thông',icon:'◇',isQA:true,
+        lessons:[
+          {id:'R-qa-1',title:'Làm thế nào để biết mình có đang đi lệch với chính mình?',videoId:'tIw5ZK_9sIQ',quiz:[{q:'Bạn đã xem xong video này chưa?',opts:['Rồi, tôi đã xem xong','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'R-qa-2',title:'Làm thế nào để nhanh thấy câu trả lời từ bên trong?',videoId:'SZqg9L6-TuQ',quiz:[{q:'Bạn đã xem xong video này chưa?',opts:['Rồi, tôi đã xem xong','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'R-qa-3',title:'Làm thế nào để tôn trọng sự khác biệt nhưng vẫn giữ được sự hòa hợp trong mối quan hệ gia đình?',videoId:'D3f--MBWKkg',quiz:[{q:'Bạn đã xem xong video này chưa?',opts:['Rồi, tôi đã xem xong','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'R-qa-4',title:'Giá trị của khai vấn tỉnh thức trong việc lãnh đạo doanh nghiệp',videoId:'XvsHoZ89woA',quiz:[{q:'Bạn đã xem xong video này chưa?',opts:['Rồi, tôi đã xem xong','Chưa, tôi sẽ xem lại'],correct:0}],practice:null},
+          {id:'R-qa-5',title:'Làm thế nào để nuôi dưỡng sự chuyển hóa sau khi rời lớp học?',videoId:'D5Fkf7443qQ',quiz:[{q:'Bạn đã xem xong video này chưa?',opts:['Rồi, tôi đã xem xong','Chưa, tôi sẽ xem lại'],correct:0}],practice:null}
+        ]},
+      {id:3,title:'Câu Chuyện Chuyển Hoá',icon:'◆',isStory:true,
+        lessons:[
+          {id:'R-st-1',title:'Câu chuyện chuyển hoá — sắp ra mắt',videoId:null,quiz:[{q:'Bạn đã xem xong video này chưa?',opts:['Rồi, tôi đã xem xong','Chưa, tôi sẽ xem lại'],correct:0}],practice:null}
+        ]}
+    ]
   },
 
   N:{id:'N',title:'4 Trạm Soi Sáng Trên Hành Trình Đánh Thức Viên Ngọc Bên Trong',subtitle:'Giai đoạn Nurture — Vun Bồi',icon:'🔆',accent:'#1a7a6e',
@@ -951,6 +963,7 @@ function ChatButton(){
 /* ─── LESSON VIEW ──────────────────────────────────────────────── */
 function LessonView({lesson,progress,courseId,onComplete,onBack}){
   const [tab,setTab]=useState('video');
+  const [tabsUnlocked,setTabsUnlocked]=useState(false);// tabs chỉ hiện sau khi bấm "Tiếp theo"
   const [qi,setQi]=useState(0);
   const [picked,setPicked]=useState(null);
   const [checked,setChecked]=useState(false);
@@ -966,6 +979,9 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
   const isDone=!!progress[lesson.id];
   const accent=COURSES[courseId]?.accent||'#9b1106';
 
+  // Nếu đã hoàn thành thì hiển thị hết tabs ngay
+  useEffect(()=>{if(isDone)setTabsUnlocked(true);},[isDone]);
+
   const handleCheck=()=>{
     if(picked===null)return;
     setChecked(true);
@@ -978,12 +994,31 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
   const handleComplete=()=>{onComplete(lesson.id);setShowCelebration(true);};
   const handleGoNext=()=>{setShowCelebration(false);if(next)onComplete(lesson.id);onBack();};
 
-  const tabs=isSimple
-    ?[{id:'video',icon:'🎬',label:'Video',sub:'Bài giảng'}]
-    :[{id:'video',icon:'🎬',label:'Video',sub:'Bài giảng'},{id:'quiz',icon:'📝',label:'Trắc nghiệm',sub:'Ôn lại kiến thức'},{id:'practice',icon:'🌱',label:'Thực hành',sub:'Áp dụng ngay'}];
+  // Sidebar: chỉ 2 cuốn sách
+  const BOOKS=[
+    {title:'Sống Như Bông Pháo Hoa',url:'https://songnhubongphaohoa.com/products/sach-song-nhu-bong-phao-hoa',img:'https://product.hstatic.net/200000725519/product/-song-nhu-bong-phao-hoa-hanh-trinh-kham-pha-dieu-quy-gia-nhat-cuoc-doi_b934945ad694442b8437a3e9b15edf13_grande.png'},
+    {title:'Khai Vấn Trong Từng Hơi Thở',url:'https://songnhubongphaohoa.com/products/sach-khai-van-trong-tung-hoi-tho',img:'https://product.hstatic.net/200000725519/product/bia_sach_dung_c5f4202f90fd4f9aae12baa064b19b14_grande.jpg'}
+  ];
 
-  // pick sidebar upsell for this lesson
-  const sideUpsell=UPSELL.filter(u=>u.courses.includes(courseId)).slice(0,2);
+  // Curiosity upsell - không nói thẳng khoá học
+  const CURIOSITY_UPSELL={
+    R:[
+      {q:'Bạn có bao giờ tự hỏi tại sao mình "biết" nhưng lại không "làm" được?',url:'https://www.rni.institute/tieng-noi-tu-tam',label:'Khám phá →'},
+      {q:'Điều gì xảy ra khi bạn thực sự dừng lại và lắng nghe chính mình?',url:'https://www.rni.institute/365-ngay-binh-yen',label:'Tìm hiểu →'},
+    ],
+    N:[
+      {q:'Bạn có tò mò không — nội tâm vững vàng có thể thay đổi cách bạn dẫn dắt người khác như thế nào?',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc',label:'Khám phá →'},
+      {q:'Liệu có một phương pháp để buông bỏ mà không cần gắng sức?',url:'https://www.rni.institute/buong',label:'Tìm hiểu →'},
+    ],
+    I:[
+      {q:'Khi bạn đã đủ vững, làm sao để sự chuyển hóa đó trở thành sứ mệnh chạm đến người khác?',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung',label:'Khám phá →'},
+      {q:'Bạn có tự hỏi — sự nghiệp của mình có thể đi xa hơn như thế nào không?',url:'https://www.rni.institute/reinvent-yourself',label:'Tìm hiểu →'},
+    ]
+  };
+  const curiosityItems=(CURIOSITY_UPSELL[courseId]||[]);
+
+  const shareUrl=window.location.href;
+  const shareText=`Tôi vừa học xong bài "${lesson.title}" trong khoá học miễn phí của Học viện RNI. Nếu bạn đang tìm kiếm điều gì đó chạm đến nội tâm — có thể đây là dành cho bạn.`;
 
   return(
     <div className="min-h-screen bg-gray-50">
@@ -1003,19 +1038,18 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
         <div className="flex gap-6">
           {/* main */}
           <div className="flex-1 min-w-0">
-            {/* lesson header card */}
-            <div className="rounded-2xl mb-5 px-6 py-5 text-white" style={{background:`linear-gradient(135deg,${accent},${accent}cc)`}}>
+            {/* lesson header — gradient */}
+            <div className="rounded-2xl mb-5 px-6 py-5 text-white" style={{background:`linear-gradient(135deg,#9b1106 0%,${accent}cc 100%)`}}>
               <p className="text-xs font-semibold uppercase tracking-wider opacity-75 mb-1">{mod?.title?.toUpperCase()}</p>
               <h2 className="font-heading font-black text-xl leading-snug">{lesson.title}</h2>
             </div>
 
-            {/* tabs */}
-            {tabs.length>1&&(
+            {/* tabs — chỉ hiện khi đã bấm Tiếp theo */}
+            {tabsUnlocked&&!isSimple&&(
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-5 overflow-hidden">
                 <div className="grid grid-cols-3">
-                  {tabs.map(t=>(
-                    <button key={t.id} onClick={()=>setTab(t.id)} className={`flex flex-col items-center py-4 px-2 transition-all ${tab===t.id?'text-white':'bg-white text-gray-500 hover:bg-gray-50'}`} style={tab===t.id?{background:`linear-gradient(135deg,${accent},${accent}dd)`}:{}}>
-                      <span className="text-xl mb-1">{t.icon}</span>
+                  {[{id:'video',label:'Video',sub:'Bài giảng'},{id:'quiz',label:'Trắc nghiệm',sub:'Ôn lại kiến thức'},{id:'practice',label:'Thực hành',sub:'Áp dụng ngay'}].map(t=>(
+                    <button key={t.id} onClick={()=>setTab(t.id)} className={`flex flex-col items-center py-4 px-2 transition-all ${tab===t.id?'text-white':'bg-white text-gray-500 hover:bg-gray-50'}`} style={tab===t.id?{background:`linear-gradient(135deg,#9b1106,${accent}dd)`}:{}}>
                       <p className="text-xs font-bold">{t.label}</p>
                       <p className="text-xs opacity-70">{t.sub}</p>
                     </button>
@@ -1032,26 +1066,42 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
                     <p className="text-gray-600 text-sm leading-relaxed">{lesson.desc}</p>
                   </div>
                 )}
-                {lesson.videoId?(
+                {/* multiple videos support */}
+                {lesson.videos?(
+                  <div className="space-y-4">
+                    {lesson.videos.map((v,vi)=>(
+                      <div key={v.id}>
+                        <p className="text-xs font-semibold text-gray-500 mb-2 px-1">{v.title}</p>
+                        <div className="video-outer"><iframe src={`https://www.youtube.com/embed/${v.videoId}?rel=0&modestbranding=1`} title={v.title} allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen/></div>
+                      </div>
+                    ))}
+                  </div>
+                ):lesson.videoId?(
                   <div className="video-outer"><iframe src={`https://www.youtube.com/embed/${lesson.videoId}?rel=0&modestbranding=1`} title={lesson.title} allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen/></div>
                 ):(
                   <div className="rounded-2xl flex items-center justify-center bg-gray-900" style={{aspectRatio:'16/9'}}>
-                    <div className="text-center text-white"><div className="text-5xl mb-3">🎬</div><p className="text-sm font-medium opacity-70">Video sẽ sớm ra mắt</p><p className="text-xs opacity-40 mt-1">Đang trong quá trình sản xuất</p></div>
+                    <div className="text-center text-white"><p className="text-sm font-medium opacity-70">Video sẽ sớm ra mắt</p><p className="text-xs opacity-40 mt-1">Đang trong quá trình sản xuất</p></div>
                   </div>
                 )}
-                {/* ask button */}
+                {/* ask chatbot */}
                 <button onClick={()=>document.querySelector('.chat-bubble button')?.click()} className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-rni-200 rounded-2xl py-3 text-rni-600 font-semibold text-sm hover:bg-rni-50 transition-all">
-                  <span>💬</span> Hỏi đáp thêm về bài học tại đây →
+                  💬 Hỏi đáp thêm về bài học tại đây →
                 </button>
-                {/* next/complete */}
+                {/* simple: just complete */}
                 {isSimple&&!isDone&&(
-                  <button onClick={handleComplete} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>
+                  <button onClick={handleComplete} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,#9b1106,${accent}cc)`}}>
                     Đánh dấu hoàn thành ✓
                   </button>
                 )}
-                {!isSimple&&(
-                  <button onClick={()=>setTab('quiz')} className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all active:scale-95" style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>
-                    Tiếp theo → Làm trắc nghiệm
+                {/* non-simple: Tiếp theo unlocks tabs */}
+                {!isSimple&&!tabsUnlocked&&(
+                  <button onClick={()=>{setTabsUnlocked(true);setTab('quiz');}} className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all active:scale-95" style={{background:`linear-gradient(135deg,#9b1106,${accent}cc)`}}>
+                    Tiếp theo →
+                  </button>
+                )}
+                {!isSimple&&tabsUnlocked&&tab==='video'&&(
+                  <button onClick={()=>setTab('quiz')} className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all active:scale-95" style={{background:`linear-gradient(135deg,#9b1106,${accent}cc)`}}>
+                    Sang Trắc nghiệm →
                   </button>
                 )}
               </div>
@@ -1062,7 +1112,6 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
               <div className="fade-in">
                 {!quizDone?(
                   <div className="space-y-4">
-                    {/* info box */}
                     <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
                       <p className="text-sm font-semibold text-gray-800 mb-1">📋 Ôn lại kiến thức</p>
                       <p className="text-xs text-gray-500 mb-2">Đây là bước quan trọng giúp bạn <strong>nội hóa kiến thức</strong> từ bài giảng vào tư duy của mình.</p>
@@ -1073,10 +1122,10 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold px-3 py-1 rounded-full text-white" style={{background:accent}}>Câu {qi+1} / {lesson.quiz.length}</span>
+                      <span className="text-xs font-bold px-3 py-1 rounded-full text-white" style={{background:'#9b1106'}}>Câu {qi+1} / {lesson.quiz.length}</span>
                       <span className="text-xs text-gray-400">{score} đúng · cần ≥ 60%</span>
                     </div>
-                    <PBar val={qi+1} max={lesson.quiz.length} color={accent}/>
+                    <PBar val={qi+1} max={lesson.quiz.length} color="#9b1106"/>
                     <div className="bg-white rounded-2xl border border-gray-100 p-5">
                       <p className="font-semibold text-gray-900 text-base leading-relaxed">{lesson.quiz[qi].q}</p>
                     </div>
@@ -1094,13 +1143,13 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
                       })}
                     </div>
                     {!checked?(
-                      <button onClick={handleCheck} disabled={picked===null} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 disabled:opacity-40" style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>Kiểm tra đáp án</button>
+                      <button onClick={handleCheck} disabled={picked===null} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 disabled:opacity-40" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>Kiểm tra đáp án</button>
                     ):(
                       <div className="space-y-3">
                         <div className={`rounded-xl px-4 py-3 text-sm font-semibold ${picked===lesson.quiz[qi].correct?'bg-green-100 text-green-700':'bg-red-50 text-red-600'}`}>
                           {picked===lesson.quiz[qi].correct?'✓ Chính xác! Bạn hiểu đúng rồi.':`✗ Chưa đúng. Đáp án là: ${String.fromCharCode(65+lesson.quiz[qi].correct)}.`}
                         </div>
-                        <button onClick={handleNextQ} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>
+                        <button onClick={handleNextQ} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
                           {qi<lesson.quiz.length-1?'Câu tiếp theo →':'Xem kết quả'}
                         </button>
                       </div>
@@ -1115,7 +1164,7 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
                     </p>
                     <p className="text-gray-500 text-sm mb-6">{Math.round(score/lesson.quiz.length*100)}% · Cần đạt ≥ 60%</p>
                     {score/lesson.quiz.length>=.6&&!isDone&&(
-                      <button onClick={()=>setTab('practice')} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 mb-3" style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>
+                      <button onClick={()=>setTab('practice')} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 mb-3" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
                         Tiếp theo → Thực hành
                       </button>
                     )}
@@ -1132,37 +1181,62 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
               <div className="space-y-4 fade-in">
                 <PracticeBox practice={lesson.practice} lessonId={lesson.id}/>
                 {!isDone&&(
-                  <button onClick={handleComplete} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>
+                  <button onClick={handleComplete} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
                     Đánh dấu hoàn thành ✓
                   </button>
                 )}
                 {isDone&&(
-                  <div className="rounded-2xl p-5 text-center" style={{background:`${accent}10`,border:`1.5px solid ${accent}30`}}>
-                    <div className="text-3xl mb-2">🎉</div>
+                  <div className="rounded-2xl p-5 text-center" style={{background:'#9b110610',border:'1.5px solid #9b110630'}}>
                     <p className="font-semibold text-gray-800 mb-1">Bạn đã hoàn thành bài học này!</p>
                     <p className="text-xs text-gray-500">Mỗi bước nhỏ bạn đi hôm nay đang thắp sáng thêm ngọn hải đăng bên trong. Hãy tiếp tục nhé!</p>
                   </div>
                 )}
               </div>
             )}
-          </div>
 
-          {/* sidebar */}
-          <div className="hidden lg:block w-72 flex-shrink-0">
-            {sideUpsell.length>0&&(
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Khám phá thêm từ RNI</p>
-                <div className="space-y-3">
-                  {sideUpsell.map(u=><UpsellCard key={u.id} product={u}/>)}
-                </div>
+            {/* Share block — dưới cùng main */}
+            <div className="mt-6 bg-white rounded-2xl border border-gray-100 px-5 py-5">
+              <p className="text-xs text-gray-400 leading-relaxed mb-3 italic">
+                Nếu khoá học này chạm đến bạn, có thể đâu đó trong cuộc đời bạn đang có người cần điều tương tự. Trao đi là cách viên ngọc trong bạn bắt đầu toả sáng.
+              </p>
+              <div className="flex items-center gap-2">
+                <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer"
+                  className="flex-1 text-center py-2 rounded-xl text-white text-xs font-semibold transition-all hover:opacity-90 active:scale-95"
+                  style={{background:'#1877f2'}}>Facebook</a>
+                <button onClick={()=>{try{navigator.clipboard.writeText(shareUrl+'\n'+shareText).then(()=>alert('Đã sao chép link và nội dung!'));}catch{}}}
+                  className="flex-1 text-center py-2 rounded-xl text-gray-600 text-xs font-semibold border-2 border-gray-200 hover:border-gray-300 transition-all">
+                  Sao chép link
+                </button>
+              </div>
+            </div>
+
+            {/* Curiosity upsell */}
+            {curiosityItems.length>0&&(
+              <div className="mt-5 space-y-3">
+                {curiosityItems.map((item,i)=>(
+                  <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
+                    className="block bg-white rounded-2xl border border-gray-100 px-5 py-4 hover:border-rni-200 hover:shadow-sm transition-all">
+                    <p className="text-sm text-gray-700 leading-relaxed mb-2 italic">"{item.q}"</p>
+                    <p className="text-xs font-semibold text-rni-600">{item.label}</p>
+                  </a>
+                ))}
               </div>
             )}
-            <div className="bg-rni-50 border border-rni-100 rounded-2xl p-4">
-              <p className="text-xs font-semibold text-rni-600 mb-2">💬 Có câu hỏi về bài học?</p>
-              <p className="text-xs text-gray-500 mb-3">Đặt câu hỏi trực tiếp với đội ngũ RNI qua chatbox bên dưới.</p>
-              <button onClick={()=>document.querySelector('.chat-bubble button')?.click()} className="w-full py-2 rounded-xl text-rni-600 font-semibold text-xs border-2 border-rni-200 hover:bg-rni-100 transition-all">
-                Hỏi đáp tại đây →
-              </button>
+          </div>
+
+          {/* sidebar — sách only */}
+          <div className="hidden lg:block w-64 flex-shrink-0">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sticky top-20">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Từ Ruby Nguyễn</p>
+              <div className="space-y-4">
+                {BOOKS.map((b,i)=>(
+                  <a key={i} href={b.url} target="_blank" rel="noopener noreferrer" className="block group">
+                    <img src={b.img} alt={b.title} className="w-full rounded-xl mb-2 object-cover shadow-sm group-hover:shadow-md transition-shadow" style={{height:120,objectFit:'cover'}} onError={e=>e.target.style.display='none'}/>
+                    <p className="text-xs font-semibold text-gray-800 leading-snug group-hover:text-rni-600 transition-colors">{b.title}</p>
+                    <p className="text-xs text-rni-600 mt-0.5">Xem sách →</p>
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -1176,7 +1250,7 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
             <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Xuất sắc!</h3>
             <p className="text-gray-500 text-sm mb-6 leading-relaxed">Bạn đã hoàn thành<br/><strong className="text-gray-800">"{lesson.title}"</strong></p>
             <div className="space-y-3">
-              {next&&<button onClick={handleGoNext} className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all active:scale-95" style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>Bài tiếp theo →</button>}
+              {next&&<button onClick={handleGoNext} className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>Bài tiếp theo →</button>}
               <button onClick={()=>{setShowCelebration(false);onBack();}} className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-gray-300 transition-all">Quay về tổng quan</button>
             </div>
           </div>

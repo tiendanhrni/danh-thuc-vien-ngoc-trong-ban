@@ -965,7 +965,56 @@ function ChatButton(){
     </>
   );
 }
-
+// Curiosity upsell pool — nằm ngoài component để không bị re-create
+const CTA_POOL={
+  R:[
+    {q:'"Bạn có bao giờ tự hỏi tại sao mình \'biết\' nhưng lại không \'làm\' được?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
+    {q:'"Điều gì xảy ra khi bạn thực sự dừng lại và lắng nghe chính mình?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
+    {q:'"Nếu trái tim bạn có một ngôn ngữ riêng, liệu bạn có đang hiểu nó?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
+    {q:'"Tiếng nói bên trong đã đủ rõ để bạn thôi tìm kiếm sự ghi nhận từ bên ngoài?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
+    {q:'"Lần cuối cùng bạn có một cuộc gặp gỡ chân thật với chính mình là khi nào?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
+    {q:'"Bạn đang chán công việc, hay đang chán \'phiên bản của mình\' trong công việc đó?"',url:'https://www.rni.institute/reinvent-yourself'},
+    {q:'"Sự ổn định không thể cứu nổi một tâm hồn đang khô héo. Bạn có đang \'ổn\' thật không?"',url:'https://www.rni.institute/reinvent-yourself'},
+    {q:'"Khi nội tâm thay đổi, cách bạn làm việc và giá trị bạn tạo ra sẽ tự nhiên đổi khác."',url:'https://www.rni.institute/reinvent-yourself'},
+    {q:'"Bình yên không phải là khi mọi thứ ổn thỏa, mà là khi bạn thôi chống lại chính mình."',url:'https://www.rni.institute/365-ngay-binh-yen'},
+    {q:'"Hạnh phúc, hóa ra lại nằm trọn vẹn trong hai chữ Bình Yên mà ta hay lãng quên."',url:'https://www.rni.institute/365-ngay-binh-yen'},
+    {q:'"Bạn có đủ can đảm để thực hiện những \'Phép Trừ\' cho tâm hồn mình?"',url:'https://www.rni.institute/buong'},
+    {q:'"Thứ làm ta kiệt quệ không phải vì ta yếu, mà vì ta đang cố nuôi quá nhiều thứ đã đến hạn rời đi."',url:'https://www.rni.institute/buong'},
+  ],
+  N:[
+    {q:'"Bạn có bao giờ tự hỏi tại sao mình \'biết\' nhưng lại không \'làm\' được?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
+    {q:'"Điều gì xảy ra khi bạn thực sự dừng lại và lắng nghe chính mình?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
+    {q:'"Tiếng nói bên trong đã đủ rõ để bạn thôi tìm kiếm sự ghi nhận từ bên ngoài?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
+    {q:'"Khai vấn không còn là một kỹ năng, nó là cách bạn hiện diện trọn vẹn trong cuộc đời này."',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
+    {q:'"Lắng nghe một con người với sự tò mò thay vì phán xét — bạn đã thử chưa?"',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
+    {q:'"Thế giới sẽ dịu dàng hơn bao nhiêu nếu chúng ta chọn thấu hiểu thay vì vội vã dạy bảo?"',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
+    {q:'"Bình yên không phải là khi mọi thứ ổn thỏa, mà là khi bạn thôi chống lại chính mình."',url:'https://www.rni.institute/365-ngay-binh-yen'},
+    {q:'"Hạnh phúc, hóa ra lại nằm trọn vẹn trong hai chữ Bình Yên mà ta hay lãng quên."',url:'https://www.rni.institute/365-ngay-binh-yen'},
+    {q:'"Khoảng trống không phải là mất mát, khoảng trống là điều kiện để sự sống bừng nở."',url:'https://www.rni.institute/buong'},
+    {q:'"Thứ làm ta kiệt quệ không phải vì ta yếu, mà vì ta đang cố nuôi quá nhiều thứ đã đến hạn rời đi."',url:'https://www.rni.institute/buong'},
+    {q:'"Buông bỏ nhu cầu kiểm soát để nhận về sự bình an và tự do đích thực."',url:'https://www.rni.institute/buong'},
+  ],
+  I:[
+    {q:'"Khai vấn là kiến tạo một không gian an toàn để con người nhìn thấy câu trả lời của chính họ."',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung'},
+    {q:'"Trong thời đại AI, năng lực tạo ra sự chuyển hóa thực sự chính là ưu thế cạnh tranh to lớn."',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung'},
+    {q:'"Bạn không cần một cuộc đời mới — điều bạn thực sự cần là mở ra một tầng nhận thức mới."',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung'},
+    {q:'"Khai vấn không còn là một kỹ năng, nó là cách bạn hiện diện trọn vẹn trong cuộc đời này."',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
+    {q:'"Lắng nghe một con người với sự tò mò thay vì phán xét — bạn đã thử chưa?"',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
+    {q:'"Đừng vội xây một hệ thống lớn, hãy làm cho chính mình đủ sâu."',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
+    {q:'"Bạn đang chán công việc, hay đang chán \'phiên bản của mình\' trong công việc đó?"',url:'https://www.rni.institute/reinvent-yourself'},
+    {q:'"Khi nội tâm thay đổi, cách bạn làm việc và giá trị bạn tạo ra sẽ tự nhiên đổi khác."',url:'https://www.rni.institute/reinvent-yourself'},
+    {q:'"Biến những vết xước và nỗi đau trong quá khứ thành nền tảng cho một sự nghiệp ý nghĩa."',url:'https://www.rni.institute/reinvent-yourself'},
+  ]
+};
+function getCtaForLesson(lessonId,courseId){
+  const pool=CTA_POOL[courseId]||[];
+  if(pool.length<2)return pool;
+  const seed=lessonId.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const shuffled=[...pool].sort((a,b)=>((seed*a.url.length)%7)-((seed*b.url.length)%7));
+  const first=shuffled[0];
+  const second=shuffled.find(x=>x.url!==first.url)||shuffled[1];
+  return[first,second];
+}
 /* ─── LESSON VIEW ──────────────────────────────────────────────── */
 function LessonView({lesson,progress,courseId,onComplete,onBack}){
   const [tab,setTab]=useState('video');
@@ -1006,59 +1055,7 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
     {title:'Khai Vấn Trong Từng Hơi Thở',url:'https://songnhubongphaohoa.com/products/sach-khai-van-trong-tung-hoi-tho',img:'https://cdn.hstatic.net/products/200000725519/213.3_9e9cadb168b34867a00410d1c47089d0_master.png',desc:'Những tư duy nền tảng gốc rễ của một Coach thực thụ, những công cụ thực tế và phương pháp khai vấn sâu sắc để nuôi dưỡng bản thân và đồng hành dẫn lối cho người khác.'}
   ];
 
-  // Curiosity upsell - không nói thẳng khoá học
-  const CTA_POOL={
-  R:[
-    {q:'"Bạn có bao giờ tự hỏi tại sao mình \'biết\' nhưng lại không \'làm\' được?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
-    {q:'"Điều gì xảy ra khi bạn thực sự dừng lại và lắng nghe chính mình?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
-    {q:'"Nếu trái tim bạn có một ngôn ngữ riêng, liệu bạn có đang hiểu nó?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
-    {q:'"Tiếng nói bên trong đã đủ rõ để bạn thôi tìm kiếm sự ghi nhận từ bên ngoài?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
-    {q:'"Lần cuối cùng bạn có một cuộc gặp gỡ chân thật với chính mình là khi nào?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
-    {q:'"Bạn đang chán công việc, hay đang chán \'phiên bản của mình\' trong công việc đó?"',url:'https://www.rni.institute/reinvent-yourself'},
-    {q:'"Sự ổn định không thể cứu nổi một tâm hồn đang khô héo. Bạn có đang \'ổn\' thật không?"',url:'https://www.rni.institute/reinvent-yourself'},
-    {q:'"Khi nội tâm thay đổi, cách bạn làm việc và giá trị bạn tạo ra sẽ tự nhiên đổi khác."',url:'https://www.rni.institute/reinvent-yourself'},
-    {q:'"Bình yên không phải là khi mọi thứ ổn thỏa, mà là khi bạn thôi chống lại chính mình."',url:'https://www.rni.institute/365-ngay-binh-yen'},
-    {q:'"Hạnh phúc, hóa ra lại nằm trọn vẹn trong hai chữ Bình Yên mà ta hay lãng quên."',url:'https://www.rni.institute/365-ngay-binh-yen'},
-    {q:'"Bạn có đủ can đảm để thực hiện những \'Phép Trừ\' cho tâm hồn mình?"',url:'https://www.rni.institute/buong'},
-    {q:'"Thứ làm ta kiệt quệ không phải vì ta yếu, mà vì ta đang cố nuôi quá nhiều thứ đã đến hạn rời đi."',url:'https://www.rni.institute/buong'},
-  ],
-  N:[
-    {q:'"Bạn có bao giờ tự hỏi tại sao mình \'biết\' nhưng lại không \'làm\' được?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
-    {q:'"Điều gì xảy ra khi bạn thực sự dừng lại và lắng nghe chính mình?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
-    {q:'"Tiếng nói bên trong đã đủ rõ để bạn thôi tìm kiếm sự ghi nhận từ bên ngoài?"',url:'https://www.rni.institute/tieng-noi-tu-tam'},
-    {q:'"Khai vấn không còn là một kỹ năng, nó là cách bạn hiện diện trọn vẹn trong cuộc đời này."',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
-    {q:'"Lắng nghe một con người với sự tò mò thay vì phán xét — bạn đã thử chưa?"',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
-    {q:'"Thế giới sẽ dịu dàng hơn bao nhiêu nếu chúng ta chọn thấu hiểu thay vì vội vã dạy bảo?"',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
-    {q:'"Bình yên không phải là khi mọi thứ ổn thỏa, mà là khi bạn thôi chống lại chính mình."',url:'https://www.rni.institute/365-ngay-binh-yen'},
-    {q:'"Hạnh phúc, hóa ra lại nằm trọn vẹn trong hai chữ Bình Yên mà ta hay lãng quên."',url:'https://www.rni.institute/365-ngay-binh-yen'},
-    {q:'"Khoảng trống không phải là mất mát, khoảng trống là điều kiện để sự sống bừng nở."',url:'https://www.rni.institute/buong'},
-    {q:'"Thứ làm ta kiệt quệ không phải vì ta yếu, mà vì ta đang cố nuôi quá nhiều thứ đã đến hạn rời đi."',url:'https://www.rni.institute/buong'},
-    {q:'"Buông bỏ nhu cầu kiểm soát để nhận về sự bình an và tự do đích thực."',url:'https://www.rni.institute/buong'},
-  ],
-  I:[
-    {q:'"Khai vấn là kiến tạo một không gian an toàn để con người nhìn thấy câu trả lời của chính họ."',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung'},
-    {q:'"Trong thời đại AI, năng lực tạo ra sự chuyển hóa thực sự chính là ưu thế cạnh tranh to lớn."',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung'},
-    {q:'"Bạn không cần một cuộc đời mới — điều bạn thực sự cần là mở ra một tầng nhận thức mới."',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung'},
-    {q:'"Khai vấn không còn là một kỹ năng, nó là cách bạn hiện diện trọn vẹn trong cuộc đời này."',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
-    {q:'"Lắng nghe một con người với sự tò mò thay vì phán xét — bạn đã thử chưa?"',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
-    {q:'"Đừng vội xây một hệ thống lớn, hãy làm cho chính mình đủ sâu."',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
-    {q:'"Bạn đang chán công việc, hay đang chán \'phiên bản của mình\' trong công việc đó?"',url:'https://www.rni.institute/reinvent-yourself'},
-    {q:'"Khi nội tâm thay đổi, cách bạn làm việc và giá trị bạn tạo ra sẽ tự nhiên đổi khác."',url:'https://www.rni.institute/reinvent-yourself'},
-    {q:'"Biến những vết xước và nỗi đau trong quá khứ thành nền tảng cho một sự nghiệp ý nghĩa."',url:'https://www.rni.institute/reinvent-yourself'},
-  ]
-};
-// Lấy 2 câu ngẫu nhiên KHÔNG trùng nhau cho từng lesson
-function getCtaForLesson(lessonId,courseId){
-  const pool=CTA_POOL[courseId]||[];
-  if(pool.length<2)return pool;
-  // seed bằng lessonId để mỗi bài học luôn có đúng 2 câu cố định (không thay đổi khi reload)
-  const seed=lessonId.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
-  const shuffled=[...pool].sort((a,b)=>((seed*a.url.length)%7)-((seed*b.url.length)%7));
-  // đảm bảo 2 câu từ 2 url khác nhau
-  const first=shuffled[0];
-  const second=shuffled.find(x=>x.url!==first.url)||shuffled[1];
-  return[first,second];
-}
+ 
   const curiosityItems=getCtaForLesson(lesson.id,courseId);
 
   const shareUrl=window.location.href;
@@ -1260,10 +1257,6 @@ function getCtaForLesson(lessonId,courseId){
                   title="WhatsApp"
                   className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all hover:opacity-85 active:scale-90"
                   style={{background:'#25d366'}}>W</a>
-                <a href="https://www.youtube.com/@RubyNguyenInspirer" target="_blank" rel="noopener noreferrer"
-                  title="YouTube Ruby Nguyen"
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all hover:opacity-85 active:scale-90"
-                  style={{background:'#ff0000'}}>YT</a>
                 <button onClick={()=>{try{navigator.clipboard.writeText(shareUrl).then(()=>alert('Đã sao chép link!'));}catch{alert(shareUrl);}}}
                   title="Sao chép link"
                   className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 border-2 border-gray-200 transition-all hover:border-gray-400 active:scale-90 text-base">
@@ -1441,51 +1434,15 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
           </button>
         )}
 
-        {/* Curiosity CTA — subtle list at bottom */}
-        {(()=>{
-          const allCTAs={
-            R:[
-              {q:'Bạn có bao giờ tự hỏi tại sao mình "biết" nhưng lại không "làm" được?',url:'https://www.rni.institute/tieng-noi-tu-tam'},
-              {q:'Sự ổn định không thể cứu nổi một tâm hồn đang khô héo. Bạn có đang "ổn" thật không?',url:'https://www.rni.institute/reinvent-yourself'},
-              {q:'"Bình yên không phải là khi mọi thứ ổn thỏa, mà là khi bạn thôi chống lại chính mình."',url:'https://www.rni.institute/365-ngay-binh-yen'},
-              {q:'Bạn có đủ can đảm để thực hiện những "Phép Trừ" cho tâm hồn mình?',url:'https://www.rni.institute/buong'},
-            ],
-            N:[
-              {q:'Khai vấn không còn là một kỹ năng, nó là cách bạn hiện diện trọn vẹn trong cuộc đời này.',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
-              {q:'Điều gì xảy ra khi bạn thực sự dừng lại và lắng nghe chính mình?',url:'https://www.rni.institute/tieng-noi-tu-tam'},
-              {q:'Thứ làm ta kiệt quệ không phải vì ta yếu, mà vì ta đang cố nuôi quá nhiều thứ đã đến hạn rời đi.',url:'https://www.rni.institute/buong'},
-              {q:'"Hạnh phúc, hóa ra lại nằm trọn vẹn trong hai chữ Bình Yên mà ta hay lãng quên."',url:'https://www.rni.institute/365-ngay-binh-yen'},
-            ],
-            I:[
-              {q:'Trong thời đại AI, năng lực tạo ra sự chuyển hóa thực sự chính là ưu thế cạnh tranh to lớn.',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung'},
-              {q:'Khi nội tâm thay đổi, cách bạn làm việc và giá trị bạn tạo ra sẽ tự nhiên đổi khác.',url:'https://www.rni.institute/reinvent-yourself'},
-              {q:'Lắng nghe một con người với sự tò mò thay vì phán xét — bạn đã thử chưa?',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
-              {q:'Bạn không cần một cuộc đời mới — điều bạn thực sự cần là mở ra một tầng nhận thức mới.',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung'},
-            ]
-          };
-          const items=(allCTAs[courseId]||[]).slice(0,3);
-          if(!items.length)return null;
-          return(
-            <div className="border-t border-gray-100 pt-5 pb-2">
-              <div className="space-y-2">
-                {items.map((item,i)=>(
-                  <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-start gap-2 py-2.5 px-3 rounded-xl hover:bg-gray-50 transition-all group">
-                    <span className="text-gray-300 mt-0.5 flex-shrink-0 group-hover:text-rni-300 transition-colors">→</span>
-                    <p className="text-xs text-gray-400 leading-relaxed italic group-hover:text-gray-600 transition-colors">{item.q}</p>
-                  </a>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
-{/* Grid khóa học RNI */}
+        
+{/* Grid khóa học RNI — horizontal scroll 16:9 */}
 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
   <div className="px-5 py-5 border-b border-gray-100">
     <h3 className="font-heading font-black text-base text-gray-900 mb-1">Đánh thức viên ngọc quý và kiến tạo cuộc đời rực rỡ từ gốc</h3>
     <p className="text-xs text-gray-400 leading-relaxed">Khám phá những hành trình chuyển hóa được thiết kế để giúp bạn quay về với bản thể chân thật, vun bồi nội lực vững chãi và lan tỏa giá trị độc bản của chính mình ra thế giới.</p>
   </div>
-  <div className="grid grid-cols-2 gap-0">
+  <style>{`.rni-scroll::-webkit-scrollbar{display:none}`}</style>
+  <div className="rni-scroll" style={{display:'flex',overflowX:'auto',scrollSnapType:'x mandatory',WebkitOverflowScrolling:'touch'}}>
     {[
       {title:'Tiếng Nói Từ Tâm',desc:'Sử dụng tiếng nói chân thật để kết nối, dưỡng lành và lan tỏa giá trị.',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/0644dc7-fbcf-467e-636f-42e05621a3fc_Ti_ng_N_i_T_T_m.png',url:'https://www.rni.institute/tieng-noi-tu-tam'},
       {title:'Tái Tạo Chính Mình',desc:'Đánh thức nội lực để thành tựu — An vững giữa biến động.',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/eccbb0b-7ebf-a70-b135-7626df1d35e_5.png',url:'https://www.rni.institute/reinvent-yourself'},
@@ -1495,13 +1452,14 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
       {title:'Khai Vấn Tỉnh Thức Ứng Dụng',desc:'Gắn kết mối quan hệ. Nâng tầm lãnh đạo. Phát triển sự nghiệp.',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2162803741/settings_images/6cb776-a62e-6d4a-2ea-5ca3e5edbf2_Cover_Khai_V_n_T_nh_Th_c_ng_D_ng_2.png',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung'},
     ].map((k,i)=>(
       <a key={i} href={k.url} target="_blank" rel="noopener noreferrer"
-        className="flex flex-col border-b border-r border-gray-100 hover:bg-gray-50 transition-colors"
-        style={{borderRight:i%2===1?'none':''}}>
-        <img src={k.img} alt={k.title} className="w-full object-cover" style={{height:100}} onError={e=>e.target.style.display='none'}/>
-        <div className="px-3 py-3 flex-1">
-          <p className="text-xs font-bold text-gray-800 leading-snug mb-1">{k.title}</p>
-          <p className="text-xs text-gray-400 leading-relaxed">{k.desc}</p>
-          <p className="text-xs text-rni-600 font-semibold mt-2">Tìm hiểu →</p>
+        style={{flexShrink:0,width:'200px',scrollSnapAlign:'start',display:'flex',flexDirection:'column',borderRight:'1px solid #f3f4f6',textDecoration:'none'}}>
+        <div style={{position:'relative',width:'200px',paddingBottom:'56.25%',background:'#f3f4f6',overflow:'hidden'}}>
+          <img src={k.img} alt={k.title} style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',objectFit:'cover'}} onError={e=>e.target.style.display='none'}/>
+        </div>
+        <div style={{padding:'10px 12px',background:'white',flex:1}}>
+          <p style={{fontSize:'11px',fontWeight:700,color:'#1f2937',lineHeight:1.3,marginBottom:4}}>{k.title}</p>
+          <p style={{fontSize:'10px',color:'#9ca3af',lineHeight:1.5,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{k.desc}</p>
+          <p style={{fontSize:'10px',color:'#9b1106',fontWeight:600,marginTop:6}}>Tìm hiểu →</p>
         </div>
       </a>
     ))}

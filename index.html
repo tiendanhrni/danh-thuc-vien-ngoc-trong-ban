@@ -1059,7 +1059,7 @@ function getCtaForLesson(lessonId,courseId){
   const second=shuffled.find(x=>x.url!==first.url)||shuffled[1];
   return[first,second];
 }
-  const curiosityItems=(CURIOSITY_UPSELL[courseId]||[]);
+  const curiosityItems=getCtaForLesson(lesson.id,courseId);
 
   const shareUrl=window.location.href;
   const shareText=`Tôi vừa học xong bài "${lesson.title}" trong khoá học miễn phí của Học viện RNI. Nếu bạn đang tìm kiếm điều gì đó chạm đến nội tâm — có thể đây là dành cho bạn.`;
@@ -1479,7 +1479,56 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
             </div>
           );
         })()}
+{/* Grid khóa học RNI */}
+<div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+  <div className="px-5 py-5 border-b border-gray-100">
+    <h3 className="font-heading font-black text-base text-gray-900 mb-1">Đánh thức viên ngọc quý và kiến tạo cuộc đời rực rỡ từ gốc</h3>
+    <p className="text-xs text-gray-400 leading-relaxed">Khám phá những hành trình chuyển hóa được thiết kế để giúp bạn quay về với bản thể chân thật, vun bồi nội lực vững chãi và lan tỏa giá trị độc bản của chính mình ra thế giới.</p>
+  </div>
+  <div className="grid grid-cols-2 gap-0">
+    {[
+      {title:'Tiếng Nói Từ Tâm',desc:'Sử dụng tiếng nói chân thật để kết nối, dưỡng lành và lan tỏa giá trị.',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/0644dc7-fbcf-467e-636f-42e05621a3fc_Ti_ng_N_i_T_T_m.png',url:'https://www.rni.institute/tieng-noi-tu-tam'},
+      {title:'Tái Tạo Chính Mình',desc:'Đánh thức nội lực để thành tựu — An vững giữa biến động.',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/eccbb0b-7ebf-a70-b135-7626df1d35e_5.png',url:'https://www.rni.institute/reinvent-yourself'},
+      {title:'365 Ngày Bình Yên',desc:'Vun bồi sự bình yên nội tại để sống an vui, vững chãi mỗi ngày.',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/eed06eb-1e47-5d6b-8b8-2eb2bbc60a_6.png',url:'https://www.rni.institute/365-ngay-binh-yen'},
+      {title:'Buông',desc:'Bước qua những rào cản để sống cuộc đời tự do, đủ đầy và hạnh phúc.',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/0b7f44-f505-66-c287-c3ad828a83db_ws_buong_1_.png',url:'https://www.rni.institute/buong'},
+      {title:'Sống Khai Vấn',desc:'Biến khai vấn thành một lối sống, một cách hiện diện đầy thấu cảm trong đời thực.',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/7e42741-2b-6d7b-fbd0-31527d6ca33_7.png',url:'https://www.rni.institute/workshop-song-khai-van-song-tinh-thuc'},
+      {title:'Khai Vấn Tỉnh Thức Ứng Dụng',desc:'Gắn kết mối quan hệ. Nâng tầm lãnh đạo. Phát triển sự nghiệp.',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2162803741/settings_images/6cb776-a62e-6d4a-2ea-5ca3e5edbf2_Cover_Khai_V_n_T_nh_Th_c_ng_D_ng_2.png',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung'},
+    ].map((k,i)=>(
+      <a key={i} href={k.url} target="_blank" rel="noopener noreferrer"
+        className="flex flex-col border-b border-r border-gray-100 hover:bg-gray-50 transition-colors"
+        style={{borderRight:i%2===1?'none':''}}>
+        <img src={k.img} alt={k.title} className="w-full object-cover" style={{height:100}} onError={e=>e.target.style.display='none'}/>
+        <div className="px-3 py-3 flex-1">
+          <p className="text-xs font-bold text-gray-800 leading-snug mb-1">{k.title}</p>
+          <p className="text-xs text-gray-400 leading-relaxed">{k.desc}</p>
+          <p className="text-xs text-rni-600 font-semibold mt-2">Tìm hiểu →</p>
+        </div>
+      </a>
+    ))}
+  </div>
+</div>
 
+{/* Share social ở dashboard */}
+<div className="bg-white rounded-2xl border border-gray-100 px-5 py-5">
+  <p className="text-xs text-gray-500 leading-relaxed mb-4 italic">
+    Nếu hành trình này chạm đến bạn, hãy chia sẻ để viên ngọc trong bạn bắt đầu toả sáng đến những người xung quanh.
+  </p>
+  <div className="flex items-center gap-2 flex-wrap">
+    <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer"
+      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all hover:opacity-85 active:scale-90"
+      style={{background:'#1877f2'}}>f</a>
+    <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer"
+      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all hover:opacity-85 active:scale-90"
+      style={{background:'#0a66c2'}}>in</a>
+    <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Tôi đang học khoá học miễn phí tại Học viện RNI — chạm đến nội tâm thật sự. Bạn thử xem nhé: '+window.location.href)}`} target="_blank" rel="noopener noreferrer"
+      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all hover:opacity-85 active:scale-90"
+      style={{background:'#25d366'}}>W</a>
+    <button onClick={()=>{try{navigator.clipboard.writeText(window.location.href).then(()=>alert('Đã sao chép link!'));}catch{alert(window.location.href);}}}
+      className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 border-2 border-gray-200 transition-all hover:border-gray-400 active:scale-90 text-base">
+      🔗
+    </button>
+  </div>
+</div>
         <div className="text-center py-4 border-t border-gray-100">
           <p className="text-xs text-gray-400"><span className="font-semibold text-rni-600">Học viện RNI</span> · Return · Nurture · Illuminate</p>
           <p className="text-xs text-gray-300 italic mt-1">"Mỗi người đều mang trong mình một ngọn sáng."</p>

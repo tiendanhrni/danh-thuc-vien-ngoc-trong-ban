@@ -1009,11 +1009,22 @@ const CTA_POOL={
 function getCtaForLesson(lessonId,courseId){
   const pool=CTA_POOL[courseId]||[];
   if(pool.length<2)return pool;
-  const seed=lessonId.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
-  const shuffled=[...pool].sort((a,b)=>((seed*a.url.length)%7)-((seed*b.url.length)%7));
-  const first=shuffled[0];
-  const second=shuffled.find(x=>x.url!==first.url)||shuffled[1];
-  return[first,second];
+  // seed khác nhau cho mỗi lessonId
+  const seed=lessonId.split('').reduce((a,c,i)=>a+(c.charCodeAt(0)*(i+7)),0);
+  // Fisher-Yates shuffle với seed cố định
+  const arr=[...pool];
+  for(let i=arr.length-1;i>0;i--){
+    const j=((seed*(i+3)*2654435761)>>>0)%(i+1);
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  // lấy 2 câu từ 2 url KHÁC nhau
+  const result=[];
+  const usedUrls=new Set();
+  for(const item of arr){
+    if(result.length>=2)break;
+    if(!usedUrls.has(item.url)){result.push(item);usedUrls.add(item.url);}
+  }
+  return result;
 }
 /* ─── LESSON VIEW ──────────────────────────────────────────────── */
 function LessonView({lesson,progress,courseId,onComplete,onBack}){
@@ -1272,7 +1283,7 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
                   <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
                     className="block bg-white rounded-2xl border border-gray-100 px-5 py-4 hover:border-rni-200 hover:shadow-sm transition-all">
                     <p className="text-sm text-gray-700 leading-relaxed mb-2 italic">"{item.q}"</p>
-                    <p className="text-xs font-semibold text-rni-600">{item.label}</p>
+                  
                   </a>
                 ))}
               </div>
@@ -1442,7 +1453,22 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
     <p className="text-xs text-gray-400 leading-relaxed">Khám phá những hành trình chuyển hóa được thiết kế để giúp bạn quay về với bản thể chân thật, vun bồi nội lực vững chãi và lan tỏa giá trị độc bản của chính mình ra thế giới.</p>
   </div>
   <style>{`.rni-scroll::-webkit-scrollbar{display:none}`}</style>
-  <div className="rni-scroll" style={{display:'flex',overflowX:'auto',scrollSnapType:'x mandatory',WebkitOverflowScrolling:'touch'}}>
+  <div className="rni-scroll" style={{display:'flex',overflowX:'auto',scrollSnapType:'x mandatory',WebkitOverflowScrolling:'touch',cursor:'grab',userSelect:'none'}}
+  onMouseDown={e=>{
+    const el=e.currentTarget;
+    el.style.cursor='grabbing';
+    const startX=e.pageX;
+    const startScroll=el.scrollLeft;
+    const onMove=ev=>{el.scrollLeft=startScroll-(ev.pageX-startX);};
+    const onUp=()=>{
+      el.style.cursor='grab';
+      window.removeEventListener('mousemove',onMove);
+      window.removeEventListener('mouseup',onUp);
+    };
+    window.addEventListener('mousemove',onMove);
+    window.addEventListener('mouseup',onUp);
+    e.preventDefault();
+  }}>
     {[
       {title:'Tiếng Nói Từ Tâm',desc:'Sử dụng tiếng nói chân thật để kết nối, dưỡng lành và lan tỏa giá trị.',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/0644dc7-fbcf-467e-636f-42e05621a3fc_Ti_ng_N_i_T_T_m.png',url:'https://www.rni.institute/tieng-noi-tu-tam'},
       {title:'Tái Tạo Chính Mình',desc:'Đánh thức nội lực để thành tựu — An vững giữa biến động.',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/eccbb0b-7ebf-a70-b135-7626df1d35e_5.png',url:'https://www.rni.institute/reinvent-yourself'},

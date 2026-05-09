@@ -498,7 +498,7 @@ function PreQuizScreen({onStart}){
         localStorage.setItem('rni-pre-email',email.trim());
         localStorage.setItem('rni-pre-submitted','1');
       }catch{}
-      setLoading(false);setSubmitted(true);
+      setLoading(false);setSubmitted(true);onStart();
     }
   };
 
@@ -559,10 +559,7 @@ function PreQuizScreen({onStart}){
                     <path fill="currentColor" d="M4 12a8 8 0 018-8v8z" opacity=".75"/>
                   </svg>Đang xử lý...
                 </span>
-              ):'Lưu thông tin & Bắt đầu →'}
-            </button>
-            <button onClick={onStart} className="w-full mt-2 py-2 text-xs text-gray-400 hover:text-gray-600 transition-colors">
-              Bỏ qua, làm trắc nghiệm trước
+              ):'Bắt đầu →'}
             </button>
           </div>
         ):(
@@ -573,12 +570,6 @@ function PreQuizScreen({onStart}){
               <p className="text-xs text-green-600">Bạn sẽ nhận kết quả và lộ trình phù hợp.</p>
             </div>
           </div>
-        )}
-
-        {submitted&&(
-          <button onClick={onStart} className="pulse-glow inline-flex items-center gap-3 text-white font-semibold text-base px-12 py-4 rounded-2xl shadow-lg transition-all active:scale-95 mb-8" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
-            Bắt đầu trắc nghiệm →
-          </button>
         )}
 
         <div className="border-t border-gray-200 pt-6 max-w-xl mx-auto mt-2">

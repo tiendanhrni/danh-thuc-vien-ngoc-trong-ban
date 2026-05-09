@@ -1822,13 +1822,7 @@ function App(){
 
   useEffect(()=>{try{localStorage.setItem('rni-progress',JSON.stringify(progress));}catch{}},[progress]);
       // Welcome back nếu rời đi > 2 tiếng
-const lastVisit=parseInt(localStorage.getItem('rni-last-visit')||'0');
-const now=Date.now();
-const hoursSince=(now-lastVisit)/3600000;
-localStorage.setItem('rni-last-visit',now.toString());
-if(n&&c&&lastVisit>0&&hoursSince>2){
-  setShowWelcomeBack(true);
-}
+
 
   // Khôi phục trạng thái khi quay lại trang
   useEffect(()=>{
@@ -1837,7 +1831,13 @@ if(n&&c&&lastVisit>0&&hoursSince>2){
       const c=localStorage.getItem('rni-course');
       const savedScreen=localStorage.getItem('rni-screen');
       const savedResult=localStorage.getItem('rni-quiz-result');
-
+      const lastVisit=parseInt(localStorage.getItem('rni-last-visit')||'0');
+    const now=Date.now();
+    const hoursSince=(now-lastVisit)/3600000;
+    localStorage.setItem('rni-last-visit',now.toString());
+    if(n&&c&&lastVisit>0&&hoursSince>2){
+      setShowWelcomeBack(true);
+    }
       if(n&&c){
         // Đã đăng ký → vào dashboard
         setUserName(n);setCourseId(c);

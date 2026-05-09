@@ -1077,6 +1077,31 @@ function getCtaForLesson(lessonId,courseId){
   }
   return result;
 }
+
+  const CELEBRATION_QUOTES={
+  R:["Chúc mừng bạn đã hoàn thành bài học. Mỗi phút giây tỉnh thức là một bước chân đưa bạn về gần hơn với chính mình.","Bạn không cần trở thành ai khác. Bài học này vừa giúp bạn trút bỏ thêm một lớp mặt nạ để trở về là chính mình.","Cảm ơn bạn đã lựa chọn dừng lại để lắng nghe tiếng nói từ tâm. Bạn đang làm rất tốt.","Viên ngọc trong bạn vừa được lau đi một lớp bụi mờ. Hãy cảm nhận sự lấp lánh ấy nhé.","Sự chuyển hóa bắt đầu từ việc dám nhìn thẳng vào sự thật. Chúc mừng bạn đã can đảm hiện diện trọn vẹn.","Mỗi bài học là một cuộc gặp gỡ chân thật với chính mình. Đừng vội vã, hành trình này là của riêng bạn."],
+  N:["Cây không lớn từ ngọn. Chúc mừng bạn đã dành thời gian để vun bồi cho phần gốc rễ của tâm hồn.","Đừng áp lực phải hiểu hết ngay lập tức. Chỉ cần một từ khóa chạm được vào trái tim là đủ để chuyển hóa rồi.","Bạn đang tưới tẩm cho khu vườn nội tâm những hạt giống thiện lành. Hãy kiên nhẫn, hoa sẽ nở đúng lúc.","Sự kiên trì thầm lặng của bạn hôm nay chính là nội lực vững chãi cho những ngày giông bão sau này.","Hoàn thành thêm một bài học là thêm một lần bạn khẳng định sự cam kết với chính mình. Tiếp tục nhé!","Hãy dịu dàng với hành trình của mình. Bạn đang tiến bộ theo cách đẹp đẽ và duy nhất của riêng bạn."],
+  I:["Ánh sáng bạn nhận được hôm nay sẽ sớm trở thành ngọn đuốc soi đường cho những người xung quanh.","Mỗi kiến thức bạn vừa tiếp nhận chính là một viên gạch vững chắc cho di sản mà bạn đang kiến tạo.","Thế giới đang chờ đợi giá trị độc bản mà chỉ bạn mới có thể trao đi. Hãy để bài học này chắp cánh cho sứ mệnh đó.","Chúc mừng bạn đã nâng tầm bản thân thêm một bậc. Bạn đang sẵn sàng hơn bao giờ hết để phụng sự cuộc đời.","Đừng chỉ giữ lại cho mình, hãy để sự chuyển hóa này được nở hoa thông qua hành động của bạn ngay hôm nay.","Khi bạn thực sự thay đổi từ gốc, sự hiện diện của bạn chính là món quà quý giá nhất dành cho khách hàng của mình."]
+};
+function CelebrationPopup({lesson,courseId,next,onNext,onBack}){
+  const pool=CELEBRATION_QUOTES[courseId]||CELEBRATION_QUOTES.R;
+  const [quote]=useState(()=>pool[Math.floor(Math.random()*pool.length)]);
+  return(
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center celebration">
+        <div className="text-5xl mb-4 float">🎉</div>
+        <h3 className="font-heading font-black text-xl text-gray-900 mb-1">Xuất sắc!</h3>
+        <p className="text-gray-500 text-sm mb-3 leading-relaxed">Bạn đã hoàn thành<br/><strong className="text-gray-800">"{lesson.title}"</strong></p>
+        <p className="text-sm text-gray-600 italic leading-relaxed mb-5 border-l-4 border-rni-200 pl-3 text-left">{quote}</p>
+        <div className="space-y-3">
+          {next&&<button onClick={onNext} className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>Bài tiếp theo →</button>}
+          <button onClick={onBack} className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-gray-300 transition-all">Quay về tổng quan</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── LESSON VIEW ──────────────────────────────────────────────── */
 function LessonView({lesson,progress,courseId,onComplete,onBack}){
   const [tab,setTab]=useState('video');
@@ -1362,24 +1387,12 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
       </div>
 
       {/* celebration popup */}
-      {showCelebration&&(
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center celebration">
-            <div className="text-5xl mb-4 float">🎉</div>
-            <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Xuất sắc!</h3>
-            <p className="text-gray-500 text-sm mb-6 leading-relaxed">Bạn đã hoàn thành<br/><strong className="text-gray-800">"{lesson.title}"</strong></p>
-            <div className="space-y-3">
-              {next&&<button onClick={handleGoNext} className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>Bài tiếp theo →</button>}
-              <button onClick={()=>{setShowCelebration(false);onBack();}} className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-gray-300 transition-all">Quay về tổng quan</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <ChatButton/>
+          {showCelebration&&<CelebrationPopup lesson={lesson} courseId={courseId} next={next} onNext={handleGoNext} onBack={()=>{setShowCelebration(false);onBack();}}/>}
+       <ChatButton/>
     </div>
   );
 }
+      
 function CourseSlider({courses}){
   const ref=useRef(null);
   const dragging=useRef(false);
@@ -1805,8 +1818,17 @@ function App(){
   const [courseId,setCourseId]=useState(null);
   const [lesson,setLesson]=useState(null);
   const [progress,setProgress]=useState(()=>{try{return JSON.parse(localStorage.getItem('rni-progress')||'{}');}catch{return{};}});
+  const [showWelcomeBack,setShowWelcomeBack]=useState(false);
 
   useEffect(()=>{try{localStorage.setItem('rni-progress',JSON.stringify(progress));}catch{}},[progress]);
+      // Welcome back nếu rời đi > 2 tiếng
+const lastVisit=parseInt(localStorage.getItem('rni-last-visit')||'0');
+const now=Date.now();
+const hoursSince=(now-lastVisit)/3600000;
+localStorage.setItem('rni-last-visit',now.toString());
+if(n&&c&&lastVisit>0&&hoursSince>2){
+  setShowWelcomeBack(true);
+}
 
   // Khôi phục trạng thái khi quay lại trang
   useEffect(()=>{
@@ -1851,7 +1873,18 @@ function App(){
     }catch{}
     setScreen('preQuiz');setUserName('');setCourseId(null);setQuizResult(null);setProgress({});
   };
-
+  if(showWelcomeBack)return(
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+    <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center bounce-in">
+      <div className="text-4xl mb-3 float">🌿</div>
+      <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Chào mừng bạn quay trở lại!</h3>
+      <p className="text-gray-500 text-sm leading-relaxed mb-5">Hành trình của bạn vẫn đang chờ. Chào mừng bạn trở lại để tiếp tục hiện diện cùng hành trình này.</p>
+      <button onClick={()=>setShowWelcomeBack(false)} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm pulse-glow" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+        Tiếp tục hành trình →
+      </button>
+    </div>
+  </div>
+);
   if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('quizTransition')}/>;
   if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('preQuiz')}/>;
   if(screen==='quiz')return <QuizScreen onDone={r=>{

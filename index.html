@@ -186,6 +186,15 @@ const COURSES={
           desc:'Bài học này sẽ trang bị cho bạn công cụ thực chiến mang tên F.E.E.L để biến cảm xúc từ "kẻ thù" thành "đài phát thanh" dẫn lối. Không chỉ vậy, bạn sẽ được hướng dẫn cách "thử nghiệm cuộc đời mới" thông qua những phép thử nhỏ rủi ro thấp và tự tay xây dựng lại 4 nền tảng vững chãi cho nội tâm.',
           videoId:'kjLx0B4V65M',
           quiz:[
+              {
+    type:'matching',
+    pairs:[
+      {a:'F — Face',b:'Đối diện cảm xúc, chấp nhận như người đưa tin'},
+      {a:'E — Embrace',b:'Ôm ấp, hỏi giới hạn nào đang bị xâm phạm'},
+      {a:'E — Explore',b:'Khám phá thông điệp cảm xúc muốn nói'},
+      {a:'L — Let go',b:'Buông thư, chọn cách phản ứng có chủ đích'}
+    ]
+  },
             {q:'Trong công thức quản trị cảm xúc F.E.E.L, chữ F (Face) có nghĩa là gì?',opts:['Phản kháng và đè nén những cảm xúc tiêu cực.','Đối diện cảm xúc, chấp nhận nó như một người đưa tin.'],correct:1},
             {q:'Khi cảm thấy tức giận, theo bước E (Embrace - Chấp nhận), bạn nên tự hỏi câu gì?',opts:['Giới hạn nào của tôi đang bị xâm phạm?','Tại sao người khác lại làm mình bực mình như vậy?'],correct:0},
             {q:'Tại sao chúng ta cần "tạo phiên bản thử nghiệm" trước khi đưa ra quyết định lớn?',opts:['Để không cần phải chịu trách nhiệm.','Để vượt qua nỗi sợ thay đổi và kiểm tra xem điều đó có thực sự phù hợp mà không gặp rủi ro lâu dài.'],correct:1},
@@ -1304,7 +1313,130 @@ function CelebrationPopup({lesson,courseId,next,onNext,onBack}){
     </div>
   );
 }
+/* ─── MATCHING GAME ─────────────────────────────────────────────── */
+function MatchingGame({quiz,onComplete}){
+  const pairs=quiz.pairs; // [{a:'F',b:'Đối diện'}, ...]
+  const [selA,setSelA]=useState(null);
+  const [matched,setMatched]=useState({}); // {indexA: indexB}
+  const [wrong,setWrong]=useState(null);
+  const [done,setDone]=useState(false);
 
+  const shuffledB=useMemo(()=>{
+    const arr=[...pairs.map((p,i)=>({text:p.b,idx:i}))];
+    for(let i=arr.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+  },[]);
+
+  const pickA=(i)=>{
+    if(Object.keys(matched).map(Number).includes(i))return;
+    setSelA(i===selA?null:i);
+    setWrong(null);
+  };
+
+  const pickB=(item)=>{
+    if(Object.values(matched).includes(item.idx))return;
+    if(selA===null)return;
+    if(item.idx===selA){
+      const nm={...matched,[selA]:item.idx};
+      setMatched(nm);
+      setSelA(null);
+      setWrong(null);
+      if(Object.keys(nm).length===pairs.length)setDone(true);
+    } else {
+      setWrong({a:selA,b:item.idx});
+      setTimeout(()=>{setWrong(null);setSelA(null);},800);
+    }
+  };
+
+  const reset=()=>{
+    setMatched({});setSelA(null);setWrong(null);setDone(false);
+  };
+
+  const matchedA=(i)=>Object.keys(matched).map(Number).includes(i);
+  const matchedB=(idx)=>Object.values(matched).includes(idx);
+  const isWrongA=(i)=>wrong&&wrong.a===i;
+  const isWrongB=(idx)=>wrong&&wrong.b===idx;
+
+  if(done)return(
+    <div className="text-center py-8 fade-in">
+      <div className="text-5xl mb-3">🎉</div>
+      <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Hoàn hảo!</h3>
+      <p className="text-gray-500 text-sm mb-5">Bạn đã ghép đúng tất cả các cặp.</p>
+      <div className="space-y-2 mb-6 text-left">
+        {pairs.map((p,i)=>(
+          <div key={i} className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+            <span className="font-bold text-green-700 text-sm w-8">{p.a}</span>
+            <span className="text-green-400">→</span>
+            <span className="text-gray-700 text-sm">{p.b}</span>
+          </div>
+        ))}
+      </div>
+      <button onClick={onComplete}
+        className="w-full py-3 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95"
+        style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+        Tiếp theo → Thực hành
+      </button>
+    </div>
+  );
+
+  return(
+    <div className="fade-in">
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4">
+        <p className="text-sm font-semibold text-gray-800 mb-1">🔗 Ghép cặp</p>
+        <p className="text-xs text-gray-500">Bấm một mục ở cột trái, rồi bấm mục tương ứng ở cột phải để ghép cặp.</p>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {/* Cột A */}
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 text-center">Khái niệm</p>
+          {pairs.map((p,i)=>{
+            const isMatched=matchedA(i);
+            const isSel=selA===i;
+            const isWrong=isWrongA(i);
+            return(
+              <button key={i} onClick={()=>pickA(i)}
+                className={`w-full px-3 py-3 rounded-xl text-sm font-semibold transition-all border-2 ${
+                  isMatched?'bg-green-50 border-green-300 text-green-700':
+                  isWrong?'bg-red-50 border-red-400 text-red-600 animate-pulse':
+                  isSel?'border-rni-600 bg-rni-50 text-rni-600':
+                  'bg-white border-gray-200 text-gray-700 hover:border-rni-300'
+                }`}>
+                {isMatched?'✓ ':''}{p.a}
+              </button>
+            );
+          })}
+        </div>
+        {/* Cột B */}
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 text-center">Ý nghĩa</p>
+          {shuffledB.map((item)=>{
+            const isMatched=matchedB(item.idx);
+            const isWrong=isWrongB(item.idx);
+            return(
+              <button key={item.idx} onClick={()=>pickB(item)}
+                className={`w-full px-3 py-3 rounded-xl text-sm transition-all border-2 text-left ${
+                  isMatched?'bg-green-50 border-green-300 text-green-700':
+                  isWrong?'bg-red-50 border-red-400 text-red-600 animate-pulse':
+                  selA!==null?'bg-white border-rni-200 text-gray-700 hover:border-rni-400 hover:bg-rni-50':
+                  'bg-white border-gray-200 text-gray-500'
+                }`}>
+                {isMatched?'✓ ':''}{item.text}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <button onClick={reset}
+        className="w-full mt-4 py-2.5 rounded-xl border-2 border-gray-200 text-gray-500 text-xs font-semibold hover:border-gray-300 transition-all">
+        Làm lại
+      </button>
+    </div>
+  );
+}
+  
 /* ─── LESSON VIEW ──────────────────────────────────────────────── */
 function LessonView({lesson,progress,courseId,onComplete,onBack}){
   const [tab,setTab]=useState('video');
@@ -1445,6 +1577,9 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
             {/* QUIZ TAB */}
             {tab==='quiz'&&!isSimple&&(
               <div className="fade-in">
+                {lesson.quiz[0]?.type==='matching'?(
+                <MatchingGame quiz={lesson.quiz[0]} onComplete={()=>setQuizDone(true)}/>
+              ):(
                 {!quizDone?(
                   <div className="space-y-4">
                     <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">

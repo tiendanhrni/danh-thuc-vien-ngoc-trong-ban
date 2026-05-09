@@ -1580,6 +1580,7 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
                 {lesson.quiz[0]?.type==='matching'?(
                 <MatchingGame quiz={lesson.quiz[0]} onComplete={()=>setQuizDone(true)}/>
               ):(
+                <>
                 {!quizDone?(
                   <div className="space-y-4">
                     <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">

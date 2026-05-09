@@ -491,6 +491,7 @@ const COURSES={
   }
 };
 
+  
 /* ─── HELPERS ──────────────────────────────────────────────────────── */
 const getModules=(cId)=>COURSES[cId]?.modules||[];
 const getAllLessons=(cId)=>getModules(cId).flatMap(m=>m.lessons.map(l=>({...l,moduleId:m.id,isQA:!!m.isQA,isStory:!!m.isStory})));

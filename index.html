@@ -1576,77 +1576,78 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
 
             {/* QUIZ TAB */}
             {tab==='quiz'&&!isSimple&&(
-              <div className="fade-in">
-                {lesson.quiz[0]?.type==='matching'?(
-                <MatchingGame quiz={lesson.quiz[0]} onComplete={()=>setQuizDone(true)}/>
-              ):(
-                <>
-                {!quizDone?(
-                  <div className="space-y-4">
-                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-                      <p className="text-sm font-semibold text-gray-800 mb-1">📋 Ôn lại kiến thức</p>
-                      <p className="text-xs text-gray-500 mb-2">Đây là bước quan trọng giúp bạn <strong>nội hóa kiến thức</strong> từ bài giảng vào tư duy của mình.</p>
-                      <div className="flex flex-wrap gap-2 text-xs text-amber-700">
-                        <span>✦ Bài có {lesson.quiz.length} câu hỏi</span>
-                        <span>✦ Cần đúng ≥ 60% để đạt</span>
-                        <span>✦ Có thể làm lại nhiều lần</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold px-3 py-1 rounded-full text-white" style={{background:'#9b1106'}}>Câu {qi+1} / {lesson.quiz.length}</span>
-                      <span className="text-xs text-gray-400">{score} đúng · cần ≥ 60%</span>
-                    </div>
-                    <PBar val={qi+1} max={lesson.quiz.length} color="#9b1106"/>
-                    <div className="bg-white rounded-2xl border border-gray-100 p-5">
-                      <p className="font-semibold text-gray-900 text-base leading-relaxed">{lesson.quiz[qi].q}</p>
-                    </div>
-                    <div className="space-y-3">
-                      {lesson.quiz[qi].opts.map((opt,i)=>{
-                        let cls='';
-                        if(checked){if(i===lesson.quiz[qi].correct)cls='correct';else if(i===picked)cls='wrong';}
-                        else if(picked===i)cls='selected';
-                        return(
-                          <button key={i} onClick={()=>!checked&&setPicked(i)} className={`opt-btn ${cls}`}>
-                            <span className={`inline-flex w-7 h-7 rounded-full border-2 mr-3 items-center justify-center text-xs font-bold flex-shrink-0 align-middle transition-all ${checked&&i===lesson.quiz[qi].correct?'bg-green-500 border-green-500 text-white':checked&&i===picked?'bg-red-400 border-red-400 text-white':picked===i?'border-rni-600 text-rni-600':'border-gray-300 text-gray-400'}`}>{String.fromCharCode(65+i)}</span>
-                            {opt}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {!checked?(
-                      <button onClick={handleCheck} disabled={picked===null} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 disabled:opacity-40" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>Kiểm tra đáp án</button>
-                    ):(
-                      <div className="space-y-3">
-                        <div className={`rounded-xl px-4 py-3 text-sm font-semibold ${picked===lesson.quiz[qi].correct?'bg-green-100 text-green-700':'bg-red-50 text-red-600'}`}>
-                          {picked===lesson.quiz[qi].correct?'✓ Chính xác! Bạn hiểu đúng rồi.':`✗ Chưa đúng. Đáp án là: ${String.fromCharCode(65+lesson.quiz[qi].correct)}.`}
-                        </div>
-                        <button onClick={handleNextQ} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
-                          {qi<lesson.quiz.length-1?'Câu tiếp theo →':'Xem kết quả'}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ):(
-                  <div className="text-center py-8 fade-in">
-                    <div className="text-5xl mb-4">{score/lesson.quiz.length>=.6?'🏆':'📖'}</div>
-                    <h3 className="font-heading font-black text-2xl text-gray-900 mb-2">{score} / {lesson.quiz.length} câu đúng</h3>
-                    <p className="text-sm mb-1" style={{color:score/lesson.quiz.length>=.6?'#16a34a':'#9b1106',fontWeight:600}}>
-                      {score/lesson.quiz.length>=.6?'✓ Đạt! Bạn đã nắm vững bài học này.':'Chưa đạt — hãy xem lại video và thử lại nhé!'}
-                    </p>
-                    <p className="text-gray-500 text-sm mb-6">{Math.round(score/lesson.quiz.length*100)}% · Cần đạt ≥ 60%</p>
-                    {score/lesson.quiz.length>=.6&&!isDone&&(
-                      <button onClick={()=>setTab('practice')} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 mb-3" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
-                        Tiếp theo → Thực hành
-                      </button>
-                    )}
-                    <button onClick={()=>{setQi(0);setPicked(null);setChecked(false);setQuizDone(false);setScore(0);}} className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-gray-300 transition-all">
-                      Làm lại từ đầu
-                    </button>
-                  </div>
-                )}
+  <div className="fade-in">
+    {lesson.quiz[0]?.type==='matching'?(
+      <MatchingGame quiz={lesson.quiz[0]} onComplete={()=>setQuizDone(true)}/>
+    ):(
+      <>
+        {!quizDone?(
+          <div className="space-y-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+              <p className="text-sm font-semibold text-gray-800 mb-1">📋 Ôn lại kiến thức</p>
+              <p className="text-xs text-gray-500 mb-2">Đây là bước quan trọng giúp bạn <strong>nội hóa kiến thức</strong> từ bài giảng vào tư duy của mình.</p>
+              <div className="flex flex-wrap gap-2 text-xs text-amber-700">
+                <span>✦ Bài có {lesson.quiz.length} câu hỏi</span>
+                <span>✦ Cần đúng ≥ 60% để đạt</span>
+                <span>✦ Có thể làm lại nhiều lần</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold px-3 py-1 rounded-full text-white" style={{background:'#9b1106'}}>Câu {qi+1} / {lesson.quiz.length}</span>
+              <span className="text-xs text-gray-400">{score} đúng · cần ≥ 60%</span>
+            </div>
+            <PBar val={qi+1} max={lesson.quiz.length} color="#9b1106"/>
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <p className="font-semibold text-gray-900 text-base leading-relaxed">{lesson.quiz[qi].q}</p>
+            </div>
+            <div className="space-y-3">
+              {lesson.quiz[qi].opts.map((opt,i)=>{
+                let cls='';
+                if(checked){if(i===lesson.quiz[qi].correct)cls='correct';else if(i===picked)cls='wrong';}
+                else if(picked===i)cls='selected';
+                return(
+                  <button key={i} onClick={()=>!checked&&setPicked(i)} className={`opt-btn ${cls}`}>
+                    <span className={`inline-flex w-7 h-7 rounded-full border-2 mr-3 items-center justify-center text-xs font-bold flex-shrink-0 align-middle transition-all ${checked&&i===lesson.quiz[qi].correct?'bg-green-500 border-green-500 text-white':checked&&i===picked?'bg-red-400 border-red-400 text-white':picked===i?'border-rni-600 text-rni-600':'border-gray-300 text-gray-400'}`}>{String.fromCharCode(65+i)}</span>
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+            {!checked?(
+              <button onClick={handleCheck} disabled={picked===null} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 disabled:opacity-40" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>Kiểm tra đáp án</button>
+            ):(
+              <div className="space-y-3">
+                <div className={`rounded-xl px-4 py-3 text-sm font-semibold ${picked===lesson.quiz[qi].correct?'bg-green-100 text-green-700':'bg-red-50 text-red-600'}`}>
+                  {picked===lesson.quiz[qi].correct?'✓ Chính xác! Bạn hiểu đúng rồi.':`✗ Chưa đúng. Đáp án là: ${String.fromCharCode(65+lesson.quiz[qi].correct)}.`}
+                </div>
+                <button onClick={handleNextQ} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+                  {qi<lesson.quiz.length-1?'Câu tiếp theo →':'Xem kết quả'}
+                </button>
               </div>
             )}
-
+          </div>
+        ):(
+          <div className="text-center py-8 fade-in">
+            <div className="text-5xl mb-4">{score/lesson.quiz.length>=.6?'🏆':'📖'}</div>
+            <h3 className="font-heading font-black text-2xl text-gray-900 mb-2">{score} / {lesson.quiz.length} câu đúng</h3>
+            <p className="text-sm mb-1" style={{color:score/lesson.quiz.length>=.6?'#16a34a':'#9b1106',fontWeight:600}}>
+              {score/lesson.quiz.length>=.6?'✓ Đạt! Bạn đã nắm vững bài học này.':'Chưa đạt — hãy xem lại video và thử lại nhé!'}
+            </p>
+            <p className="text-gray-500 text-sm mb-6">{Math.round(score/lesson.quiz.length*100)}% · Cần đạt ≥ 60%</p>
+            {score/lesson.quiz.length>=.6&&!isDone&&(
+              <button onClick={()=>setTab('practice')} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 mb-3" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+                Tiếp theo → Thực hành
+              </button>
+            )}
+            <button onClick={()=>{setQi(0);setPicked(null);setChecked(false);setQuizDone(false);setScore(0);}} className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-gray-300 transition-all">
+              Làm lại từ đầu
+            </button>
+          </div>
+        )}
+      </>
+    )}
+  </div>
+)}
             {/* PRACTICE TAB */}
             {tab==='practice'&&!isSimple&&(
               <div className="space-y-4 fade-in">

@@ -2051,12 +2051,35 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
 
 /* ─── ZALO CERT SCREEN ─────────────────────────────────────────── */
 function CertScreen({userName,courseId,onBack,onDone}){
-  const [step,setStep]=useState('intro');// intro → survey → community
+  const [step,setStep]=useState('intro');
   const [showZalo,setShowZalo]=useState(false);
+  const [showCert,setShowCert]=useState(false);
   const course=COURSES[courseId];
   const accent=course?.accent||'#9b1106';
-  const upsellBottom=UPSELL.filter(u=>u.courses.includes(courseId)).slice(0,3);
 
+  // Tạo chứng chỉ bằng Canvas
+  const downloadCert=()=>{
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      canvas.width=img.width;canvas.height=img.height;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0);
+      // Font Playfair Display Italic cho tên
+      ctx.font=`italic bold ${img.width*0.045}px 'Playfair Display', serif`;
+      ctx.fillStyle='#9b1106';
+      ctx.textAlign='center';
+      ctx.fillText(userName,img.width*0.5,img.height*0.44);
+      const a=document.createElement('a');
+      a.download=`chung-chi-rni-${userName.replace(/\s+/g,'-')}.png`;
+      a.href=canvas.toDataURL('image/png');
+      a.click();
+    };
+    img.src='/mnt/user-data/uploads/Chứng_chỉ_dtvntb.png';
+  };
+
+  // step survey — giữ nguyên
   if(step==='survey'){
     return(
       <div className="min-h-screen bg-gray-50">
@@ -2071,15 +2094,11 @@ function CertScreen({userName,courseId,onBack,onDone}){
             <div className="text-center mb-5">
               <div className="text-4xl mb-3">🌸</div>
               <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Bản tự vấn định vị</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">
-                Mỗi hành trình chuyển hóa đều cần một điểm khởi đầu trung thực. Bản tự vấn dưới đây được thiết kế để giúp bạn soi rọi lại mức độ sẵn sàng của nội tâm sau những bài học vừa qua.
-              </p>
-              <p className="text-gray-400 text-sm mt-3 leading-relaxed">
-                Dựa trên những chia sẻ này, đội ngũ phụng sự RNI sẽ cùng chiêm nghiệm để tìm ra phương thức đồng hành phù hợp nhất với chặng đường tiếp theo của bạn.
-              </p>
+              <p className="text-gray-500 text-sm leading-relaxed">Mỗi hành trình chuyển hóa đều cần một điểm khởi đầu trung thực. Bản tự vấn dưới đây được thiết kế để giúp bạn soi rọi lại mức độ sẵn sàng của nội tâm sau những bài học vừa qua.</p>
+              <p className="text-gray-400 text-sm mt-3 leading-relaxed">Dựa trên những chia sẻ này, đội ngũ phụng sự RNI sẽ cùng chiêm nghiệm để tìm ra phương thức đồng hành phù hợp nhất với chặng đường tiếp theo của bạn.</p>
             </div>
             <div className="rounded-2xl overflow-hidden border border-gray-200" style={{height:600}}>
-              <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSe-XUcJUh8RAbL4c8uT6/viewform?embedded=true" width="100%" height="600" frameBorder="0" marginHeight="0" marginWidth="0" title="Khảo sát RNI">Đang tải…</iframe>
+              <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd3nU31GDN2f0eQv9DOp9YGKRAyZu8EJ7VQBP0oIsdGhrlgJw/viewform?embedded=true" width="100%" height="600" frameBorder="0" marginHeight="0" marginWidth="0" title="Khảo sát RNI">Đang tải…</iframe>
             </div>
             <button onClick={()=>setStep('community')} className="w-full mt-5 py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>
               Hoàn tất khảo sát để nhận lộ trình phù hợp →
@@ -2090,6 +2109,7 @@ function CertScreen({userName,courseId,onBack,onDone}){
     );
   }
 
+  // step community — giữ nguyên
   if(step==='community'){
     return(
       <div className="min-h-screen bg-gray-50">
@@ -2104,72 +2124,153 @@ function CertScreen({userName,courseId,onBack,onDone}){
             <div className="text-5xl mb-4">💗</div>
             <h3 className="font-heading font-black text-xl text-gray-900 mb-3">Cảm ơn bạn đã dành thời gian tĩnh lặng để trung thực với chính mình.</h3>
             <p className="text-gray-500 text-sm leading-relaxed mb-6">Đội ngũ phụng sự sẽ dành thời gian đọc kỹ những chia sẻ của bạn và tìm ra cách đồng hành phù hợp nhất.</p>
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-5 text-left">
-              <p className="font-semibold text-gray-800 mb-2">🌻 Tham gia cộng đồng Đánh Thức Viên Ngọc Trong Bạn</p>
-              <p className="text-gray-500 text-sm leading-relaxed mb-4">Nơi để bạn nuôi dưỡng hành trình và nhận những tài liệu, chia sẻ giá trị từ Ruby Nguyễn và cộng đồng.</p>
-              <a href="https://www.facebook.com/groups/767075350423065" target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:'linear-gradient(135deg,#1877f2,#0d5bcc)'}}>
-                <span>👥</span> Tham gia cộng đồng ngay
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4 text-left">
+              <p className="text-xs text-gray-500 mb-2">Tham gia để nuôi dưỡng hành trình và nhận chia sẻ giá trị từ Ruby Nguyễn và cộng đồng.</p>
+              <a href="https://www.facebook.com/groups/767075350423065" target="_blank" rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-white font-semibold text-xs shadow-md transition-all active:scale-95"
+                style={{background:'linear-gradient(135deg,#1877f2,#0d5bcc)'}}>
+                <span>👥</span> Tham gia cộng đồng Đánh Thức Viên Ngọc Trong Bạn
               </a>
             </div>
             <button onClick={onDone} className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm hover:border-gray-300 transition-all">
               Về tổng quan khoá học
             </button>
           </div>
-
-          {/* upsell bottom */}
-          {upsellBottom.length>0&&(
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Tiếp tục hành trình với RNI</p>
-              <div className="space-y-3">{upsellBottom.map(u=><UpsellCard key={u.id} product={u}/>)}</div>
-            </div>
-          )}
         </div>
       </div>
     );
   }
 
-  // intro step
+  // ─── INTRO STEP MỚI ───
+  const COURSES_CHUYEN_SAU=[
+    {title:'Khai Vấn Tỉnh Thức',tag:'Chương trình chuyên sâu',desc:'Đánh thức phiên bản người Khai Vấn Tỉnh Thức trong bạn',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2162803741/settings_images/6cb776-a62e-6d4a-2ea-5ca3e5edbf2_Cover_Khai_V_n_T_nh_Th_c_ng_D_ng_2.png',url:'https://www.rni.institute/workshop-khai-van-tinh-thuc-ung-dung'},
+    {title:'Thiết Kế Cuộc Đời',tag:'Chương trình chuyên sâu',desc:'Thiết kế cuộc đời mơ ước và hạnh phúc theo cách của riêng bạn',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/eed06eb-1e47-5d6b-8b8-2eb2bbc60a_6.png',url:'https://www.rni.institute/thiet-ke-cuoc-doi'},
+    {title:'Tiếng Nói Từ Tâm',tag:'Chương trình chuyên sâu',desc:'Biến tiếng nói thành công cụ trao giá trị xuất sắc và chạm tới ngàn trái tim',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/0644dc7-fbcf-467e-636f-42e05621a3fc_Ti_ng_N_i_T_T_m.png',url:'https://www.rni.institute/tieng-noi-tu-tam-chuyen-sau'},
+  ];
+
   return(
     <div className="min-h-screen bg-gray-50">
+      {/* header */}
       <div className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-20">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
           <button onClick={onBack} className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200">←</button>
           <h2 className="font-heading font-black text-base text-gray-900">Hoàn thành khoá học</h2>
-        </div>
-      </div>
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="text-center mb-7 bounce-in">
-          <div className="text-5xl mb-3 float">🎓</div>
-          <h1 className="font-heading font-black text-2xl text-gray-900 mb-1">Chúc mừng, {userName}!</h1>
-          <p className="text-gray-500 text-sm">Bạn đã hoàn thành khoá học<br/><strong>{course?.title}</strong></p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-5">
-          <h3 className="font-semibold text-gray-800 mb-3">🏆 Nhận chứng chỉ hoàn thành</h3>
-          <p className="text-gray-500 text-sm leading-relaxed mb-4">
-            Để nhận chứng chỉ, bạn hãy nhấn nút bên dưới để kết nối với Zalo OA của RNI. Sau khi nhấn <strong>Quan tâm</strong>, Zalo OA sẽ tự động gửi chứng chỉ hoàn thành cho bạn.
-          </p>
-          <button onClick={()=>setShowZalo(true)} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:'linear-gradient(135deg,#00b14f,#009a3e)'}}>
-            🎖 Nhận chứng chỉ qua Zalo
+          {/* Nút nhận chứng chỉ nhỏ ở góc phải */}
+          <button onClick={()=>setShowCert(true)}
+            className="text-xs font-semibold text-gray-400 hover:text-rni-600 border border-gray-200 px-3 py-1.5 rounded-xl hover:border-rni-200 transition-all">
+            🎓 Chứng chỉ
           </button>
         </div>
+      </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-5">
-          <h3 className="font-semibold text-gray-800 mb-2">🌸 Bước tiếp theo của bạn</h3>
-          <p className="text-gray-500 text-sm leading-relaxed mb-4">Trước khi kết thúc, hãy dành vài phút để điền bản tự vấn chiêm nghiệm — để đội ngũ RNI hiểu bạn hơn và đồng hành phù hợp nhất.</p>
-          <button onClick={()=>setStep('survey')} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
+        {/* Chúc mừng + video Ruby */}
+        <div className="text-center mb-2 bounce-in">
+          <h1 className="font-heading font-black text-2xl text-gray-900 mb-1">Chúc mừng, {userName}! 🎉</h1>
+          <p className="text-gray-500 text-sm">Bạn đã hoàn thành khoá học <strong>{course?.title}</strong></p>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-5 pt-4 pb-3">
+            <p className="text-sm font-bold text-gray-900">Chia sẻ từ Cô Ruby Nguyen</p>
+            <p className="text-xs text-gray-400 mt-0.5">Dành riêng cho bạn sau hành trình này</p>
+          </div>
+          <div className="px-5 pb-5">
+            <div className="video-outer">
+              <iframe src="https://www.youtube.com/embed/us-aTUdBXZo?rel=0&modestbranding=1"
+                title="Chia sẻ từ cô Ruby" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen/>
+            </div>
+          </div>
+        </div>
+
+        {/* 3 khoá chuyên sâu */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Chặng tiếp theo của bạn</p>
+            <h3 className="font-heading font-black text-base text-gray-900">Các khoá chuyên sâu từ Học viện RNI</h3>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {COURSES_CHUYEN_SAU.map((c,i)=>(
+              <a key={i} href={c.url} target="_blank" rel="noopener noreferrer"
+                className="flex gap-4 px-5 py-4 hover:bg-gray-50 transition-all">
+                <img src={c.img} alt={c.title} className="w-20 h-16 object-cover rounded-xl flex-shrink-0" onError={e=>e.target.style.display='none'}/>
+                <div className="min-w-0 flex-1">
+                  <span className="text-xs text-rni-600 font-semibold">{c.tag}</span>
+                  <p className="text-sm font-bold text-gray-900 leading-snug mt-0.5">{c.title}</p>
+                  <p className="text-xs text-gray-400 leading-snug mt-1 line-clamp-2">{c.desc}</p>
+                </div>
+                <span className="text-gray-300 flex-shrink-0 self-center">›</span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Coach 1:1 — nổi bật */}
+        <div className="rounded-2xl overflow-hidden shadow-sm" style={{background:'linear-gradient(135deg,#9b1106 0%,#c41a0a 60%,#d97706 100%)'}}>
+          <div className="px-6 py-5 text-white">
+            <p className="text-xs font-semibold uppercase tracking-widest opacity-70 mb-1">Đồng hành 1:1</p>
+            <h3 className="font-heading font-black text-xl mb-2">Phiên Coach Khai Vấn 1:1</h3>
+            <p className="text-sm opacity-85 leading-relaxed mb-1">Một buổi khai vấn 1 tiếng sẽ đi sâu vào tâm tư, tháo gỡ vướng mắc và chăm sóc hành trình của bạn theo cách không một khoá học nào có thể thay thế.</p>
+            <p className="text-xs opacity-60 mb-4">Phiên khai vấn diễn ra trong 1 tiếng · Có phí · Giá trị cao</p>
+            <a href="https://www.rni.institute/dat-lich-coaching-1-1" target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white font-bold text-sm px-5 py-2.5 rounded-xl transition-all hover:opacity-90 active:scale-95"
+              style={{color:'#9b1106'}}>
+              Đặt lịch Coach 1:1 →
+            </a>
+          </div>
+        </div>
+
+        {/* Tư vấn nhanh + Cộng đồng — nhỏ */}
+        <div className="grid grid-cols-2 gap-3">
+          <a href="https://zalo.me/4096198069463501502" target="_blank" rel="noopener noreferrer"
+            className="bg-white rounded-2xl border border-gray-100 px-4 py-4 hover:border-rni-200 hover:shadow-sm transition-all">
+            <p className="text-lg mb-1">💬</p>
+            <p className="text-xs font-bold text-gray-800">Tư vấn nhanh</p>
+            <p className="text-xs text-gray-400 mt-1 leading-relaxed">Cung cấp thêm thông tin về chương trình và lộ trình</p>
+          </a>
+          <a href="https://www.facebook.com/groups/767075350423065" target="_blank" rel="noopener noreferrer"
+            className="bg-white rounded-2xl border border-gray-100 px-4 py-4 hover:border-blue-200 hover:shadow-sm transition-all">
+            <p className="text-lg mb-1">👥</p>
+            <p className="text-xs font-bold text-gray-800">Cộng đồng</p>
+            <p className="text-xs text-gray-400 mt-1 leading-relaxed">Nhận giá trị và kết nối với những người cùng hành trình</p>
+          </a>
+        </div>
+
+        {/* Bản tự vấn */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <h3 className="font-semibold text-gray-800 mb-2">🌸 Bản tự vấn chiêm nghiệm</h3>
+          <p className="text-gray-500 text-sm leading-relaxed mb-4">Trước khi kết thúc, hãy dành vài phút để điền bản tự vấn — để đội ngũ RNI hiểu bạn hơn và đồng hành phù hợp nhất.</p>
+          <button onClick={()=>setStep('survey')} className="w-full py-3 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>
             Điền bản tự vấn →
           </button>
         </div>
-
-        {/* upsell */}
-        {upsellBottom.length>0&&(
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Khám phá thêm từ RNI</p>
-            <div className="space-y-3">{upsellBottom.map(u=><UpsellCard key={u.id} product={u}/>)}</div>
-          </div>
-        )}
       </div>
+
+      {/* Popup nhận chứng chỉ */}
+      {showCert&&(
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4" onClick={()=>setShowCert(false)}>
+          <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center zalo-popup" onClick={e=>e.stopPropagation()}>
+            <div className="text-4xl mb-3">🎓</div>
+            <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Chứng chỉ hoàn thành</h3>
+            <p className="text-gray-500 text-sm leading-relaxed mb-4">
+              Tên trên chứng chỉ: <strong className="text-gray-800">{userName}</strong>
+            </p>
+            <button onClick={downloadCert}
+              className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 mb-3"
+              style={{background:'linear-gradient(135deg,#f59e0b,#d97706)'}}>
+              ⬇ Tải chứng chỉ PNG
+            </button>
+            <p className="text-xs text-gray-400 mb-4">Hoặc nhận qua Zalo để lưu dễ hơn:</p>
+            <button onClick={()=>{setShowCert(false);setShowZalo(true);}}
+              className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all active:scale-95 mb-3"
+              style={{background:'linear-gradient(135deg,#00b14f,#009a3e)'}}>
+              📱 Nhận qua Zalo OA
+            </button>
+            <button onClick={()=>setShowCert(false)} className="w-full py-2.5 rounded-xl border-2 border-gray-200 text-gray-500 text-xs font-semibold">
+              Đóng
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Zalo popup */}
       {showZalo&&(
@@ -2178,12 +2279,8 @@ function CertScreen({userName,courseId,onBack,onDone}){
             <div className="text-4xl mb-3">📱</div>
             <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Nhận chứng chỉ qua Zalo</h3>
             <p className="text-gray-500 text-sm leading-relaxed mb-5">
-              Nhấn nút bên dưới để truy cập Zalo OA của RNI.<br/>
-              Nhấn <strong>Quan tâm</strong> — Zalo OA sẽ tự động gửi chứng chỉ cho bạn ngay sau đó.
+              Nhấn <strong>Quan tâm</strong> Zalo OA của RNI để nhận chứng chỉ hoàn thành.
             </p>
-            <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-5 text-sm text-green-700">
-              🔒 Toàn bộ quá trình diễn ra trong giao diện này — bạn không cần rời khỏi trang web.
-            </div>
             <div className="rounded-xl overflow-hidden mb-4" style={{height:400}}>
               <iframe src="https://zalo.me/4096198069463501502" width="100%" height="400" frameBorder="0" title="Zalo OA RNI"/>
             </div>
@@ -2196,7 +2293,6 @@ function CertScreen({userName,courseId,onBack,onDone}){
     </div>
   );
 }
-
 /* ─── APP ──────────────────────────────────────────────────────── */
 function App(){
   const [screen,setScreen]=useState('preQuiz');

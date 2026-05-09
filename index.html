@@ -1873,6 +1873,18 @@ if(n&&c&&lastVisit>0&&hoursSince>2){
     }catch{}
     setScreen('preQuiz');setUserName('');setCourseId(null);setQuizResult(null);setProgress({});
   };
+  const handleQuizResultContinue=()=>{
+  const preN=localStorage.getItem('rni-pre-name')||'Học viên';
+  const preE=localStorage.getItem('rni-pre-email')||'';
+  setUserName(preN);
+  try{
+    localStorage.setItem('rni-name',preN);
+    if(preE)localStorage.setItem('rni-email',preE);
+    localStorage.setItem('rni-course',quizResult);
+    localStorage.removeItem('rni-quiz-result');
+  }catch{}
+  setScreen('dashboard');
+};
   if(showWelcomeBack)return(
   <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
     <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center bounce-in">
@@ -1893,18 +1905,7 @@ if(n&&c&&lastVisit>0&&hoursSince>2){
     setScreen('quizLoading');
   }} onBack={()=>setScreen('quizTransition')}/>;
   if(screen==='quizLoading')return <QuizLoading onDone={()=>setScreen('quizResult')}/>;
-  if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={()=>{
-  const n=localStorage.getItem('rni-pre-name')||'Học viên';
-  const e=localStorage.getItem('rni-pre-email')||'';
-  setUserName(n);
-  try{
-    localStorage.setItem('rni-name',n);
-    if(e)localStorage.setItem('rni-email',e);
-    localStorage.setItem('rni-course',quizResult);
-    localStorage.removeItem('rni-quiz-result');
-  }catch{}
-  setScreen('dashboard');
-}} onBack={()=>setScreen('quiz')}/>;
+  if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={handleQuizResultContinue} onBack={()=>setScreen('quiz')}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}}/>;
   return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} onRedo={()=>{try{localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');localStorage.removeItem('rni-email');}catch{}setUserName('');setCourseId(null);setScreen('preQuiz');}}/>;

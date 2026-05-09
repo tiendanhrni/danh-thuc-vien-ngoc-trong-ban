@@ -1422,7 +1422,7 @@ function MatchingGame({quiz,onComplete}){
     <button onClick={onComplete}
       className="w-full py-3 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95"
       style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
-      Tiếp theo → Trắc nghiệm
+      Tiếp theo → Thực hành
     </button>
   </div>
 );
@@ -1621,9 +1621,12 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
             {/* QUIZ TAB */}
             {tab==='quiz'&&!isSimple&&(
   <div className="fade-in">
-    {lesson.quiz[0]?.type==='matching'?(
-      <MatchingGame quiz={lesson.quiz[0]} onComplete={()=>setQuizDone(true)}/>
-    ):(
+{lesson.quiz[0]?.type==='matching'?(
+  <MatchingGame quiz={lesson.quiz[0]} onComplete={()=>{
+    setQuizDone(true);
+    setTab('practice');
+  }}/>
+):(
       <>
         {!quizDone?(
           <div className="space-y-4">

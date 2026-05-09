@@ -440,9 +440,20 @@ const COURSES={
 /* ─── HELPERS ──────────────────────────────────────────────────────── */
 const getModules=(cId)=>COURSES[cId]?.modules||[];
 const getAllLessons=(cId)=>getModules(cId).flatMap(m=>m.lessons.map(l=>({...l,moduleId:m.id,isQA:!!m.isQA,isStory:!!m.isStory})));
-const isUnlocked=(lId,prog,cId)=>{const all=getAllLessons(cId);const i=all.findIndex(l=>l.id===lId);if(i===0)return true;return !!prog[all[i-1]?.id];};
+const isUnlocked=(lId,prog,cId)=>{
+  const all=getAllLessons(cId);
+  const lesson=all.find(l=>l.id===lId);
+  if(lesson?.isStory)return true; // story luôn mở
+  const i=all.findIndex(l=>l.id===lId);
+  if(i===0)return true;
+  return !!prog[all[i-1]?.id];
+};
 // Course complete = watched first story lesson
-const isCourseComplete=(prog,cId)=>{const all=getAllLessons(cId);const storyLesson=all.find(l=>l.isStory);return storyLesson?!!prog[storyLesson.id]:all.every(l=>!!prog[l.id]);};
+const isCourseComplete=(prog,cId)=>{
+  const all=getAllLessons(cId);
+  const nonStory=all.filter(l=>!l.isStory);
+  return nonStory.every(l=>!!prog[l.id]);
+};
 
 function UpsellCard({product}){
   return(
@@ -770,25 +781,23 @@ function QuizResultScreen({result,onContinue,onBack}){
         </div>
 
         {/* share social */}
-        <div className="text-center pb-8">
-          <p className="text-xs text-gray-400 mb-3">Chia sẻ kết quả với bạn bè</p>
-          <div className="flex items-center justify-center gap-3">
-            <a href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrlEnc}`} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs font-semibold transition-all hover:opacity-90 active:scale-95"
-              style={{background:'#1877f2'}}>
-              Facebook
-            </a>
-            <a href={`https://social-plugins.line.me/lineit/share?url=${shareUrlEnc}`} target="_blank" rel="noopener noreferrer"
-              onClick={e=>{e.preventDefault();const zaloUrl='zalo://sharing?href='+shareUrlEnc+'&text='+shareTextEnc;window.open('https://zalo.me/','_blank');}}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs font-semibold transition-all hover:opacity-90 active:scale-95"
-              style={{background:'#0068ff'}}>
-              Zalo
-            </a>
-            <button onClick={()=>{try{navigator.clipboard.writeText(pageUrl).then(()=>alert('Đã sao chép link!'));}catch{alert('Link: '+pageUrl);}}}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-gray-600 text-xs font-semibold border-2 border-gray-200 transition-all hover:border-gray-300 active:scale-95">
-              Sao chép link
-            </button>
-          </div>
+<div className="text-center pb-8">
+  <p className="text-xs text-gray-400 mb-3">Chia sẻ kết quả với bạn bè</p>
+  <div className="flex items-center justify-center gap-3">
+    <a href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrlEnc}`} target="_blank" rel="noopener noreferrer"
+      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all hover:opacity-85 active:scale-90"
+      style={{background:'#1877f2'}}>f</a>
+    <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrlEnc}`} target="_blank" rel="noopener noreferrer"
+      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs transition-all hover:opacity-85 active:scale-90"
+      style={{background:'#0a66c2'}}>in</a>
+    <a href={`https://api.whatsapp.com/send?text=${shareTextEnc}%20${shareUrlEnc}`} target="_blank" rel="noopener noreferrer"
+      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all hover:opacity-85 active:scale-90"
+      style={{background:'#25d366'}}>W</a>
+    <button onClick={()=>{try{navigator.clipboard.writeText(pageUrl).then(()=>alert('Đã sao chép link!'));}catch{alert('Link: '+pageUrl);}}}
+      className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 border-2 border-gray-200 transition-all hover:border-gray-400 active:scale-90 text-base">
+      🔗
+    </button>
+  </div>
           <p className="text-xs text-gray-400 mt-4"><span className="font-semibold text-rni-600">Học viện RNI</span> · Return · Nurture · Illuminate</p>
         </div>
       </div>
@@ -1447,6 +1456,9 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
   const next=all.find(l=>!progress[l.id]);
   const completed=isCourseComplete(progress,courseId);
   const accent=course?.accent||'#9b1106';
+  const [showCompletionPopup,setShowCompletionPopup]=useState(()=>{
+  try{return completed&&!localStorage.getItem('rni-completion-seen-'+courseId);}catch{return false;}
+});
 
   return(
     <div className="min-h-screen bg-gray-50">
@@ -1599,7 +1611,39 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
           <p className="text-xs text-gray-300 italic mt-1">"Mỗi người đều mang trong mình một viên ngọc sáng."</p>
         </div>
       </div>
-
+      {showCompletionPopup&&(
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+    <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
+      <div className="px-6 pt-6 pb-4 text-center">
+        <h3 className="font-heading font-black text-xl text-gray-900 mb-1">🎉 Chúc mừng, {userName}!</h3>
+        <p className="text-gray-500 text-sm">Bạn đã hoàn thành khoá học</p>
+      </div>
+      <div className="px-6 pb-4">
+        <div className="video-outer">
+          <iframe src="https://www.youtube.com/embed/us-aTUdBXZo?rel=0&modestbranding=1&autoplay=1"
+            title="Chúc mừng từ cô Ruby"
+            allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"
+            allowFullScreen/>
+        </div>
+      </div>
+      <div className="px-6 pb-6 space-y-3">
+        <button onClick={()=>{
+          try{localStorage.setItem('rni-completion-seen-'+courseId,'1');}catch{}
+          setShowCompletionPopup(false);onCert();
+        }} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95"
+          style={{background:'linear-gradient(135deg,#f59e0b,#d97706)'}}>
+          🎓 Nhận chứng chỉ & điền bản tự vấn
+        </button>
+        <button onClick={()=>{
+          try{localStorage.setItem('rni-completion-seen-'+courseId,'1');}catch{}
+          setShowCompletionPopup(false);
+        }} className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold text-sm">
+          Xem lại sau
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       <ChatButton/>
     </div>
   );
@@ -1816,18 +1860,18 @@ function App(){
     setScreen('quizLoading');
   }} onBack={()=>setScreen('quizTransition')}/>;
   if(screen==='quizLoading')return <QuizLoading onDone={()=>setScreen('quizResult')}/>;
-  if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={()=>setScreen('register')} onBack={()=>setScreen('quiz')}/>;
-  if(screen==='register')return <RegisterScreen courseId={courseId} onBack={()=>setScreen('quizResult')} onDone={(n,e)=>{
-    const name=n||'Học viên';
-    setUserName(name);
-    try{
-      localStorage.setItem('rni-name',name);
-      if(e)localStorage.setItem('rni-email',e);
-      localStorage.setItem('rni-course',courseId);
-      localStorage.removeItem('rni-quiz-result');// đã đăng ký, không cần giữ quiz result
-    }catch{}
-    setScreen('dashboard');
-  }}/>;
+  if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={()=>{
+  const n=localStorage.getItem('rni-pre-name')||'Học viên';
+  const e=localStorage.getItem('rni-pre-email')||'';
+  setUserName(n);
+  try{
+    localStorage.setItem('rni-name',n);
+    if(e)localStorage.setItem('rni-email',e);
+    localStorage.setItem('rni-course',quizResult);
+    localStorage.removeItem('rni-quiz-result');
+  }catch{}
+  setScreen('dashboard');
+}} onBack={()=>setScreen('quiz')}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}}/>;
   return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} onRedo={()=>{try{localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');localStorage.removeItem('rni-email');}catch{}setUserName('');setCourseId(null);setScreen('preQuiz');}}/>;

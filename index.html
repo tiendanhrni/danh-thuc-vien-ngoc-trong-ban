@@ -748,7 +748,7 @@ function QuizResultScreen({result,onContinue,onBack}){
             <div className="px-5 pb-5">
               <div className="video-outer">
                 <iframe
-                  src={`https://www.youtube.com/embed/${r.rubyVideoId}?rel=0&modestbranding=1&controls=0`}
+                  src={`https://www.youtube.com/embed/${r.rubyVideoId}?rel=0&modestbranding=1`}
                   title="Chia sẻ của Cô Ruby Nguyen"
                   allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"
                   allowFullScreen
@@ -1579,12 +1579,12 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
                     {lesson.videos.map((v,vi)=>(
                       <div key={v.id}>
                         <p className="text-xs font-semibold text-gray-500 mb-2 px-1">{v.title}</p>
-                        <div className="video-outer"><div className="yt-top"/><div className="yt-bot"/><iframe src={`https://www.youtube.com/embed/${v.videoId}?rel=0&modestbranding=1&controls=0`} title={v.title} allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen/></div>
+                        <div className="video-outer"><div className="yt-top"/><div className="yt-bot"/><iframe src={`https://www.youtube.com/embed/${v.videoId}?rel=0&modestbranding=1`} title={v.title} allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen/></div>
                       </div>
                     ))}
                   </div>
                 ):lesson.videoId?(
-                  <div className="video-outer"><div className="yt-top"/><div className="yt-bot"/><iframe src={`https://www.youtube.com/embed/${lesson.videoId}?rel=0&modestbranding=1&controls=0`} title={lesson.title} allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen/></div>
+                  <div className="video-outer"><div className="yt-top"/><div className="yt-bot"/><iframe src={`https://www.youtube.com/embed/${lesson.videoId}?rel=0&modestbranding=1`} title={lesson.title} allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen/></div>
                 ):(
                   <div className="rounded-2xl flex items-center justify-center bg-gray-900" style={{aspectRatio:'16/9'}}>
                     <div className="text-center text-white"><p className="text-sm font-medium opacity-70">Video sẽ sớm ra mắt</p><p className="text-xs opacity-40 mt-1">Đang trong quá trình sản xuất</p></div>
@@ -2020,7 +2020,7 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
       </div>
       <div className="px-6 pb-4">
         <div className="video-outer">
-          <iframe src="https://www.youtube.com/embed/us-aTUdBXZo?rel=0&modestbranding=1&controls=0&autoplay=1"
+          <iframe src="https://www.youtube.com/embed/us-aTUdBXZo?rel=0&modestbranding=1&autoplay=1"
             title="Chúc mừng từ cô Ruby"
             allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"
             allowFullScreen/>
@@ -2241,7 +2241,7 @@ function CertScreen({userName,courseId,onBack,onDone}){
           </div>
           <div className="px-5 pb-5">
             <div className="video-outer">
-              <iframe src="https://www.youtube.com/embed/us-aTUdBXZo?rel=0&modestbranding=1&controls=0&controls=0"
+              <iframe src="https://www.youtube.com/embed/us-aTUdBXZo?rel=0&modestbranding=1&controls=0"
                 title="Chia sẻ từ cô Ruby" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen/>
             </div>
           </div>

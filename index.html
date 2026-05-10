@@ -37,6 +37,7 @@ body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:#fdfbf7;color:
 .video-outer::before,.video-outer::after{content:'';position:absolute;left:0;right:0;height:32px;background:#111;z-index:3;pointer-events:none}
 .video-outer::before{top:0;border-radius:14px 14px 0 0}
 .video-outer::after{bottom:0;border-radius:0 0 14px 14px}
+  .video-cert::before,.video-cert::after{display:none}
 .tab-btn{padding:10px 18px;font-size:.82rem;font-weight:600;border-bottom:2.5px solid transparent;transition:all .2s;white-space:nowrap}
 .tab-btn.active{color:#9b1106;border-bottom-color:#9b1106}
 .tab-btn:not(.active){color:#9ca3af}
@@ -2020,8 +2021,8 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
         <p className="text-gray-500 text-sm">Bạn đã hoàn thành khoá học</p>
       </div>
       <div className="px-6 pb-4">
-        <div className="video-outer">
-          <iframe src="https://www.youtube.com/embed/us-aTUdBXZo?rel=0&modestbranding=1&autoplay=1"
+         <div className="video-outer video-cert">
+        <iframe src="https://www.youtube.com/embed/us-aTUdBXZo?rel=0&modestbranding=1&autoplay=1"
   title="Chúc mừng từ cô Ruby"
   allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen"
   allowFullScreen

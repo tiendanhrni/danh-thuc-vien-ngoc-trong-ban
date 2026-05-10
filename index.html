@@ -2152,24 +2152,30 @@ function CertScreen({userName,courseId,onBack,onDone}){
                 <ul className="space-y-1.5 mb-3">
                   <li className="flex items-start gap-2 text-xs text-gray-500">
                     <span className="text-rni-500 mt-0.5 flex-shrink-0">✦</span>
-                    Giải đáp chi tiết về nội dung và giá trị cốt lõi của từng chương trình
+                    Giải đáp chi tiết về nội dung và giá trị cốt lõi của từng chương trình đào tạo tại Học viện RNI
                   </li>
                   <li className="flex items-start gap-2 text-xs text-gray-500">
                     <span className="text-rni-500 mt-0.5 flex-shrink-0">✦</span>
                     Phác thảo lộ trình học tập sát sao và hiệu quả nhất với bạn
                   </li>
                 </ul>
-                <p className="text-xs text-gray-400 italic leading-relaxed mb-4">Lưu ý: Đây là hỗ trợ thông tin giáo dục, không phải phiên khai vấn tháo gỡ vướng mắc cá nhân.</p>
+                <p className="text-xs text-gray-400 italic leading-relaxed mb-4">Lưu ý: Đây là phần hỗ trợ thông tin giáo dục, không phải phiên khai vấn tháo gỡ vướng mắc cá nhân.</p>
                 <button onClick={()=>setShowZalo(true)}
                   className="w-full py-2.5 rounded-xl text-white font-semibold text-xs shadow-sm transition-all active:scale-95"
                   style={{background:'linear-gradient(135deg,#00b14f,#009a3e)'}}>
-                  Kết nối Zalo OA của RNI →
+                  Kết nối đội ngũ hỗ trợ RNI →
                 </button>
               </div>
               {/* Cột 2: Cộng đồng */}
               <div className="px-5 py-5">
                 <p className="text-sm font-bold text-gray-900 mb-2">👥 Cộng đồng Đánh Thức Viên Ngọc Trong Bạn</p>
-                <p className="text-xs text-gray-500 leading-relaxed mb-4">Một môi trường lành mạnh là nơi "giữ lửa" cho ngọn lửa tỉnh thức trong bạn cháy bền bỉ hơn. Tham gia cùng những người cùng sứ mệnh, cùng tần số đang ngày ngày vun bồi giá trị chân thật và lan tỏa ánh sáng cho nhau, cho đời.</p>
+                <p className="text-xs text-gray-500 leading-relaxed mb-4">Một môi trường lành mạnh là nơi "giữ lửa" cho ngọn lửa tỉnh thức trong bạn cháy bền bỉ hơn. Tham gia cùng những người cùng sứ mệnh, cùng tần số đang ngày ngày vun bồi giá trị chân thật và lan tỏa ánh sáng cho nhau, cho đời. <br/>
+                  Cộng đồng Đánh Thức Viên Ngọc Trong Bạn được Học viện Giáo dục chậm RNI tạo ra như một không gian năng lượng an toàn giúp bạn:<br/>
+Quay về với chính mình, để dưỡng tâm và nuôi dưỡng sự vững vàng từ bên trong.<br/>
+Đem sự tỉnh thức vào đời sống thường nhật, không phải sống cao hơn hay khác người, mà là sống sâu hơn trong chính những vai trò quen thuộc.<br/>
+Dành cho những ai:<br/>
+* Muốn xây dựng một sự nghiệp có ý nghĩa – một công việc phản ánh đúng con người bạn, nơi bạn có thể cống hiến mà không cần đánh đổi sự bình an bên trong.<br/>
+* Đang làm hoặc muốn chuyển hướng tới công việc đồng hành cùng sự phát triển của con người (Khai vấn, giáo dục đào tạo... )</p>
                 <a href="https://www.facebook.com/groups/767075350423065" target="_blank" rel="noopener noreferrer"
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-white font-semibold text-xs shadow-sm transition-all active:scale-95"
                   style={{background:'linear-gradient(135deg,#1877f2,#0d5bcc)'}}>

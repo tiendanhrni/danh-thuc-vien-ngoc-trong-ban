@@ -2256,49 +2256,32 @@ function CertScreen({userName,courseId,onBack,onDone}){
           </div>
         </div>
 
-        {/* 2. Bản tự vấn chiêm nghiệm */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-5 py-5 border-b border-gray-100" style={{background:'linear-gradient(135deg,#fef3e8,#fdfbf7)'}}>
-            <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Bản tự vấn chiêm nghiệm</p>
-            <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Lắng lại để thấy rõ con đường</h3>
-            <p className="text-gray-500 text-sm leading-relaxed">Trước khi tâm trí vội vã hướng về những điều mới mẻ phía trước, bạn hãy dành vài phút để nhìn lại những hạt giống nhận thức vừa được gieo trồng. Bản tự vấn này là chiếc gương nhỏ để bạn soi chiếu lại chính mình, giúp đội ngũ RNI hiểu rõ hơn về tâm nguyện của bạn, từ đó có thể nâng đỡ bạn trên lộ trình phù hợp nhất.</p>
-          </div>
-          <div className="px-5 py-5 space-y-5">
-            {[
-              {num:'01',q:'Sau khi trải qua khóa học nền tảng vừa rồi, sự "dịch chuyển nhận thức" lớn nhất mà bạn nhận được là gì?',opts:['Tôi học được thêm vài kỹ năng giao tiếp và đặt câu hỏi để áp dụng vào công việc.','Tôi bắt đầu biết cách nhìn nhận vấn đề như một "người thầy", biết quan sát cuộc đối thoại nội tâm và tin rằng mình có thể tự tìm ra câu trả lời từ bên trong.','Tôi mong muốn được đồng hành hỗ trợ chuyên sâu.']},
-              {num:'02',q:'Nếu quyết định bước vào một lộ trình chuyên sâu tiếp theo cùng RNI, bạn mang theo kỳ vọng cốt lõi nào?',opts:['Tôi kỳ vọng khóa học sẽ giải quyết hộ tôi những rắc rối hiện tại ngay lập tức.','Tôi muốn học để tích lũy thêm kiến thức mới cho não bộ, phòng khi tương lai cần dùng tới.','Tôi khao khát một sự chuyển hóa từ gốc rễ, sẵn sàng đối diện với những vùng tối của mình để vun bồi nội lực.']},
-              {num:'03',q:'Nếu bạn muốn trở thành một Coach, động lực sâu thẳm nhất của bạn đến từ đâu?',opts:['Tôi thấy nghề Coach đang rất "hot", tôi muốn học nhanh các kỹ thuật để có ngay thu nhập cao.','Tôi thấy người thân xung quanh đang sống sai quá nhiều, tôi muốn học kỹ năng để khuyên bảo họ.','Tôi muốn bắt đầu từ việc vun bồi "bản thể người coach" của chính mình, để khi nội tâm đủ đầy, việc giúp đỡ người khác sẽ là sự tuôn chảy tự nhiên.']},
-              {num:'04',q:'Hành trình tìm hiểu về Khai vấn và Phát triển bản thân của bạn đang ở giai đoạn nào?',opts:['Tôi là người hoàn toàn mới, chưa từng tìm hiểu hay học qua khóa học nào.','Tôi đã học nhiều khóa phát triển bản thân nhưng chỉ dừng ở bề nổi, chưa thay đổi tận gốc.','Tôi đã học Coach ở nơi khác nhưng cảm thấy chưa thực sự đi sâu vào nội tâm.','Tôi đang làm nghề (Coach, Trainer, Healer...) và muốn đóng gói sản phẩm, kiến tạo di sản.']},
-              {num:'05',q:'Tiêu chí nào quan trọng nhất khiến bạn quyết định lựa chọn chương trình đào tạo Khai vấn?',opts:['Chi phí rẻ nhất và thời gian học ngắn nhất để nhanh chóng có chứng chỉ.','Tôi cần học nhanh các kỹ thuật khai vấn và cách thức có được tài chính từ công việc khai vấn.','Môi trường học tập sôi nổi và cam kết thành công nhanh.','Tìm được một người Thầy trí tuệ dẫn đường và một chương trình giúp đi sâu, chuyển hóa từ gốc rễ.']},
-              {num:'06',q:'Ở thời điểm hiện tại, bạn đánh giá mức độ sẵn sàng về tài chính của mình như thế nào?',opts:['Tôi đang gặp áp lực lớn về tài chính và chỉ ưu tiên các giải pháp miễn phí hoặc chi phí thấp.','Tôi có nguồn tài chính ổn định và đã chuẩn bị sẵn ngân sách đầu tư cho học tập, nâng cấp bản thân.','Tôi hoàn toàn tự chủ tài chính và sẵn sàng đầu tư cho bản thân, chỉ cần chương trình mang lại giá trị thật.']}
-            ].map((item,qi)=>(
-              <div key={qi} className="pb-4 border-b border-gray-50 last:border-0 last:pb-0">
-                <div className="flex items-start gap-3 mb-3">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-full text-xs font-black text-white flex items-center justify-center" style={{background:'#9b1106'}}>{item.num}</span>
-                  <p className="text-sm font-semibold text-gray-800 leading-relaxed">{item.q}</p>
-                </div>
-                <div className="space-y-2 pl-10">
-                  {item.opts.map((opt,oi)=>(
-                    <div key={oi} className="flex items-start gap-2 text-xs text-gray-600 leading-relaxed">
-                      <span className="flex-shrink-0 w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center text-xs font-bold text-gray-400 mt-0.5">{String.fromCharCode(65+oi)}</span>
-                      {opt}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="px-5 pb-5">
-            <button onClick={()=>setStep('next')}
-              className="w-full py-4 rounded-xl text-white font-semibold text-sm shadow-lg transition-all active:scale-95 pulse-glow"
-              style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>
-              Điền bản tự vấn & chiêm nghiệm →
-            </button>
-            <p className="text-xs text-gray-400 text-center mt-2">Bạn sẽ được dẫn đến các lộ trình phù hợp sau khi hoàn tất</p>
-          </div>
-        </div>
-      </div>
-
+       {/* 2. Bản tự vấn chiêm nghiệm */}
+<div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+  <div className="px-5 py-5 border-b border-gray-100" style={{background:'linear-gradient(135deg,#fef3e8,#fdfbf7)'}}>
+    <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Bản tự vấn chiêm nghiệm</p>
+    <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Lắng lại để thấy rõ con đường</h3>
+    <p className="text-gray-500 text-sm leading-relaxed">Trước khi tâm trí vội vã hướng về những điều mới mẻ phía trước, bạn hãy dành vài phút để nhìn lại những hạt giống nhận thức vừa được gieo trồng. Bản tự vấn này là chiếc gương nhỏ để bạn soi chiếu lại chính mình, giúp đội ngũ RNI hiểu rõ hơn về tâm nguyện của bạn, từ đó có thể nâng đỡ bạn trên lộ trình phù hợp nhất.</p>
+  </div>
+  <div style={{position:'relative',width:'100%',height:2500}}>
+    <iframe
+      src="https://docs.google.com/forms/d/e/1FAIpQLSd3nU31GDN2f0eQv9DOp9YGKRAyZu8EJ7VQBP0oIsdGhrlgJw/viewform?embedded=true"
+      width="100%" height="2500" frameBorder="0" marginHeight="0" marginWidth="0"
+      style={{border:'none',display:'block'}}
+      title="Bản tự vấn RNI">
+      Đang tải…
+    </iframe>
+    {/* Overlay nút chuyển trang — nằm sau form, không che form */}
+  </div>
+  <div className="px-5 pb-5 pt-3">
+    <button onClick={()=>setStep('next')}
+      className="w-full py-4 rounded-xl text-white font-semibold text-sm shadow-lg transition-all active:scale-95 pulse-glow"
+      style={{background:`linear-gradient(135deg,${accent},#c41a0a)`}}>
+      Hoàn tất & Xem lộ trình phù hợp →
+    </button>
+    <p className="text-xs text-gray-400 text-center mt-2">Sau khi điền xong form phía trên, nhấn nút này để tiếp tục</p>
+  </div>
+</div>
       {/* Popup chứng chỉ */}
       {showCert&&(
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4" onClick={()=>setShowCert(false)}>

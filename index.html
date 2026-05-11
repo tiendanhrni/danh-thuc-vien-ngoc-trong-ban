@@ -744,13 +744,13 @@ function QuizResultScreen({result,onContinue,onBack}){
           {/* Ruby video with thumbnail */}
           <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 mb-6">
             <div className="px-5 pt-5 pb-3">
-              <p className="text-sm font-bold text-gray-900">Chia sẻ của Cô Ruby Nguyen</p>
+              <p className="text-sm font-bold text-gray-900">Thông điệp quan trọng dành cho bạn </p>
             </div>
             <div className="px-5 pb-5">
               <div className="video-outer">
                 <iframe
                   src={`https://www.youtube.com/embed/${r.rubyVideoId}?rel=0&modestbranding=1`}
-                  title="Chia sẻ của Cô Ruby Nguyen"
+                  title="Thông điệp quan trọng dành cho bạn"
                   allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"
                   allowFullScreen
                 />
@@ -1968,7 +1968,7 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
   <div className="px-5 py-5 border-b border-gray-100">
     <h3 className="font-heading font-black text-base text-gray-900 mb-1">Đánh thức viên ngọc quý và kiến tạo cuộc đời rực rỡ từ gốc</h3>
-    <p className="text-xs text-gray-400 leading-relaxed">Khám phá những hành trình chuyển hóa được thiết kế để giúp bạn quay về với bản thể chân thật, vun bồi nội lực vững chãi và lan tỏa giá trị độc bản của chính mình ra thế giới.</p>
+    <p className="text-xs text-gray-400 leading-relaxed">Khám phá những hành trình chuyển hóa được thiết kế để giúp bạn quay về với bản thể chân thật, vun bồi nội lực vững chãi và lan tỏa giá trị ra thế giới.</p>
   </div>
   {/* Scroll hint indicator */}
   <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'6px 0',background:'#fafafa',borderBottom:'1px solid #f3f4f6'}}>
@@ -2243,7 +2243,7 @@ Dành cho những ai:<br/>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-5 pt-5 pb-3">
             <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Một lời nhắn gửi thương quý dành cho bạn...</p>
-            <p className="text-sm font-bold text-gray-900">Chia sẻ từ Cô Ruby Nguyen</p>
+            <p className="text-sm font-bold text-gray-900">Bước tiếp theo</p>
           </div>
           <div className="px-5 pb-5">
             <div className="video-outer">
@@ -2253,10 +2253,12 @@ Dành cho những ai:<br/>
           </div>
           <div className="px-5 pb-6 border-t border-gray-50 pt-4">
             <p className="text-gray-600 text-sm leading-relaxed italic">
-              "Chúng ta không đến thế giới này chỉ để sống 'tạm ổn'. Chúng ta đến đây để sống một cuộc đời đáng nhớ.<br/><br/>
-              Bạn có thể tiếp tục ngồi bên khung cửa sổ của mình, nhìn thế giới trôi qua. Hoặc bạn có thể bước đi — để thực sự thay đổi cuộc đời mình. Lựa chọn là của bạn.<br/><br/>
-              Nếu bạn chọn đi tiếp, tôi mong chúng ta sẽ đồng hành trong một lộ trình phù hợp với bạn tại Học viện RNI để nâng đỡ từng bước chân bạn.<br/><br/>
-              Tôi chỉ mong sao, khi bạn đi đến đây rồi, khi tâm bạn đã sáng rõ, hãy bước tiếp. Hãy cùng bước trên chặng đường tiếp tới. Và cùng hướng về một điểm đến rực rỡ."
+              "Chúng ta không đến thế giới này chỉ để sống 'tạm ổn'. Chúng ta đến đây để sống một cuộc đời ý nghĩa.<br/><br/>
+              Bạn có thể tiếp tục ngồi bên khung cửa sổ của mình, nhìn thế giới trôi qua. Hoặc bạn có thể bước tới để thực sự thay đổi cuộc đời mình. Lựa chọn là của bạn.<br/><br/>
+              Nếu bạn chọn bước tiếp, Học viện RNI có những lộ trình phù hợp với bạn tại đúng nơi bạn đang đứng.<br/><br/>
+              Bạn sẵn sàng rời vạch xuất phát? Tuyệt vời!<br/>
+              Nhưng khoan...<br/>
+              Hãy dành cho mình 2 phút để hoàn thành vài câu hỏi ngắn dưới đây - chúng có thể tiết kiệm cho bạn nhiều ngày tháng loay hoay <br/>
             </p>
           </div>
         </div>

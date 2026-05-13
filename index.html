@@ -2526,7 +2526,7 @@ if(n&&c&&isReturning){
 
 const name=localStorage.getItem('rni-pre-name')||'';
 const email=localStorage.getItem('rni-pre-email')||'';
-fetch('https://n8n.rni.vn/webhook/rni-quiz-result',{
+fetch('https://n8n.rni.vn/webhook-test/rni-quiz-result',{
   method:'POST',
   headers:{'Content-Type':'application/json'},
   body:JSON.stringify({name,email,result:r,timestamp:new Date().toISOString()})

@@ -2523,6 +2523,15 @@ if(n&&c&&isReturning){
   if(screen==='quiz')return <QuizScreen onDone={r=>{
     setQuizResult(r);setCourseId(r);
     try{localStorage.setItem('rni-quiz-result',r);}catch{}
+
+const name=localStorage.getItem('rni-pre-name')||'';
+const email=localStorage.getItem('rni-pre-email')||'';
+fetch('https://n8n.rni.vn/webhook/rni-quiz-result',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({name,email,result:r,timestamp:new Date().toISOString()})
+}).catch(()=>{});
+    
     setScreen('quizLoading');
   }} onBack={()=>setScreen('quizTransition')}/>;
   if(screen==='quizLoading')return <QuizLoading onDone={()=>setScreen('rniOverview')}/>;

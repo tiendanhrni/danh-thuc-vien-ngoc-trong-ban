@@ -2420,6 +2420,18 @@ function App(){
   // Khôi phục trạng thái khi quay lại trang
   useEffect(()=>{
     try{
+      
+      // Version check — chỉ tăng APP_VERSION khi cần reset
+const APP_VERSION='1.0';
+const savedVersion=localStorage.getItem('rni-version');
+if(savedVersion!==APP_VERSION){
+  // Chỉ xóa những key cần reset, KHÔNG xóa tiến độ học
+  try{
+    localStorage.removeItem('rni-screen');
+    localStorage.removeItem('rni-session-active');
+    localStorage.setItem('rni-version',APP_VERSION);
+  }catch{}
+}
       const n=localStorage.getItem('rni-name');
       const c=localStorage.getItem('rni-course');
       const savedScreen=localStorage.getItem('rni-screen');

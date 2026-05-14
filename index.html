@@ -2051,7 +2051,7 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
           setShowCompletionPopup(false);onCert();
         }} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95"
           style={{background:'linear-gradient(135deg,#f59e0b,#d97706)'}}>
-          🎓 Nhận chứng chỉ & điền bản tự vấn
+          🎓 Nhận chứng chỉ & Lộ trình phù hợp
         </button>
         <button onClick={()=>{
           try{localStorage.setItem('rni-completion-seen-'+courseId,'1');}catch{}
@@ -2180,6 +2180,11 @@ const downloadCert=()=>{
                   style={{background:'linear-gradient(135deg,#00b14f,#009a3e)'}}>
                   Kết nối đội ngũ hỗ trợ RNI →
                 </button>
+                <a href="https://m.me/rni.institute" target="_blank" rel="noopener noreferrer"
+                className="w-full flex items-center justify-center py-2.5 rounded-xl text-white font-semibold text-xs shadow-sm transition-all active:scale-95 mt-2"
+                style={{background:'linear-gradient(135deg,#0084ff,#0066cc)'}}>
+                Nhắn tin qua Messenger →
+                </a>
               </div>
               {/* Cột 2: Cộng đồng */}
               <div className="px-5 py-5">
@@ -2259,7 +2264,6 @@ Dành cho những ai:<br/>
         {/* 1. Video Ruby */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-5 pt-5 pb-3">
-            <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Một lời nhắn gửi thương quý dành cho bạn...</p>
             <p className="text-sm font-bold text-gray-900">Bước tiếp theo</p>
           </div>
           <div className="px-5 pb-5">

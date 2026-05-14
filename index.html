@@ -89,7 +89,7 @@ const QUIZ_QUESTIONS=[
   {id:7,part:2,q:"Mong muốn lớn nhất của bạn khi đầu tư vào phát triển bản thân là gì?",opts:["Lúc này tôi chỉ muốn giải quyết vấn đề cá nhân và tìm thấy sự bình yên cho riêng mình trước.","Tôi muốn giúp gia đình, đồng nghiệp hoặc đội nhóm của mình tốt lên nhưng lo sợ bản thân chưa đủ năng lực.","Tôi muốn đồng hành giúp mọi người chuyển hoá và trao đi những giá trị mà tôi có."]},
   {id:8,part:2,q:"Mức độ tin tưởng của bạn vào 'trí tuệ bên trong' của chính mình?",opts:["Rất thấp. Tôi thường xuyên do dự trước mọi quyết định và phụ thuộc vào ý kiến người khác.","Đang cải thiện. Tôi đã bắt đầu lắng nghe trực giác nhưng thỉnh thoảng vẫn hoài nghi bản thân.","Tuyệt đối. Tôi có một niềm tin không lay chuyển rằng mọi câu trả lời tôi cần đều có sẵn ở bên trong."]},
   {id:9,part:3,q:"Nếu có thể kiến tạo một phiên bản tiếp theo trong vòng 1 năm tới, bạn muốn hướng tới điều gì nhất?",opts:["Một người sống vui vẻ, cân bằng, bình an.","Một người biết ứng dụng trí tuệ tỉnh thức để sống và làm việc hiệu quả hơn.","Một người kiến tạo - xây dựng một sự nghiệp ý nghĩa và lan toả những giá trị của bản thân."]},
-  {id:10,part:3,q:"Động lực nào thúc đẩy bạn tìm đến sự đồng hành của Học viện RNI lúc này?",opts:["Tìm kiếm sự thấu hiểu, một hướng đi để thoát khỏi những vòng lặp bế tắc hiện tại.","Tìm kiếm một môi trường phù hợp để học tập, vun bồi sự trưởng thành nội tâm.","Tìm kiếm một lộ trình phát triển từ gốc để tỏa sáng, trao giá trị tới cộng đồng."]},
+  {id:10,part:3,q:"Chọn một lý do gần nhất với mong muốn của bạn khi đến với các chương trình của Học viện RNI",opts:["Tìm kiếm sự thấu hiểu, một hướng đi để thoát khỏi những vòng lặp bế tắc hiện tại.","Tìm kiếm một môi trường phù hợp để học tập, vun bồi sự trưởng thành nội tâm.","Tìm kiếm một lộ trình phát triển từ gốc để tỏa sáng, trao giá trị tới cộng đồng."]},
   {id:11,part:3,q:"Bạn sẵn sàng cam kết như thế nào cho sự phát triển bản thân trong giai đoạn tới?",opts:["Có thể tham gia các khóa học ngắn hạn hoặc các buổi workshop mở rộng nhận thức.","Có thể sắp xếp thời gian thực hành mỗi ngày và tham gia lộ trình chuyên sâu để tự chuyển hóa bản thân.","Cam kết trọn vẹn (tài chính, thời gian, tâm huyết) để xây dựng một nền móng vững chãi cho sự nghiệp trao giá trị."]},
   {id:12,part:3,q:"Hiện tại, mức độ quan tâm của bạn về phương pháp 'Khai vấn tỉnh thức' (Mindful Coaching) như thế nào?",opts:["Đã nghe qua nhưng chưa có ý định trở thành một người Coach chuyên nghiệp trong tương lai gần.","Tôi biết đây là một công cụ tạo ra chuyển hoá rất tuyệt vời và mong muốn được học.","Tôi biết đây là một mảnh ghép cần thiết để phát triển sự nghiệp trao giá trị một cách bền vững và tôi muốn học để có được chứng chỉ hành nghề khai vấn quốc tế."]}
 ];
@@ -2343,7 +2343,7 @@ function RniOverviewScreen({onContinue}){
           <p className="text-gray-600 text-sm leading-relaxed">
             Bạn thương mến,<br/><br/>
             Cảm ơn bạn đã dành những phút giây tĩnh lặng để thành thật với chính mình qua những câu hỏi vừa rồi.<br/><br/>
-            Trước khi Ruby chia sẻ "tọa độ" cụ thể của bạn, hãy cùng nhìn lại bức tranh tổng quan của hành trình này. Dù bạn đang ở đâu, điều quan trọng không phải là đích đến, mà là hiểu được ý nghĩa của chặng đường mình đang đi.
+            Trước khi chia sẻ "tọa độ" cụ thể của bạn, hãy cùng nhìn lại bức tranh tổng quan của hành trình này. Dù bạn đang ở đâu, điều quan trọng không phải là đích đến, mà là hiểu được ý nghĩa của chặng đường mình đang đi.
           </p>
         </div>
 
@@ -2384,7 +2384,7 @@ function RniOverviewScreen({onContinue}){
           {/* Mô tả 3 chặng */}
           <div className="mt-6 space-y-4">
             {[
-              {num:'01',label:'Return — Trở về',color:'#9b1106',desc:'Đây là lúc bạn nhận ra mình không thể tiếp tục sống theo kịch bản của người khác. Bạn chọn dừng lại để tìm đường về với "Nhà" — về với bản thể chân thật sau những năm tháng "vô gia cư" trong chính nội tâm mình.'},
+              {num:'01',label:'Return — Trở về',color:'#9b1106',desc:'Đây là lúc bạn nhận ra mình không thể tiếp tục sống theo kịch bản của người khác. Bạn chọn dừng lại để tìm đường "Trở về" với ngôi nhà bên trong, về với bản thể chân thật sau những năm tháng "lạc lối" trong chính nội tâm mình.'},
               {num:'02',label:'Nurture — Vun bồi',color:'#d97706',desc:'Khi đã về đến Nhà, bạn bắt đầu chăm sóc "khu vườn" nội tâm. Đây là giai đoạn bạn cần những công cụ thực tế để tự quan sát, làm chủ cảm xúc và duy trì sự cam kết.'},
               {num:'03',label:'Illuminate — Lan tỏa',color:'#f59e0b',desc:'Khi viên ngọc trong bạn đã đủ sáng, việc trao đi không còn là nghĩa vụ mà trở thành nhu cầu tự nhiên. Bạn bắt đầu lan tỏa giá trị và trở thành người dẫn dắt những người xung quanh.'},
             ].map((s,i)=>(
@@ -2403,7 +2403,7 @@ function RniOverviewScreen({onContinue}){
         {/* Quote */}
         <div className="rounded-2xl px-6 py-5 text-center" style={{background:'linear-gradient(135deg,#fef2f2,#fffbeb)'}}>
           <p className="text-sm text-gray-600 leading-relaxed italic">
-            "Mỗi giai đoạn đều có vẻ đẹp và bài học riêng. Không có chặng nào là thấp hơn hay cao hơn, chỉ có sự sẵn sàng của tâm hồn để bước sang một chương mới."
+            "Mỗi giai đoạn đều có vẻ đẹp và bài học riêng. Không ai chậm hơn ai, cũng không có ai đặc biệt hơn ai, chúng ta chỉ đang ở những chặng khác nhau của cùng một hành trình: hành trình đánh thức viên ngọc bên trong."
           </p>
           <p className="text-xs font-semibold text-rni-600 mt-2">— Ruby Nguyen</p>
         </div>

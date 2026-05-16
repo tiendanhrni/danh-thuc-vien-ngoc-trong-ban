@@ -5,6 +5,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Học Viện RNI — Return · Nurture · Illuminate</title>
 <meta name="description" content="Khám phá hành trình phát triển bản thân phù hợp với bạn tại Học viện RNI — Ruby Nguyen."/>
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1608708270203920');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1608708270203920&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+  
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -743,6 +762,20 @@ function QuizResultScreen({result,onContinue,onBack}){
   const r=QUIZ_RESULTS[result];
   const [showDetail,setShowDetail]=useState(false);
 
+function QuizResultScreen({result,onContinue,onBack}){
+  const r=QUIZ_RESULTS[result];
+  const [showDetail,setShowDetail]=useState(false);
+
+  // Pixel: báo người xem kết quả quiz
+  useEffect(()=>{
+    if(typeof fbq!=='undefined'){
+      fbq('track','ViewContent',{
+        content_name:'Quiz Result - '+result,
+        content_category:'RNI Quiz'
+      });
+    }
+  },[result]);  
+
   // Step 1: show Ruby video only — no upsell here
   if(!showDetail){
     return(
@@ -904,10 +937,19 @@ function RegisterScreen({courseId,onDone,onBack}){
     }catch(e){
       console.warn('Kajabi form submit:',e);
     }finally{
+      // Pixel: báo người đăng ký thành công
+      if(typeof fbq!=='undefined'){
+        fbq('track','Lead',{
+          content_name:'Register - '+courseId,
+          content_category:'RNI Course'
+        });
+      }
+      
       setLoading(false);
       onDone(name.trim(),email.trim());
     }
   };
+  
 
   return(
     <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12">

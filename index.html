@@ -762,10 +762,6 @@ function QuizResultScreen({result,onContinue,onBack}){
   const r=QUIZ_RESULTS[result];
   const [showDetail,setShowDetail]=useState(false);
 
-function QuizResultScreen({result,onContinue,onBack}){
-  const r=QUIZ_RESULTS[result];
-  const [showDetail,setShowDetail]=useState(false);
-
   // Pixel: báo người xem kết quả quiz
   useEffect(()=>{
     if(typeof fbq!=='undefined'){

@@ -583,13 +583,12 @@ function PreQuizScreen({onStart,onAdminLogin}){
     if(!name.trim())return setErr('Bạn chưa nhập tên.');
     if(!email.trim()||!email.includes('@'))return setErr('Email chưa hợp lệ.');
     setErr('');setLoading(true);
-    try{
-      try{localStorage.setItem('rni-pre-name',name.trim());localStorage.setItem('rni-pre-email',email.trim());}catch{}
-      if(ADMIN_EMAILS.includes(email.trim().toLowerCase())){
-        setLoading(false);onAdminLogin(name.trim());return;
-      }
-    }finally{
-      setLoading(false);onStart();
+    try{localStorage.setItem('rni-pre-name',name.trim());localStorage.setItem('rni-pre-email',email.trim());}catch{}
+    setLoading(false);
+    if(ADMIN_EMAILS.includes(email.trim().toLowerCase())){
+      onAdminLogin(name.trim());
+    }else{
+      onStart();
     }
   };
 

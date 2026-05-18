@@ -581,18 +581,8 @@ function PreQuizScreen({onStart}){
     if(!email.trim()||!email.includes('@'))return setErr('Email chưa hợp lệ.');
     setErr('');setLoading(true);
     try{
-      await fetch('https://www.rni.institute/forms/2149572661/form_submissions',{
-        method:'POST',mode:'no-cors',
-        headers:{'Content-Type':'application/x-www-form-urlencoded'},
-        body:new URLSearchParams({
-          'utf8':'✓',
-          'form_submission[name]':name.trim(),
-          'form_submission[email]':email.trim()
-        }).toString()
-      });
-    }catch(e){console.warn(e);}
-    finally{
       try{localStorage.setItem('rni-pre-name',name.trim());localStorage.setItem('rni-pre-email',email.trim());}catch{}
+    }finally{
       setLoading(false);onStart();
     }
   };
@@ -919,18 +909,6 @@ function RegisterScreen({courseId,onDone,onBack}){
     if(!email.trim()||!email.includes('@'))return setErr('Email chưa hợp lệ.');
     setErr('');setLoading(true);
     try{
-      // Dùng đúng action URL và field names từ Kajabi form HTML
-      await fetch('https://www.rni.institute/forms/2149572661/form_submissions',{
-        method:'POST',
-        mode:'no-cors',
-        headers:{'Content-Type':'application/x-www-form-urlencoded'},
-        body:new URLSearchParams({
-          'utf8':'✓',
-          'form_submission[name]':name.trim(),
-          'form_submission[email]':email.trim(),
-          'form_submission[custom_42]':(QUIZ_RESULTS[courseId]?.stageLabel||courseId)
-        }).toString()
-      });
     }catch(e){
       console.warn('Kajabi form submit:',e);
     }finally{

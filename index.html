@@ -113,6 +113,8 @@ const QUIZ_QUESTIONS=[
   {id:12,part:3,q:"Hiện tại, mức độ quan tâm của bạn về phương pháp 'Khai vấn tỉnh thức' (Mindful Coaching) như thế nào?",opts:["Đã nghe qua nhưng chưa có ý định trở thành một người Coach chuyên nghiệp trong tương lai gần.","Tôi biết đây là một công cụ tạo ra chuyển hoá rất tuyệt vời và mong muốn được học.","Tôi biết đây là một mảnh ghép cần thiết để phát triển sự nghiệp trao giá trị một cách bền vững và tôi muốn học để có được chứng chỉ hành nghề khai vấn quốc tế."]}
 ];
 
+const ADMIN_EMAILS=['danh.mkt.rni@gmail.com'];
+
 const QUIZ_RESULTS={
   R:{stage:"Trở Về",subtitle:"Return — Tìm lại chính mình",icon:"🌱",accent:"#78533a",gradFrom:"#fef3e8",gradTo:"#fdfbf7",border:"#e8d5c0",
     rubyVideoId:"PrjM9Q2X6oM",
@@ -531,7 +533,8 @@ const COURSES={
 /* ─── HELPERS ──────────────────────────────────────────────────────── */
 const getModules=(cId)=>COURSES[cId]?.modules||[];
 const getAllLessons=(cId)=>getModules(cId).flatMap(m=>m.lessons.map(l=>({...l,moduleId:m.id,isQA:!!m.isQA,isStory:!!m.isStory})));
-const isUnlocked=(lId,prog,cId)=>{
+const isUnlocked=(lId,prog,cId,isAdmin=false)=>{
+  if(isAdmin) return true;
   const all=getAllLessons(cId);
   const lesson=all.find(l=>l.id===lId);
   if(lesson?.isStory)return true; // story luôn mở
@@ -570,7 +573,7 @@ function PBar({val,max,color='#9b1106',h=6}){
 }
 
 /* ─── PRE-QUIZ SCREEN ─────────────────────────────────────────── */
-function PreQuizScreen({onStart}){
+function PreQuizScreen({onStart,onAdminLogin}){
   const [name,setName]=useState('');
   const [email,setEmail]=useState('');
   const [loading,setLoading]=useState(false);
@@ -582,6 +585,9 @@ function PreQuizScreen({onStart}){
     setErr('');setLoading(true);
     try{
       try{localStorage.setItem('rni-pre-name',name.trim());localStorage.setItem('rni-pre-email',email.trim());}catch{}
+      if(ADMIN_EMAILS.includes(email.trim().toLowerCase())){
+        setLoading(false);onAdminLogin(name.trim());return;
+      }
     }finally{
       setLoading(false);onStart();
     }
@@ -1878,8 +1884,40 @@ function CourseSlider({courses}){
     </div>
   );
 }
+/* ─── ADMIN COURSE PICKER ───────────────────────────────────────── */
+function AdminCoursePicker({userName,onPick}){
+  return(
+    <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full slide-up">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-3"><Logo size={54}/></div>
+          <div className="inline-block bg-rni-100 text-rni-700 text-xs font-bold px-3 py-1 rounded-full mb-3">ADMIN MODE</div>
+          <h2 className="font-heading font-black text-2xl text-gray-900">Xin chào, {userName}!</h2>
+          <p className="text-gray-500 text-sm mt-1">Chọn khoá học để xem và chỉnh sửa</p>
+        </div>
+        <div className="space-y-3">
+          {['R','N','I'].map(id=>{
+            const r=QUIZ_RESULTS[id];
+            return(
+              <button key={id} onClick={()=>onPick(id)}
+                className="w-full bg-white border-2 border-gray-100 rounded-2xl p-5 text-left hover:border-rni-300 hover:shadow-sm transition-all flex items-center gap-4">
+                <span className="text-3xl">{r.icon}</span>
+                <div>
+                  <p className="font-bold text-gray-900">{r.stage}</p>
+                  <p className="text-sm text-gray-500">{r.subtitle}</p>
+                </div>
+                <span className="ml-auto text-gray-300 text-lg">›</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── DASHBOARD ─────────────────────────────────────────────────── */
-function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
+function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo,isAdmin}){
   const [expanded,setExpanded]=useState(1);
   const course=COURSES[courseId];
   const mods=getModules(courseId);
@@ -1968,7 +2006,7 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
               {isExp&&(
                 <div className="border-t border-gray-100">
                   {ml.map((lesson,li)=>{
-                    const unlocked=isUnlocked(lesson.id,progress,courseId);
+                    const unlocked=isUnlocked(lesson.id,progress,courseId,isAdmin);
                     const lDone=!!progress[lesson.id];
                     const isCurrent=!lDone&&unlocked;
                     return(
@@ -2532,6 +2570,7 @@ function App(){
   const [lesson,setLesson]=useState(null);
   const [progress,setProgress]=useState(()=>{try{return JSON.parse(localStorage.getItem('rni-progress')||'{}');}catch{return{};}});
   const [showWelcomeBack,setShowWelcomeBack]=useState(false);
+  const [isAdmin,setIsAdmin]=useState(false);
 
   useEffect(()=>{try{localStorage.setItem('rni-progress',JSON.stringify(progress));}catch{}},[progress]);
       // Welcome back nếu rời đi > 2 tiếng
@@ -2621,7 +2660,8 @@ if(n&&c&&isReturning){
   </div>
 );
   
-  if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('quizTransition')}/>;
+  if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('quizTransition')} onAdminLogin={n=>{setUserName(n);setIsAdmin(true);setScreen('adminPicker');}}/>;
+  if(screen==='adminPicker')return <AdminCoursePicker userName={userName} onPick={id=>{setCourseId(id);setScreen('dashboard');}}/>;
   if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('preQuiz')}/>;
   if(screen==='quiz')return <QuizScreen onDone={r=>{
     setQuizResult(r);setCourseId(r);
@@ -2663,7 +2703,7 @@ const email=localStorage.getItem('rni-pre-email')||'';
   if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={handleQuizResultContinue} onBack={()=>setScreen('quiz')}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}}/>;
-  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} onRedo={()=>{try{localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');localStorage.removeItem('rni-email');}catch{}setUserName('');setCourseId(null);setScreen('preQuiz');}}/>;
+  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');localStorage.removeItem('rni-email');}catch{}setUserName('');setCourseId(null);setScreen('preQuiz');}}/>;
 }
 
 const root=ReactDOM.createRoot(document.getElementById('root'));

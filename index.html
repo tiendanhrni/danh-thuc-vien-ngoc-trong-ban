@@ -927,7 +927,8 @@ function RegisterScreen({courseId,onDone,onBack}){
         body:new URLSearchParams({
           'utf8':'✓',
           'form_submission[name]':name.trim(),
-          'form_submission[email]':email.trim()
+          'form_submission[email]':email.trim(),
+          'form_submission[custom_42]':(QUIZ_RESULTS[courseId]?.stageLabel||courseId)
         }).toString()
       });
     }catch(e){
@@ -2663,6 +2664,18 @@ const email=localStorage.getItem('rni-pre-email')||'';
       if(i<2) await new Promise(ok=>setTimeout(ok,2000));
     }
   }
+  try{
+    await fetch('https://www.rni.institute/forms/2149572661/form_submissions',{
+      method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:new URLSearchParams({
+        'utf8':'✓',
+        'form_submission[name]':name,
+        'form_submission[email]':email,
+        'form_submission[custom_42]':(QUIZ_RESULTS[r]?.stageLabel||r)
+      }).toString()
+    });
+  }catch(e){console.warn('Kajabi quiz result submit:',e);}
 })();
     
     setScreen('quizLoading');

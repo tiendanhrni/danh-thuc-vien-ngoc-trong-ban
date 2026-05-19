@@ -122,18 +122,14 @@ function sendProgressEvent(payload){
   const phone=localStorage.getItem('rni-phone')||localStorage.getItem('rni-pre-phone')||'';
   if(!email) return;
   const body=JSON.stringify({name,email,phone,timestamp:new Date().toISOString(),...payload});
-  (async()=>{
+  const retry=async(url)=>{
     for(let i=0;i<3;i++){
-      try{
-        const res=await fetch('https://thuvien.rni.vn/track-progress.php',{
-          method:'POST',headers:{'Content-Type':'application/json'},body
-        });
-        if(res.ok) break;
-      }catch(e){
-        if(i<2) await new Promise(ok=>setTimeout(ok,2000));
-      }
+      try{const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body});if(res.ok)return;}catch(e){}
+      if(i<2)await new Promise(ok=>setTimeout(ok,2000));
     }
-  })();
+  };
+  retry('https://thuvien.rni.vn/track-progress.php');
+  retry('https://n8n.rni.vn/webhook/rni-progress');
 }
 
 const QUIZ_RESULTS={
@@ -1676,7 +1672,7 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
     else setQuizDone(true);
   };
   const handleComplete=()=>{
-    onComplete(lesson.id);
+    onComplete(lesson.id,quizDone?score:null,quizDone?lesson.quiz.length:null);
     if(!alreadyConnected()){setShowConnectPopup(true);}
     else{setShowCelebration(true);}
   };
@@ -2758,7 +2754,7 @@ if(n&&c&&isReturning){
     }catch{}
   },[screen]);
 
-  const done=(id)=>{
+  const done=(id,quizScore=null,quizTotal=null)=>{
     setProgress(p=>{
       const next={...p,[id]:true};
       if(!p[id]){
@@ -2773,7 +2769,8 @@ if(n&&c&&isReturning){
           lessonTitle:lesson?.title||id,
           completedCount,
           totalCount:allLessons.length,
-          progressPct:Math.round(completedCount/allLessons.length*100)
+          progressPct:Math.round(completedCount/allLessons.length*100),
+          ...(quizScore!==null?{quizScore,quizTotal}:{})
         });
       }
       return next;
@@ -2820,7 +2817,8 @@ if(n&&c&&isReturning){
   if(screen==='quiz')return <QuizScreen onDone={r=>{
     setQuizResult(r);setCourseId(r);
     try{localStorage.setItem('rni-quiz-result',r);}catch{}
-    sendProgressEvent({event:'quiz_complete',courseId:r,courseName:QUIZ_RESULTS[r]?.stageLabel||r,lessonId:'',lessonTitle:'',completedCount:0,totalCount:0,progressPct:0});
+    const QUIZ_LABEL={R:'Quiz_Return',N:'Quiz_Nurture',I:'Quiz_Illuminate'};
+    sendProgressEvent({event:'quiz_complete',courseId:r,courseName:QUIZ_RESULTS[r]?.stageLabel||r,quizLabel:QUIZ_LABEL[r]||('Quiz_'+r),lessonId:'',lessonTitle:'',completedCount:0,totalCount:0,progressPct:0});
 
 const name=localStorage.getItem('rni-pre-name')||'';
 const email=localStorage.getItem('rni-pre-email')||'';

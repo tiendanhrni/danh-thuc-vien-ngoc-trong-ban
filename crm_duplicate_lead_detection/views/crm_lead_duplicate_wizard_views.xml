@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_crm_lead_duplicate_wizard_form" model="ir.ui.view">
+        <field name="name">crm.lead.duplicate.wizard.form</field>
+        <field name="model">crm.lead.duplicate.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Xử lý Lead Trùng Lặp">
+                <sheet>
+                    <div class="alert alert-warning mb-3" role="alert">
+                        <strong>⚠️ Phát hiện lead có thể trùng!</strong>
+                        Vui lòng xem xét danh sách bên dưới trước khi tiếp tục.
+                    </div>
+
+                    <group string="Lead hiện tại">
+                        <field name="lead_id" readonly="1"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Danh sách Lead trùng" name="duplicates">
+                            <field name="duplicate_lead_ids" readonly="1">
+                                <list string="Lead trùng lặp" decoration-warning="type == 'lead'" decoration-success="type == 'opportunity'">
+                                    <field name="name" string="Tên Lead/Cơ hội"/>
+                                    <field name="type" string="Loại" widget="badge"
+                                        decoration-warning="type == 'lead'"
+                                        decoration-success="type == 'opportunity'"/>
+                                    <field name="email_from" string="Email"/>
+                                    <field name="phone" string="Điện thoại"/>
+                                    <field name="user_id" string="Sale phụ trách"/>
+                                    <field name="team_id" string="Nhóm Sale"/>
+                                    <field name="stage_id" string="Giai đoạn"/>
+                                    <field name="probability" string="Xác suất %"/>
+                                    <field name="create_date" string="Ngày tạo" widget="date"/>
+                                    <field name="active" string="Đang hoạt động" widget="boolean"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Hành động xử lý" name="action">
+                            <group>
+                                <field name="action" widget="radio"/>
+                            </group>
+                            <group attrs="{'invisible': [('action', '=', 'ignore')]}">
+                                <field name="selected_lead_id" string="Chọn lead để xử lý"
+                                    attrs="{'required': [('action', '!=', 'ignore')]}"/>
+                            </group>
+                            <group attrs="{'invisible': [('action', '!=', 'reassign'), ('selected_lead_id', '=', False)]}">
+                                <field name="selected_lead_stage" readonly="1" string="Giai đoạn"/>
+                                <field name="selected_lead_user" readonly="1" string="Sale phụ trách"/>
+                                <field name="selected_lead_activities" readonly="1" string="Số hoạt động"/>
+                            </group>
+                            <group>
+                                <field name="note" string="Ghi chú"
+                                    placeholder="Lý do hoặc ghi chú thêm (tùy chọn)"/>
+                            </group>
+                            <div attrs="{'invisible': [('action', '!=', 'reassign')]}" class="alert alert-info">
+                                <strong>Lưu ý:</strong> Hành động này sẽ chuyển lead hiện tại cho sale
+                                đang phụ trách lead đã chọn.
+                            </div>
+                            <div attrs="{'invisible': [('action', '!=', 'merge')]}" class="alert alert-danger">
+                                <strong>Cảnh báo:</strong> Hợp nhất sẽ gộp dữ liệu hai lead lại.
+                                Hành động này không thể hoàn tác dễ dàng.
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button name="action_confirm" type="object" string="Xác nhận" class="btn-primary"/>
+                    <button name="action_open_selected_lead" type="object" string="Xem lead đã chọn"
+                        attrs="{'invisible': [('selected_lead_id', '=', False)]}"
+                        class="btn-secondary"/>
+                    <button string="Đóng" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

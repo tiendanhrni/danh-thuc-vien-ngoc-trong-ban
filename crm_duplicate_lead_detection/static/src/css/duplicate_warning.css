@@ -1,0 +1,14 @@
+.o_duplicate_lead_warning {
+    border-left: 4px solid #f0ad4e;
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+.o_duplicate_lead_warning strong {
+    font-size: 1rem;
+}
+
+.o_form_view .o_duplicate_lead_warning {
+    margin: -1px -1px 16px -1px;
+    border-radius: 4px 4px 0 0;
+}

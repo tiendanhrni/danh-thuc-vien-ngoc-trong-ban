@@ -1,0 +1,364 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rni-progress",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [-820, 0],
+      "webhookId": "rni-progress-webhook-001"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.email }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "name": "Check Email Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [-600, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://odoo.rni.vn/xmlrpc/2/common",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "text/xml"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "=<?xml version=\"1.0\"?>\n<methodCall>\n  <methodName>authenticate</methodName>\n  <params>\n    <param><value><string>odoo_rni_new_vps</string></value></param>\n    <param><value><string>anhxuanflowers@gmail.com</string></value></param>\n    <param><value><string>cece586091385feee0cfbbf8fbd06f2d4d7ea42e</string></value></param>\n    <param><value><struct></struct></value></param>\n  </params>\n</methodCall>",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0003-4000-8000-000000000003",
+      "name": "Authenticate Odoo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [-380, -120]
+    },
+    {
+      "parameters": {
+        "jsCode": "const xml = $input.first().json.data;\nconst match = xml.match(/<value><int>(\\d+)<\\/int><\\/value>/);\nconst uid = match ? parseInt(match[1]) : null;\nif (!uid) throw new Error('Odoo authenticate failed, uid not found. XML: ' + xml.slice(0,300));\nreturn [{ json: { uid } }];"
+      },
+      "id": "a1b2c3d4-0004-4000-8000-000000000004",
+      "name": "Extract UID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-160, -120]
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $node['Webhook'].json.body;\nconst event = b.event || 'lesson_complete';\nconst date  = (b.timestamp || new Date().toISOString()).slice(0,10);\n\nfunction xmlEsc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }\n\nlet note;\nif (event === 'quiz_complete') {\n  const quizLabel = b.quizLabel || ('Quiz_' + (b.courseId || ''));\n  note = `[${date}] 🎯 ${xmlEsc(quizLabel)}`;\n} else {\n  const lessonTitle = b.lessonTitle || '';\n  const courseName  = b.courseName  || '';\n  const completed   = parseInt(b.completedCount) || 0;\n  const total       = parseInt(b.totalCount)     || 0;\n  const pct         = parseInt(b.progressPct)    || 0;\n  note = `[${date}] ✅ Hoàn thành: ${xmlEsc(lessonTitle)}&lt;br/&gt;📚 Khóa: ${xmlEsc(courseName)}&lt;br/&gt;📊 Tiến độ: ${completed}/${total} bài (${pct}%)`;\n}\n\nconst email = (b.email || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst name  = xmlEsc(b.name  || '');\nconst phone = xmlEsc(b.phone || '');\n\nreturn [{ json: { note, email, name, phone } }];"
+      },
+      "id": "a1b2c3d4-0005-4000-8000-000000000005",
+      "name": "Build Progress Note",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [60, -120]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://odoo.rni.vn/xmlrpc/2/object",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "text/xml"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "=<?xml version=\"1.0\"?>\n<methodCall>\n  <methodName>execute_kw</methodName>\n  <params>\n    <param><value><string>odoo_rni_new_vps</string></value></param>\n    <param><value><int>{{ $node['Extract UID'].json.uid }}</int></value></param>\n    <param><value><string>cece586091385feee0cfbbf8fbd06f2d4d7ea42e</string></value></param>\n    <param><value><string>crm.lead</string></value></param>\n    <param><value><string>search</string></value></param>\n    <param>\n      <value><array><data>\n        <value><array><data>\n          <value><array><data>\n            <value><string>email_from</string></value>\n            <value><string>=</string></value>\n            <value><string>{{ $node['Build Progress Note'].json.email }}</string></value>\n          </data></array></value>\n        </data></array></value>\n      </data></array></value>\n    </param>\n    <param><value><struct>\n      <member><name>limit</name><value><int>1</int></value></member>\n      <member><name>order</name><value><string>create_date desc</string></value></member>\n    </struct></value></param>\n  </params>\n</methodCall>",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0006-4000-8000-000000000006",
+      "name": "Search Lead by Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [280, -120]
+    },
+    {
+      "parameters": {
+        "jsCode": "const xml = $input.first().json.data;\nconst match = xml.match(/<value><int>(\\d+)<\\/int><\\/value>/);\nconst leadId = match ? parseInt(match[1]) : null;\nconst found = leadId !== null && leadId > 0;\nreturn [{ json: { leadId, found } }];"
+      },
+      "id": "a1b2c3d4-0007-4000-8000-000000000007",
+      "name": "Extract Lead ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, -120]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.found }}",
+              "operation": "equal",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-0008-4000-8000-000000000008",
+      "name": "Check Lead Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, -120]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://odoo.rni.vn/xmlrpc/2/object",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "text/xml"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "=<?xml version=\"1.0\"?>\n<methodCall>\n  <methodName>execute_kw</methodName>\n  <params>\n    <param><value><string>odoo_rni_new_vps</string></value></param>\n    <param><value><int>{{ $node['Extract UID'].json.uid }}</int></value></param>\n    <param><value><string>cece586091385feee0cfbbf8fbd06f2d4d7ea42e</string></value></param>\n    <param><value><string>crm.lead</string></value></param>\n    <param><value><string>message_post</string></value></param>\n    <param>\n      <value><array><data>\n        <value><array><data>\n          <value><int>{{ $node['Extract Lead ID'].json.leadId }}</int></value>\n        </data></array></value>\n      </data></array></value>\n    </param>\n    <param>\n      <value><struct>\n        <member><name>body</name><value><string>{{ $node['Build Progress Note'].json.note }}</string></value></member>\n        <member><name>message_type</name><value><string>comment</string></value></member>\n        <member><name>subtype_xmlid</name><value><string>mail.mt_note</string></value></member>\n      </struct></value>\n    </param>\n  </params>\n</methodCall>",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0009-4000-8000-000000000009",
+      "name": "Post Progress Note",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, -120]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'ok', action: 'note_posted', leadId: $node['Extract Lead ID'].json.leadId, odooResponse: ($input.first().json.data || '').slice(0, 200) }) }}",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0010-4000-8000-000000000010",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1100, -120]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"status\": \"skipped\", \"reason\": \"no email\" }",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0011-4000-8000-000000000011",
+      "name": "Respond Skip",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [-380, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://odoo.rni.vn/xmlrpc/2/object",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "text/xml"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "=<?xml version=\"1.0\"?>\n<methodCall>\n  <methodName>execute_kw</methodName>\n  <params>\n    <param><value><string>odoo_rni_new_vps</string></value></param>\n    <param><value><int>{{ $node['Extract UID'].json.uid }}</int></value></param>\n    <param><value><string>cece586091385feee0cfbbf8fbd06f2d4d7ea42e</string></value></param>\n    <param><value><string>crm.lead</string></value></param>\n    <param><value><string>search_count</string></value></param>\n    <param>\n      <value><array><data>\n        <value><array><data></data></array></value>\n      </data></array></value>\n    </param>\n    <param><value><struct></struct></value></param>\n  </params>\n</methodCall>",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0013-4000-8000-000000000013",
+      "name": "Count Leads For ExID",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "const xml = $input.first().json.data;\nconst match = xml.match(/<value><int>(\\d+)<\\/int><\\/value>/);\nconst count = match ? parseInt(match[1]) : 0;\nconst num = String(count + 1).padStart(6, '0');\nconst externalId = `crm_lead_progress_dtvnbt_${num}`;\nreturn [{ json: { externalId } }];"
+      },
+      "id": "a1b2c3d4-0014-4000-8000-000000000014",
+      "name": "Build External ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://odoo.rni.vn/xmlrpc/2/object",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "text/xml"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "=<?xml version=\"1.0\"?>\n<methodCall>\n  <methodName>execute_kw</methodName>\n  <params>\n    <param><value><string>odoo_rni_new_vps</string></value></param>\n    <param><value><int>{{ $node['Extract UID'].json.uid }}</int></value></param>\n    <param><value><string>cece586091385feee0cfbbf8fbd06f2d4d7ea42e</string></value></param>\n    <param><value><string>crm.lead</string></value></param>\n    <param><value><string>create</string></value></param>\n    <param>\n      <value><array><data>\n        <value><struct>\n          <member><name>name</name><value><string>Học trực tuyến RNI – Đánh thức viên ngọc trong bạn</string></value></member>\n          <member><name>contact_name</name><value><string>{{ $node['Build Progress Note'].json.name }}</string></value></member>\n          <member><name>email_from</name><value><string>{{ $node['Build Progress Note'].json.email }}</string></value></member>\n          <member><name>phone</name><value><string>{{ $node['Build Progress Note'].json.phone }}</string></value></member>\n          <member><name>description</name><value><string>{{ $node['Build Progress Note'].json.note }}</string></value></member>\n          <member><name>referred</name><value><string>Học Trực Tuyến RNI</string></value></member>\n          <member><name>type</name><value><string>lead</string></value></member>\n        </struct></value>\n      </data></array></value>\n    </param>\n    <param><value><struct></struct></value></param>\n  </params>\n</methodCall>",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0015-4000-8000-000000000015",
+      "name": "Create Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1300, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "const xml = $input.first().json.data;\nconst match = xml.match(/<value><int>(\\d+)<\\/int><\\/value>/);\nconst newLeadId = match ? parseInt(match[1]) : null;\nif (!newLeadId) throw new Error('Create lead failed. XML: ' + xml.slice(0,300));\nreturn [{ json: { newLeadId } }];"
+      },
+      "id": "a1b2c3d4-0016-4000-8000-000000000016",
+      "name": "Extract New Lead ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://odoo.rni.vn/xmlrpc/2/object",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "text/xml"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "=<?xml version=\"1.0\"?>\n<methodCall>\n  <methodName>execute_kw</methodName>\n  <params>\n    <param><value><string>odoo_rni_new_vps</string></value></param>\n    <param><value><int>{{ $node['Extract UID'].json.uid }}</int></value></param>\n    <param><value><string>cece586091385feee0cfbbf8fbd06f2d4d7ea42e</string></value></param>\n    <param><value><string>ir.model.data</string></value></param>\n    <param><value><string>create</string></value></param>\n    <param>\n      <value><array><data>\n        <value><struct>\n          <member><name>name</name><value><string>{{ $node['Build External ID'].json.externalId }}</string></value></member>\n          <member><name>model</name><value><string>crm.lead</string></value></member>\n          <member><name>module</name><value><string>__import__</string></value></member>\n          <member><name>res_id</name><value><int>{{ $node['Extract New Lead ID'].json.newLeadId }}</int></value></member>\n        </struct></value>\n      </data></array></value>\n    </param>\n    <param><value><struct></struct></value></param>\n  </params>\n</methodCall>",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0017-4000-8000-000000000017",
+      "name": "Set External ID",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1700, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://odoo.rni.vn/xmlrpc/2/object",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "text/xml"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "=<?xml version=\"1.0\"?>\n<methodCall>\n  <methodName>execute_kw</methodName>\n  <params>\n    <param><value><string>odoo_rni_new_vps</string></value></param>\n    <param><value><int>{{ $node['Extract UID'].json.uid }}</int></value></param>\n    <param><value><string>cece586091385feee0cfbbf8fbd06f2d4d7ea42e</string></value></param>\n    <param><value><string>crm.lead</string></value></param>\n    <param><value><string>message_post</string></value></param>\n    <param>\n      <value><array><data>\n        <value><array><data>\n          <value><int>{{ $node['Extract New Lead ID'].json.newLeadId }}</int></value>\n        </data></array></value>\n      </data></array></value>\n    </param>\n    <param>\n      <value><struct>\n        <member><name>body</name><value><string>{{ $node['Build Progress Note'].json.note }}</string></value></member>\n        <member><name>message_type</name><value><string>comment</string></value></member>\n        <member><name>subtype_xmlid</name><value><string>mail.mt_note</string></value></member>\n      </struct></value>\n    </param>\n  </params>\n</methodCall>",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0018-4000-8000-000000000018",
+      "name": "Post Note to New Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1900, 100]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'ok', action: 'lead_created', leadId: $node['Extract New Lead ID'].json.newLeadId, externalId: $node['Build External ID'].json.externalId, odooResponse: ($input.first().json.data || '').slice(0, 200) }) }}",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0019-4000-8000-000000000019",
+      "name": "Respond OK Created",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2100, 100]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Check Email Exists", "type": "main", "index": 0 }]]
+    },
+    "Check Email Exists": {
+      "main": [
+        [{ "node": "Authenticate Odoo", "type": "main", "index": 0 }],
+        [{ "node": "Respond Skip", "type": "main", "index": 0 }]
+      ]
+    },
+    "Authenticate Odoo": {
+      "main": [[{ "node": "Extract UID", "type": "main", "index": 0 }]]
+    },
+    "Extract UID": {
+      "main": [[{ "node": "Build Progress Note", "type": "main", "index": 0 }]]
+    },
+    "Build Progress Note": {
+      "main": [[{ "node": "Search Lead by Email", "type": "main", "index": 0 }]]
+    },
+    "Search Lead by Email": {
+      "main": [[{ "node": "Extract Lead ID", "type": "main", "index": 0 }]]
+    },
+    "Extract Lead ID": {
+      "main": [[{ "node": "Check Lead Found", "type": "main", "index": 0 }]]
+    },
+    "Check Lead Found": {
+      "main": [
+        [{ "node": "Post Progress Note", "type": "main", "index": 0 }],
+        [{ "node": "Count Leads For ExID", "type": "main", "index": 0 }]
+      ]
+    },
+    "Post Progress Note": {
+      "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]]
+    },
+    "Count Leads For ExID": {
+      "main": [[{ "node": "Build External ID", "type": "main", "index": 0 }]]
+    },
+    "Build External ID": {
+      "main": [[{ "node": "Create Lead", "type": "main", "index": 0 }]]
+    },
+    "Create Lead": {
+      "main": [[{ "node": "Extract New Lead ID", "type": "main", "index": 0 }]]
+    },
+    "Extract New Lead ID": {
+      "main": [[{ "node": "Set External ID", "type": "main", "index": 0 }]]
+    },
+    "Set External ID": {
+      "main": [[{ "node": "Post Note to New Lead", "type": "main", "index": 0 }]]
+    },
+    "Post Note to New Lead": {
+      "main": [[{ "node": "Respond OK Created", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "0a325280526846691338babfaca0d9ae59a86a16b8b7dfae18860cc1ab01b406"
+  }
+}

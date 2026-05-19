@@ -2793,6 +2793,7 @@ if(n&&c&&isReturning){
   if(screen==='quiz')return <QuizScreen onDone={r=>{
     setQuizResult(r);setCourseId(r);
     try{localStorage.setItem('rni-quiz-result',r);}catch{}
+    sendProgressEvent({event:'quiz_complete',courseId:r,courseName:QUIZ_RESULTS[r]?.stageLabel||r,lessonId:'',lessonTitle:'',completedCount:0,totalCount:0,progressPct:0});
 
 const name=localStorage.getItem('rni-pre-name')||'';
 const email=localStorage.getItem('rni-pre-email')||'';

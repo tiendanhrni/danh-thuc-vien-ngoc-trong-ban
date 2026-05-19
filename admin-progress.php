@@ -248,6 +248,7 @@ tr:hover td{background:#fafbff}
 .ev-session_start{background:#ebf8ff;color:#2b6cb0}
 .ev-lesson_open{background:#fefcbf;color:#744210}
 .ev-lesson_complete{background:#f0fff4;color:#276749}
+.ev-quiz_complete{background:#faf5ff;color:#553c9a}
 .pct-bar{display:flex;align-items:center;gap:8px}
 .pct-bar .bar{flex:1;height:6px;background:#e2e8f0;border-radius:4px;min-width:50px}
 .pct-bar .fill{height:100%;border-radius:4px;background:#4f46e5}
@@ -298,6 +299,7 @@ tr:hover td{background:#fafbff}
       <option value="session_start"<?= $filter_event==='session_start'?' selected':'' ?>>Mo app</option>
       <option value="lesson_open"<?= $filter_event==='lesson_open'?' selected':'' ?>>Mo bai hoc</option>
       <option value="lesson_complete"<?= $filter_event==='lesson_complete'?' selected':'' ?>>Hoan thanh bai</option>
+      <option value="quiz_complete"<?= $filter_event==='quiz_complete'?' selected':'' ?>>Ket qua quiz</option>
     </select>
   </div>
   <div>

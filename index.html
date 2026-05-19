@@ -115,6 +115,26 @@ const QUIZ_QUESTIONS=[
 
 const ADMIN_EMAILS=['danh.mkt.rni@gmail.com'];
 
+// Gửi sự kiện tiến độ học tập lên n8n (fire-and-forget)
+function sendProgressEvent(payload){
+  const name=localStorage.getItem('rni-name')||localStorage.getItem('rni-pre-name')||'';
+  const email=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
+  if(!email) return; // chỉ track khi đã có email
+  const body=JSON.stringify({name,email,timestamp:new Date().toISOString(),...payload});
+  (async()=>{
+    for(let i=0;i<3;i++){
+      try{
+        const res=await fetch('https://n8n.rni.vn/webhook/rni-progress',{
+          method:'POST',headers:{'Content-Type':'application/json'},body
+        });
+        if(res.ok) break;
+      }catch(e){
+        if(i<2) await new Promise(ok=>setTimeout(ok,2000));
+      }
+    }
+  })();
+}
+
 const QUIZ_RESULTS={
   R:{stage:"Trở Về",subtitle:"Return — Tìm lại chính mình",icon:"🌱",accent:"#78533a",gradFrom:"#fef3e8",gradTo:"#fdfbf7",border:"#e8d5c0",
     rubyVideoId:"PrjM9Q2X6oM",
@@ -2685,6 +2705,8 @@ if(n&&c&&isReturning){
   setShowWelcomeBack(true);
 }
       if(n&&c){
+        // Track session start
+        sendProgressEvent({event:'session_start',courseId:c,courseName:COURSES[c]?.title||c});
         // Đã đăng ký → vào dashboard
         setUserName(n);setCourseId(c);
         // Nếu đang ở bước cert thì giữ nguyên
@@ -2710,7 +2732,28 @@ if(n&&c&&isReturning){
     }catch{}
   },[screen]);
 
-  const done=(id)=>setProgress(p=>({...p,[id]:true}));
+  const done=(id)=>{
+    setProgress(p=>{
+      const next={...p,[id]:true};
+      // Track lesson completion
+      if(!p[id]){
+        const allLessons=getAllLessons(courseId);
+        const completedCount=Object.keys(next).filter(k=>allLessons.some(l=>l.id===k)).length;
+        const lesson=allLessons.find(l=>l.id===id);
+        sendProgressEvent({
+          event:'lesson_complete',
+          courseId,
+          courseName:COURSES[courseId]?.title||courseId,
+          lessonId:id,
+          lessonTitle:lesson?.title||id,
+          completedCount,
+          totalCount:allLessons.length,
+          progressPct:Math.round(completedCount/allLessons.length*100)
+        });
+      }
+      return next;
+    });
+  };
   const reset=()=>{
     try{
       localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');

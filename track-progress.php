@@ -86,6 +86,17 @@ try {
             (email, name, phone, course_id, course_name, event,
              lesson_id, lesson_title, completed_count, total_count, progress_pct)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+            name           = VALUES(name),
+            phone          = VALUES(phone),
+            course_id      = VALUES(course_id),
+            course_name    = VALUES(course_name),
+            event          = VALUES(event),
+            lesson_id      = VALUES(lesson_id),
+            lesson_title   = VALUES(lesson_title),
+            completed_count = VALUES(completed_count),
+            total_count    = VALUES(total_count),
+            progress_pct   = VALUES(progress_pct)
     ");
 
     $stmt->execute([

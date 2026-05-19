@@ -80,12 +80,15 @@ try {
 }
 
 // ── Ghi bản ghi ─────────────────────────────────────────────────────────────
+// progress: JSON string của toàn bộ tiến độ (tuỳ chọn)
+$progressJson = isset($input['progress']) ? json_encode($input['progress']) : '';
+
 try {
     $stmt = $pdo->prepare("
         INSERT INTO user_progress_v2
             (email, name, phone, course_id, course_name, event,
-             lesson_id, lesson_title, completed_count, total_count, progress_pct)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             lesson_id, lesson_title, completed_count, total_count, progress_pct, progress)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
     $stmt->execute([
@@ -100,12 +103,13 @@ try {
         (int) ($input['completedCount'] ?? 0),
         (int) ($input['totalCount']     ?? 0),
         (int) ($input['progressPct']    ?? 0),
+        $progressJson,
     ]);
 
     echo json_encode(['success' => true, 'id' => (int) $pdo->lastInsertId()]);
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Lỗi ghi dữ liệu']);
+    echo json_encode(['error' => 'Lỗi ghi dữ liệu', 'detail' => $e->getMessage()]);
     error_log('[RNI progress] DB insert error: ' . $e->getMessage());
 }

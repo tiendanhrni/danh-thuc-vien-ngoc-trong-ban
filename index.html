@@ -1595,7 +1595,7 @@ function MatchingGame({quiz,onComplete}){
 }
   
 /* ─── LESSON VIEW ──────────────────────────────────────────────── */
-function LessonView({lesson,progress,courseId,onComplete,onBack}){
+function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
   const [tab,setTab]=useState('video');
   const [tabsUnlocked,setTabsUnlocked]=useState(false);// tabs chỉ hiện sau khi bấm "Tiếp theo"
   const [qi,setQi]=useState(0);
@@ -1718,9 +1718,9 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
                   💬 Hỏi đáp thêm về bài học tại đây →
                 </button>
                 {/* simple: just complete */}
-                {isSimple&&!isDone&&(
+                {isSimple&&(!isDone||isAdmin)&&(
                   <button onClick={handleComplete} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,#9b1106,${accent}cc)`}}>
-                    Đánh dấu hoàn thành ✓
+                    {isDone&&isAdmin?'Xem popup lại (admin) ↺':'Đánh dấu hoàn thành ✓'}
                   </button>
                 )}
                 {/* non-simple: Tiếp theo unlocks tabs - small button bottom right */}
@@ -1822,9 +1822,9 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
             {tab==='practice'&&!isSimple&&(
               <div className="space-y-4 fade-in">
                 <PracticeBox practice={lesson.practice} lessonId={lesson.id}/>
-                {!isDone&&(
+                {(!isDone||isAdmin)&&(
                   <button onClick={handleComplete} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
-                    Đánh dấu hoàn thành ✓
+                    {isDone&&isAdmin?'Xem popup lại (admin) ↺':'Đánh dấu hoàn thành ✓'}
                   </button>
                 )}
                 {isDone&&(
@@ -2786,7 +2786,7 @@ const email=localStorage.getItem('rni-pre-email')||'';
   if(screen==='rniOverview')return <RniOverviewScreen onContinue={()=>setScreen('quizResult')}/>;
   if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={handleQuizResultContinue} onBack={()=>setScreen('quiz')}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
-  if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}}/>;
+  if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}} isAdmin={isAdmin}/>;
   return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-course');}catch{}setCourseId(null);setQuizResult(null);setScreen('quizTransition');}}/>;
 }
 

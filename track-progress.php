@@ -60,14 +60,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $db_user, $db_pass,
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
         );
+        // Lấy thông tin user từ bản ghi mới nhất có course_id
         $stmt = $pdo->prepare("
+            SELECT name, phone, course_id
+            FROM user_progress_v2
+            WHERE email = ? AND course_id != ''
+            ORDER BY created_at DESC
+            LIMIT 1
+        ");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        // Lấy danh sách bài đã hoàn thành
+        $stmt2 = $pdo->prepare("
             SELECT DISTINCT lesson_id
             FROM user_progress_v2
             WHERE email = ? AND event = 'lesson_complete' AND lesson_id != ''
         ");
-        $stmt->execute([$email]);
-        $lessons = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        echo json_encode(['completedLessons' => $lessons]);
+        $stmt2->execute([$email]);
+        $lessons = $stmt2->fetchAll(PDO::FETCH_COLUMN);
+
+        echo json_encode([
+            'found'            => !empty($user),
+            'name'             => $user['name']      ?? '',
+            'phone'            => $user['phone']     ?? '',
+            'courseId'         => $user['course_id'] ?? '',
+            'completedLessons' => $lessons,
+        ]);
     } catch (PDOException $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Lỗi truy vấn']);

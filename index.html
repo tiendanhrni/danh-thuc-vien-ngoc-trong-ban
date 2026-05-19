@@ -619,8 +619,11 @@ function PBar({val,max,color='#9b1106',h=6}){
 
 /* ─── PRE-QUIZ SCREEN ─────────────────────────────────────────── */
 function PreQuizScreen({onStart,onAdminLogin,onReturn}){
-  const [step,setStep]=useState('email'); // 'email' | 'register'
-  const [email,setEmail]=useState('');
+  // Người đã từng truy cập → có email trong localStorage → bắt đầu bằng email-only
+  // Người chưa bao giờ vào → bắt đầu bằng form đủ 3 trường
+  const hasSession=!!(localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email'));
+  const [step,setStep]=useState(hasSession?'email':'new'); // 'new' | 'email' | 'register'
+  const [email,setEmail]=useState(localStorage.getItem('rni-pre-email')||localStorage.getItem('rni-email')||'');
   const [name,setName]=useState('');
   const [phone,setPhone]=useState('');
   const [loading,setLoading]=useState(false);
@@ -667,6 +670,46 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
     onStart();
   };
 
+  // Dành cho người dùng mới: điền đủ 3 trường rồi mới kiểm tra server
+  const submitNew=async()=>{
+    const e=email.trim();
+    if(!name.trim())return setErr('Bạn chưa nhập họ tên.');
+    if(!e||!e.includes('@'))return setErr('Email chưa hợp lệ.');
+    if(!phone.trim())return setErr('Bạn chưa nhập số điện thoại.');
+    setErr('');setLoading(true);
+    if(ADMIN_EMAILS.includes(e.toLowerCase())){
+      try{localStorage.setItem('rni-pre-email',e);}catch{}
+      setLoading(false);onAdminLogin('Admin');return;
+    }
+    // Kiểm tra xem email đã có trong hệ thống chưa (có thể đã đăng ký từ thiết bị khác)
+    try{
+      const res=await fetch('https://thuvien.rni.vn/track-progress.php?email='+encodeURIComponent(e));
+      const data=await res.json();
+      if(data.found&&data.courseId){
+        try{
+          localStorage.setItem('rni-name',data.name||name.trim());
+          localStorage.setItem('rni-email',e);
+          if(data.phone)localStorage.setItem('rni-phone',data.phone);
+          localStorage.setItem('rni-pre-name',data.name||name.trim());
+          localStorage.setItem('rni-pre-email',e);
+          localStorage.setItem('rni-pre-phone',data.phone||phone.trim());
+          localStorage.setItem('rni-course',data.courseId);
+        }catch{}
+        setLoading(false);
+        onReturn({name:data.name||name.trim(),courseId:data.courseId,completedLessons:data.completedLessons||[]});
+        return;
+      }
+    }catch{}
+    // Người dùng thật sự mới — lưu thông tin rồi bắt đầu quiz
+    try{
+      localStorage.setItem('rni-pre-name',name.trim());
+      localStorage.setItem('rni-pre-email',e);
+      localStorage.setItem('rni-pre-phone',phone.trim());
+    }catch{}
+    setLoading(false);
+    onStart();
+  };
+
   return(
     <div className="min-h-screen hero-bg flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
       <svg className="dandelion" style={{right:-30,top:60,width:260,height:260}} viewBox="0 0 200 200" fill="none">
@@ -690,7 +733,46 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
           Không có câu trả lời đúng hay sai, chỉ cần sự thành thật với chính mình. Sau đây là những câu hỏi trắc nghiệm ngắn để giúp bạn xác định một cách sáng rõ bạn đang ở đâu trên hành trình của mình.
         </p>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 max-w-md mx-auto text-left">
-          {step==='email'?(
+          {step==='new'?(
+            <>
+              <p className="text-sm font-semibold text-gray-700 mb-4 text-center">Điền thông tin để bắt đầu</p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1.5">Họ và tên</label>
+                  <input type="text" value={name} onChange={e=>setName(e.target.value)}
+                    onKeyDown={e=>e.key==='Enter'&&submitNew()}
+                    autoFocus placeholder="Nguyễn Văn A"
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
+                  <p className="text-amber-600 text-xs mt-1">⚠ Tên chính xác sẽ được dùng trên chứng chỉ hoàn thành.</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1.5">Email</label>
+                  <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
+                    onKeyDown={e=>e.key==='Enter'&&submitNew()}
+                    placeholder="email@example.com"
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1.5">Số điện thoại</label>
+                  <input type="tel" value={phone} onChange={e=>setPhone(e.target.value)}
+                    onKeyDown={e=>e.key==='Enter'&&submitNew()}
+                    placeholder="0912 345 678"
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
+                  <p className="text-gray-400 text-xs mt-1.5">📞 Để đội ngũ RNI hỗ trợ bạn trên hành trình.</p>
+                </div>
+              </div>
+              {err&&<p className="text-rni-600 text-xs mt-3 font-medium">⚠ {err}</p>}
+              <button onClick={submitNew} disabled={loading}
+                className="w-full mt-5 py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 hover:opacity-90 disabled:opacity-60 pulse-glow"
+                style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+                {loading?(<span className="flex items-center justify-center gap-2"><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v8z" opacity=".75"/></svg>Đang kiểm tra...</span>):'Bắt đầu làm trắc nghiệm →'}
+              </button>
+              <p className="text-center text-xs text-gray-400 mt-3">
+                Đã từng học?{' '}
+                <button onClick={()=>{setStep('email');setErr('');}} className="text-rni-600 font-semibold hover:underline">Nhập email để tiếp tục</button>
+              </p>
+            </>
+          ):step==='email'?(
             <>
               <p className="text-sm font-semibold text-gray-700 mb-4 text-center">Nhập email để bắt đầu</p>
               <div>

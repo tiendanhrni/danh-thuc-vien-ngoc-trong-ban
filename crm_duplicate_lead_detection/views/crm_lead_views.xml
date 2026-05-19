@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Thêm cảnh báo và nút vào form lead -->
+    <record id="crm_lead_duplicate_warning_view" model="ir.ui.view">
+        <field name="name">crm.lead.duplicate.warning</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_all_leads"/>
+        <field name="arch" type="xml">
+            <!-- Banner cảnh báo trùng lặp ở đầu form -->
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning o_duplicate_lead_warning"
+                     attrs="{'invisible': [('has_duplicates', '=', False)]}"
+                     role="alert">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div>
+                            <strong>⚠️ Phát hiện
+                                <field name="duplicate_lead_count" class="d-inline" readonly="1"/>
+                                lead trùng lặp (email/SĐT)!
+                            </strong>
+                            <span> — Có thể trùng với lead/cơ hội đã tồn tại trong hệ thống.</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button name="action_open_duplicate_wizard"
+                                    type="object"
+                                    string="Xem &amp; Xử lý"
+                                    class="btn btn-warning btn-sm"/>
+                            <button name="action_view_duplicate_lead"
+                                    type="object"
+                                    string="Xem danh sách"
+                                    class="btn btn-outline-warning btn-sm"/>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+
+            <!-- Thêm tab Lead trùng lặp vào notebook -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Lead trùng lặp"
+                      name="duplicate_leads"
+                      attrs="{'invisible': [('has_duplicates', '=', False)]}">
+                    <div class="alert alert-info" role="alert">
+                        Danh sách các lead/cơ hội có cùng email hoặc số điện thoại.
+                        Hãy xem xét để tránh chăm sóc trùng lặp.
+                    </div>
+                    <field name="duplicate_lead_ids" readonly="1">
+                        <list string="Lead trùng"
+                              decoration-muted="active == False"
+                              decoration-success="type == 'opportunity' and active == True"
+                              decoration-warning="type == 'lead' and active == True">
+                            <field name="name" string="Tên"/>
+                            <field name="type" string="Loại" widget="badge"
+                                decoration-warning="type == 'lead'"
+                                decoration-success="type == 'opportunity'"/>
+                            <field name="email_from" string="Email"/>
+                            <field name="phone" string="SĐT"/>
+                            <field name="user_id" string="Sale phụ trách"/>
+                            <field name="team_id" string="Nhóm"/>
+                            <field name="stage_id" string="Giai đoạn"/>
+                            <field name="probability" string="XS%"/>
+                            <field name="expected_revenue" string="Doanh thu dự kiến" widget="monetary"/>
+                            <field name="create_date" string="Ngày tạo" widget="date"/>
+                            <field name="active" column_invisible="1"/>
+                        </list>
+                    </field>
+                    <div class="mt-2">
+                        <button name="action_open_duplicate_wizard"
+                                type="object"
+                                string="Hợp nhất / Chuyển Sale"
+                                class="btn btn-primary btn-sm"/>
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Kế thừa thêm cho view opportunity (crm_lead_view_form) nếu có -->
+    <record id="crm_opportunity_duplicate_warning_view" model="ir.ui.view">
+        <field name="name">crm.opportunity.duplicate.warning</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning o_duplicate_lead_warning"
+                     attrs="{'invisible': [('has_duplicates', '=', False)]}"
+                     role="alert">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div>
+                            <strong>⚠️ Phát hiện
+                                <field name="duplicate_lead_count" class="d-inline" readonly="1"/>
+                                lead trùng lặp (email/SĐT)!
+                            </strong>
+                            <span> — Có thể trùng với lead/cơ hội đã tồn tại.</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button name="action_open_duplicate_wizard"
+                                    type="object"
+                                    string="Xem &amp; Xử lý"
+                                    class="btn btn-warning btn-sm"/>
+                            <button name="action_view_duplicate_lead"
+                                    type="object"
+                                    string="Xem danh sách"
+                                    class="btn btn-outline-warning btn-sm"/>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

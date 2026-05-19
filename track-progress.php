@@ -78,14 +78,15 @@ try {
 try {
     $stmt = $pdo->prepare("
         INSERT INTO user_progress_v2
-            (email, name, course_id, course_name, event,
+            (email, name, phone, course_id, course_name, event,
              lesson_id, lesson_title, completed_count, total_count, progress_pct)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
     $stmt->execute([
         mb_substr(trim($input['email']       ?? ''), 0, 255),
         mb_substr(trim($input['name']        ?? ''), 0, 255),
+        mb_substr(trim($input['phone']       ?? ''), 0, 20),
         mb_substr(trim($input['courseId']    ?? ''), 0, 10),
         mb_substr(trim($input['courseName']  ?? ''), 0, 255),
         mb_substr(trim($input['event']       ?? 'unknown'), 0, 50),

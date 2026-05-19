@@ -119,8 +119,9 @@ const ADMIN_EMAILS=['danh.mkt.rni@gmail.com'];
 function sendProgressEvent(payload){
   const name=localStorage.getItem('rni-name')||localStorage.getItem('rni-pre-name')||'';
   const email=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
+  const phone=localStorage.getItem('rni-phone')||localStorage.getItem('rni-pre-phone')||'';
   if(!email) return; // chỉ track khi đã có email
-  const body=JSON.stringify({name,email,timestamp:new Date().toISOString(),...payload});
+  const body=JSON.stringify({name,email,phone,timestamp:new Date().toISOString(),...payload});
   (async()=>{
     for(let i=0;i<3;i++){
       try{
@@ -596,14 +597,20 @@ function PBar({val,max,color='#9b1106',h=6}){
 function PreQuizScreen({onStart,onAdminLogin}){
   const [name,setName]=useState('');
   const [email,setEmail]=useState('');
+  const [phone,setPhone]=useState('');
   const [loading,setLoading]=useState(false);
   const [err,setErr]=useState('');
 
   const submit=async()=>{
     if(!name.trim())return setErr('Bạn chưa nhập tên.');
     if(!email.trim()||!email.includes('@'))return setErr('Email chưa hợp lệ.');
+    if(!phone.trim())return setErr('Bạn chưa nhập số điện thoại.');
     setErr('');setLoading(true);
-    try{localStorage.setItem('rni-pre-name',name.trim());localStorage.setItem('rni-pre-email',email.trim());}catch{}
+    try{
+      localStorage.setItem('rni-pre-name',name.trim());
+      localStorage.setItem('rni-pre-email',email.trim());
+      localStorage.setItem('rni-pre-phone',phone.trim());
+    }catch{}
     setLoading(false);
     if(ADMIN_EMAILS.includes(email.trim().toLowerCase())){
       onAdminLogin(name.trim());
@@ -652,6 +659,14 @@ function PreQuizScreen({onStart,onAdminLogin}){
                 placeholder="email@example.com"
                 className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
               <p className="text-gray-400 text-xs mt-1.5">📩 Để nhận kết quả, chứng chỉ hoàn thành và tài liệu giá trị từ Học viện RNI.</p>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Số điện thoại</label>
+              <input type="tel" value={phone} onChange={e=>setPhone(e.target.value)}
+                onKeyDown={e=>e.key==='Enter'&&submit()}
+                placeholder="0912 345 678"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
+              <p className="text-gray-400 text-xs mt-1.5">📞 Để đội ngũ RNI hỗ trợ bạn trên hành trình.</p>
             </div>
           </div>
           {err&&<p className="text-rni-600 text-xs mt-3 font-medium">⚠ {err}</p>}
@@ -996,8 +1011,9 @@ function ConnectPopup({onDone,lessonIndex}){
 
 /* ─── REGISTER ────────────────────────────────────────────────── */
 function RegisterScreen({courseId,onDone,onBack}){
-  const [name,setName]=useState('');
-  const [email,setEmail]=useState('');
+  const [name,setName]=useState(localStorage.getItem('rni-pre-name')||'');
+  const [email,setEmail]=useState(localStorage.getItem('rni-pre-email')||'');
+  const [phone,setPhone]=useState(localStorage.getItem('rni-pre-phone')||'');
   const [loading,setLoading]=useState(false);
   const [err,setErr]=useState('');
   const r=QUIZ_RESULTS[courseId];
@@ -1005,6 +1021,7 @@ function RegisterScreen({courseId,onDone,onBack}){
   const submit=async()=>{
     if(!name.trim())return setErr('Bạn chưa nhập tên.');
     if(!email.trim()||!email.includes('@'))return setErr('Email chưa hợp lệ.');
+    if(!phone.trim())return setErr('Bạn chưa nhập số điện thoại.');
     setErr('');setLoading(true);
     try{
     }catch(e){
@@ -1018,6 +1035,7 @@ function RegisterScreen({courseId,onDone,onBack}){
         });
       }
       
+      try{localStorage.setItem('rni-pre-phone',phone.trim());localStorage.setItem('rni-phone',phone.trim());}catch{}
       setLoading(false);
       onDone(name.trim(),email.trim());
     }
@@ -1061,6 +1079,17 @@ function RegisterScreen({courseId,onDone,onBack}){
                 className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"
               />
               <p className="text-gray-400 text-xs mt-1.5">Để nhận chứng chỉ hoàn thành và các giá trị khác từ Học viện RNI.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Số điện thoại</label>
+              <input
+                type="tel" value={phone}
+                onChange={e=>setPhone(e.target.value)}
+                onKeyDown={e=>e.key==='Enter'&&submit()}
+                placeholder="0912 345 678"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"
+              />
+              <p className="text-gray-400 text-xs mt-1.5">📞 Để đội ngũ RNI hỗ trợ bạn trên hành trình.</p>
             </div>
           </div>
           {err&&<p className="text-rni-600 text-xs mt-3 font-medium">⚠ {err}</p>}
@@ -2765,10 +2794,12 @@ if(n&&c&&isReturning){
   const handleQuizResultContinue=()=>{
   const preN=localStorage.getItem('rni-pre-name')||'Học viên';
   const preE=localStorage.getItem('rni-pre-email')||'';
+  const preP=localStorage.getItem('rni-pre-phone')||'';
   setUserName(preN);
   try{
     localStorage.setItem('rni-name',preN);
     if(preE)localStorage.setItem('rni-email',preE);
+    if(preP)localStorage.setItem('rni-phone',preP);
     localStorage.setItem('rni-course',quizResult);
     localStorage.removeItem('rni-quiz-result');
   }catch{}

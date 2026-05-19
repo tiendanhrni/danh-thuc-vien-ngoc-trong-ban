@@ -57,13 +57,14 @@ if ($logged_in && isset($_GET['export']) && $_GET['export'] === 'csv') {
 
     $out = fopen('php://output', 'w');
     fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8 để Excel đọc được tiếng Việt
-    fputcsv($out, ['#','Thoi gian','Email','Ten','Khoa ID','Khoa hoc','Su kien','Bai hoc ID','Bai hoc','So bai xong','Tong so bai','% hoan thanh']);
+    fputcsv($out, ['#','Thoi gian','Email','Ten','SDT','Khoa ID','Khoa hoc','Su kien','Bai hoc ID','Bai hoc','So bai xong','Tong so bai','% hoan thanh']);
     foreach ($data as $r) {
         fputcsv($out, [
             $r['id'] ?? '',
             $r['created_at'] ?? '',
             $r['email'] ?? '',
             $r['name'] ?? '',
+            $r['phone'] ?? '',
             $r['course_id'] ?? '',
             $r['course_name'] ?? '',
             $r['event'] ?? '',
@@ -137,10 +138,11 @@ try {
     showError('Bang <b>user_progress_v2</b> chua duoc tao. Vao phpMyAdmin va chay lenh SQL tao bang truoc.');
     exit;
 }
-$has_event   = in_array('event',      $cols);
-$has_course  = in_array('course_id',  $cols);
+$has_event   = in_array('event',        $cols);
+$has_course  = in_array('course_id',    $cols);
 $has_lesson  = in_array('lesson_title', $cols);
 $has_pct     = in_array('progress_pct', $cols);
+$has_phone   = in_array('phone',        $cols);
 
 // ── Bộ lọc ───────────────────────────────────────────────────────────────────
 $filter_email  = trim($_GET['email']  ?? '');
@@ -317,13 +319,14 @@ tr:hover td{background:#fafbff}
 
 <div class="wrap">
   <table>
-    <?php $colspan = 4 + (int)$has_course + (int)$has_event + (int)$has_lesson + (int)$has_pct; ?>
+    <?php $colspan = 4 + (int)$has_phone + (int)$has_course + (int)$has_event + (int)$has_lesson + (int)$has_pct; ?>
     <thead>
       <tr>
         <th>#</th>
         <th>Thoi gian</th>
         <th>Email</th>
         <th>Ten</th>
+        <?php if ($has_phone):  ?><th>SDT</th><?php endif; ?>
         <?php if ($has_course): ?><th>Khoa</th><?php endif; ?>
         <?php if ($has_event):  ?><th>Su kien</th><?php endif; ?>
         <?php if ($has_lesson): ?><th>Bai hoc</th><?php endif; ?>
@@ -340,6 +343,7 @@ tr:hover td{background:#fafbff}
         <td style="white-space:nowrap;font-size:12px"><?= h($r['created_at']) ?></td>
         <td><?= h($r['email']) ?></td>
         <td><?= h($r['name'] ?? '') ?></td>
+        <?php if ($has_phone):  ?><td style="white-space:nowrap"><?= h($r['phone'] ?? '') ?: '—' ?></td><?php endif; ?>
         <?php if ($has_course): ?><td style="font-weight:600;text-align:center"><?= h($r['course_id'] ?? '') ?></td><?php endif; ?>
         <?php if ($has_event):  ?><td><span class="badge ev-<?= h($r['event'] ?? '') ?>"><?= h($r['event'] ?? '') ?></span></td><?php endif; ?>
         <?php if ($has_lesson): ?><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?= h($r['lesson_title'] ?? '') ?>"><?= h($r['lesson_title'] ?? '') ?: '—' ?></td><?php endif; ?>

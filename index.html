@@ -902,14 +902,13 @@ function QuizResultScreen({result,onContinue,onBack}){
 }
 
 /* ─── CONNECT SCREEN ────────────────────────────────────────────── */
-function ConnectScreen({onContinue}){
-  const [connected,setConnected]=useState({zalo:false,messenger:false});
-  const [popup,setPopup]=useState(null);
-  const bothConnected=connected.zalo&&connected.messenger;
+/* ─── CONNECT POPUP (sau mỗi bài học) ───────────────────────────── */
+function ConnectPopup({onDone,lessonIndex}){
+  // Zalo: bài 1,3,5 (lIdx chẵn) — Messenger: bài 2,4,6 (lIdx lẻ)
+  const channelId=lessonIndex%2===0?'zalo':'messenger';
 
-  // Load Zalo SDK khi mở popup Zalo
   useEffect(()=>{
-    if(popup==='zalo'){
+    if(channelId==='zalo'){
       const existing=document.getElementById('zalo-sdk');
       if(!existing){
         const s=document.createElement('script');
@@ -918,103 +917,62 @@ function ConnectScreen({onContinue}){
         s.onload=()=>{if(window.ZaloSocialSDK)window.ZaloSocialSDK.reload();};
         document.body.appendChild(s);
       }else{
-        setTimeout(()=>{if(window.ZaloSocialSDK)window.ZaloSocialSDK.reload();},100);
+        setTimeout(()=>{if(window.ZaloSocialSDK)window.ZaloSocialSDK.reload();},150);
       }
     }
-  },[popup]);
+  },[channelId]);
 
-  const confirm=(id)=>{
-    setConnected(p=>({...p,[id]:true}));
-    setPopup(null);
-  };
-
-  const CHANNELS={
-    zalo:{label:'Kết nối đội ngũ hỗ trợ',bg:'linear-gradient(135deg,#06b96f,#059955)'},
-    messenger:{label:'Cổng thông báo Học viện RNI',bg:'linear-gradient(135deg,#0a84ff,#0066cc)'}
+  const handleConnect=(id)=>{
+    try{localStorage.setItem('rni-connected',id);}catch{}
+    onDone(true);
   };
 
   return(
-    <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full slide-up">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4"><Logo size={54}/></div>
-          <h2 className="font-heading font-black text-2xl text-gray-900 mb-3">Kết nối với đội ngũ RNI</h2>
-          <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto">
-            Nhấn <strong>Quan tâm / Tham gia kênh</strong> để nhận thông báo và nhắc nhở lịch học từ đội ngũ hỗ trợ RNI
+    <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 px-4 pb-4 sm:pb-0">
+      <div className="bg-white rounded-3xl w-full max-w-sm p-6 bounce-in">
+        <div className="flex justify-center mb-3"><Logo size={44}/></div>
+        <div className="text-center mb-5">
+          <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Nhận thông báo & nhắc lịch học</h3>
+          <p className="text-gray-500 text-sm leading-relaxed">
+            Nhấn <strong>Quan tâm / Tham gia kênh</strong> để nhận thông báo, nhắc nhở lịch học và hỏi đáp với đội ngũ hỗ trợ RNI
           </p>
         </div>
 
-        <div className="space-y-3 mb-6">
-          {['zalo','messenger'].map(id=>{
-            const c=CHANNELS[id];
-            const done=connected[id];
-            return(
-              <button key={id} onClick={()=>!done&&setPopup(id)} disabled={done}
-                className="w-full flex items-center justify-between px-6 py-4 rounded-2xl text-white font-semibold text-base transition-all active:scale-95"
-                style={{background:done?'#9ca3af':c.bg}}>
-                <span>{done?'✓ Đã kết nối':c.label}</span>
-                {!done&&<span className="text-white/80">→</span>}
-              </button>
-            );
-          })}
-        </div>
-
-        {bothConnected?(
-          <button onClick={onContinue}
-            className="w-full py-4 rounded-2xl text-white font-bold text-base pulse-glow transition-all active:scale-95 slide-up"
-            style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
-            Bắt đầu khoá học →
-          </button>
-        ):(
-          <p className="text-center text-xs text-gray-400 mt-2">
-            {!connected.zalo&&!connected.messenger?'Kết nối cả hai kênh để tiếp tục'
-              :!connected.zalo?'Còn thiếu: Zalo OA'
-              :'Còn thiếu: Kênh thông báo'}
-          </p>
-        )}
-      </div>
-
-      {/* Popup Zalo */}
-      {popup==='zalo'&&(
-        <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 px-4 pb-4 sm:pb-0">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 bounce-in">
-            <div className="text-center mb-5">
-              <p className="font-heading font-black text-xl text-gray-900 mb-1">Học viện RNI — Zalo OA</p>
-              <p className="text-gray-500 text-sm">Nhấn <strong>Quan tâm</strong> bên dưới để kết nối</p>
-            </div>
-            <div className="flex justify-center mb-5">
+        {channelId==='zalo'?(
+          <>
+            <div className="flex justify-center mb-4">
               <div className="zalo-follow-only-button" data-oaid="4096198069463501502" data-customize="true"></div>
             </div>
-            <button onClick={()=>confirm('zalo')}
-              className="w-full py-3.5 rounded-2xl font-bold text-base text-white active:scale-95 transition-all"
+            <button onClick={()=>handleConnect('zalo')}
+              className="w-full py-3.5 rounded-2xl font-bold text-base text-white active:scale-95 transition-all mb-3"
               style={{background:'#06b96f'}}>
               Đã quan tâm rồi ✓
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Popup Messenger */}
-      {popup==='messenger'&&(
-        <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 px-4 pb-4 sm:pb-0">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 bounce-in">
-            <div className="text-center mb-5">
-              <div className="text-4xl mb-3">📣</div>
-              <p className="font-heading font-black text-xl text-gray-900 mb-2">Kênh thông báo Học viện RNI</p>
-              <p className="text-gray-500 text-sm leading-relaxed">Nhấn <strong>Tham gia kênh</strong> để theo dõi thông báo, lịch học và nội dung mới nhất từ Học viện RNI qua Messenger.</p>
-            </div>
+          </>
+        ):(
+          <>
             <a href="https://www.messenger.com/channel/IamRubyNguyen" target="_blank" rel="noopener noreferrer"
-              onClick={()=>confirm('messenger')}
               className="w-full flex items-center justify-center py-3.5 rounded-2xl font-bold text-base text-white mb-3 active:scale-95 transition-all"
-              style={{background:'#0a84ff'}}>
-              Tham gia kênh →
+              style={{background:'#0a84ff',display:'flex'}}>
+              Tham gia kênh thông báo →
             </a>
-          </div>
-        </div>
-      )}
+            <button onClick={()=>handleConnect('messenger')}
+              className="w-full py-3.5 rounded-2xl font-bold text-base text-white active:scale-95 transition-all mb-3"
+              style={{background:'#0a84ff',opacity:0.85}}>
+              Đã tham gia rồi ✓
+            </button>
+          </>
+        )}
+
+        <button onClick={()=>onDone(false)}
+          className="w-full py-2 text-gray-400 text-sm font-medium hover:text-gray-600 transition-colors">
+          Để sau
+        </button>
+      </div>
     </div>
   );
 }
+
 
 /* ─── REGISTER ────────────────────────────────────────────────── */
 function RegisterScreen({courseId,onDone,onBack}){
@@ -1637,7 +1595,7 @@ function MatchingGame({quiz,onComplete}){
 }
   
 /* ─── LESSON VIEW ──────────────────────────────────────────────── */
-function LessonView({lesson,progress,courseId,onComplete,onBack}){
+function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
   const [tab,setTab]=useState('video');
   const [tabsUnlocked,setTabsUnlocked]=useState(false);// tabs chỉ hiện sau khi bấm "Tiếp theo"
   const [qi,setQi]=useState(0);
@@ -1646,10 +1604,12 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
   const [score,setScore]=useState(0);
   const [quizDone,setQuizDone]=useState(false);
   const [showCelebration,setShowCelebration]=useState(false);
+  const [showConnectPopup,setShowConnectPopup]=useState(false);
 
   const all=getAllLessons(courseId);
   const lIdx=all.findIndex(l=>l.id===lesson.id);
   const next=all[lIdx+1]||null;
+  const alreadyConnected=()=>{try{return!!localStorage.getItem('rni-connected');}catch{return false;}};
   const mod=getModules(courseId).find(m=>m.lessons.some(l=>l.id===lesson.id));
   const isSimple=!!mod?.isQA||!!mod?.isStory;
   const isDone=!!progress[lesson.id];
@@ -1667,7 +1627,15 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
     if(qi<lesson.quiz.length-1){setQi(qi+1);setPicked(null);setChecked(false);}
     else setQuizDone(true);
   };
-  const handleComplete=()=>{onComplete(lesson.id);setShowCelebration(true);};
+  const handleComplete=()=>{
+    onComplete(lesson.id);
+    if(!alreadyConnected()){setShowConnectPopup(true);}
+    else{setShowCelebration(true);}
+  };
+  const handleConnectDone=(didConnect)=>{
+    setShowConnectPopup(false);
+    setShowCelebration(true);
+  };
   const handleGoNext=()=>{setShowCelebration(false);if(next)onComplete(lesson.id);onBack();};
 
   // Sidebar: chỉ 2 cuốn sách
@@ -1750,9 +1718,9 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
                   💬 Hỏi đáp thêm về bài học tại đây →
                 </button>
                 {/* simple: just complete */}
-                {isSimple&&!isDone&&(
+                {isSimple&&(!isDone||isAdmin)&&(
                   <button onClick={handleComplete} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,#9b1106,${accent}cc)`}}>
-                    Đánh dấu hoàn thành ✓
+                    {isDone&&isAdmin?'Xem popup lại (admin) ↺':'Đánh dấu hoàn thành ✓'}
                   </button>
                 )}
                 {/* non-simple: Tiếp theo unlocks tabs - small button bottom right */}
@@ -1854,9 +1822,9 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
             {tab==='practice'&&!isSimple&&(
               <div className="space-y-4 fade-in">
                 <PracticeBox practice={lesson.practice} lessonId={lesson.id}/>
-                {!isDone&&(
+                {(!isDone||isAdmin)&&(
                   <button onClick={handleComplete} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
-                    Đánh dấu hoàn thành ✓
+                    {isDone&&isAdmin?'Xem popup lại (admin) ↺':'Đánh dấu hoàn thành ✓'}
                   </button>
                 )}
                 {isDone&&(
@@ -1928,8 +1896,10 @@ function LessonView({lesson,progress,courseId,onComplete,onBack}){
         </div>
       </div>
 
+      {/* connect popup */}
+      {showConnectPopup&&<ConnectPopup lessonIndex={lIdx} onDone={handleConnectDone}/>}
       {/* celebration popup */}
-          {showCelebration&&<CelebrationPopup lesson={lesson} courseId={courseId} next={next} onNext={handleGoNext} onBack={()=>{setShowCelebration(false);onBack();}}/>}
+      {showCelebration&&<CelebrationPopup lesson={lesson} courseId={courseId} next={next} onNext={handleGoNext} onBack={()=>{setShowCelebration(false);onBack();}}/>}
        <ChatButton/>
     </div>
   );
@@ -2750,9 +2720,6 @@ if(n&&c&&isReturning){
     setScreen('preQuiz');setUserName('');setCourseId(null);setQuizResult(null);setProgress({});
   };
   const handleQuizResultContinue=()=>{
-    setScreen('connect');
-  };
-  const handleConnectContinue=()=>{
   const preN=localStorage.getItem('rni-pre-name')||'Học viên';
   const preE=localStorage.getItem('rni-pre-email')||'';
   setUserName(preN);
@@ -2818,10 +2785,9 @@ const email=localStorage.getItem('rni-pre-email')||'';
   if(screen==='quizLoading')return <QuizLoading onDone={()=>setScreen('rniOverview')}/>;
   if(screen==='rniOverview')return <RniOverviewScreen onContinue={()=>setScreen('quizResult')}/>;
   if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={handleQuizResultContinue} onBack={()=>setScreen('quiz')}/>;
-  if(screen==='connect')return <ConnectScreen onContinue={handleConnectContinue}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
-  if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}}/>;
-  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');localStorage.removeItem('rni-email');}catch{}setUserName('');setCourseId(null);setScreen('preQuiz');}}/>;
+  if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}} isAdmin={isAdmin}/>;
+  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-course');}catch{}setCourseId(null);setQuizResult(null);setScreen('quizTransition');}}/>;
 }
 
 const root=ReactDOM.createRoot(document.getElementById('root'));

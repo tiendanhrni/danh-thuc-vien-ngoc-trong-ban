@@ -25,6 +25,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
 // Kiểm tra đã đăng nhập chưa
 $logged_in = isset($_COOKIE[COOKIE_NAME]) && $_COOKIE[COOKIE_NAME] === COOKIE_TOKEN;
 
+// Export CSV
+if ($logged_in && isset($_GET['export']) && $_GET['export'] === 'csv') {
+    // kết nối DB trước khi export
+    $db_host = 'localhost';
+    $db_name = 'rni_courses_quiz_RNI_DTVNBT';
+    $db_user = 'rni_quiz_user';
+    $db_pass = 'RNI-quiz-dtvnbt';
+    try {
+        $pdo_e = new PDO("mysql:host={$db_host};dbname={$db_name};charset=utf8mb4", $db_user, $db_pass,
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]);
+    } catch (PDOException $e) { die('Loi DB'); }
+
+    $fe = trim($_GET['email']  ?? '');
+    $fc = trim($_GET['course'] ?? '');
+    $fv = trim($_GET['event']  ?? '');
+    $fd = trim($_GET['date']   ?? '');
+    $ew = ['1=1']; $ep = [];
+    if ($fe) { $ew[] = 'email LIKE ?';         $ep[] = "%{$fe}%"; }
+    if ($fc) { $ew[] = 'course_id = ?';        $ep[] = $fc; }
+    if ($fv) { $ew[] = 'event = ?';            $ep[] = $fv; }
+    if ($fd) { $ew[] = 'DATE(created_at) = ?'; $ep[] = $fd; }
+    $eq = $pdo_e->prepare("SELECT * FROM user_progress_v2 WHERE " . implode(' AND ', $ew) . " ORDER BY id DESC");
+    $eq->execute($ep);
+    $data = $eq->fetchAll();
+
+    $filename = 'tien-do-hoc-vien-' . date('Ymd-His') . '.csv';
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Pragma: no-cache');
+
+    $out = fopen('php://output', 'w');
+    fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8 để Excel đọc được tiếng Việt
+    fputcsv($out, ['#','Thoi gian','Email','Ten','Khoa ID','Khoa hoc','Su kien','Bai hoc ID','Bai hoc','So bai xong','Tong so bai','% hoan thanh']);
+    foreach ($data as $r) {
+        fputcsv($out, [
+            $r['id'] ?? '',
+            $r['created_at'] ?? '',
+            $r['email'] ?? '',
+            $r['name'] ?? '',
+            $r['course_id'] ?? '',
+            $r['course_name'] ?? '',
+            $r['event'] ?? '',
+            $r['lesson_id'] ?? '',
+            $r['lesson_title'] ?? '',
+            $r['completed_count'] ?? '',
+            $r['total_count'] ?? '',
+            $r['progress_pct'] ?? '',
+        ]);
+    }
+    fclose($out);
+    exit;
+}
+
 if (!$logged_in) {
     ?><!DOCTYPE html>
 <html lang="vi">
@@ -184,6 +237,8 @@ header form button:hover{background:rgba(255,255,255,.35)}
 .filters button{padding:8px 18px;background:#4f46e5;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px}
 .filters button:hover{background:#4338ca}
 .filters a.reset{padding:8px 14px;background:#e2e8f0;color:#4a5568;border-radius:7px;text-decoration:none;font-size:13px}
+.filters a.export{padding:8px 14px;background:#38a169;color:#fff;border-radius:7px;text-decoration:none;font-size:13px}
+.filters a.export:hover{background:#2f855a}
 .wrap{padding:0 24px 24px;overflow-x:auto}
 table{width:100%;background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-collapse:collapse}
 th{background:#f1f5f9;padding:10px 14px;text-align:left;font-size:12px;color:#718096;font-weight:600;white-space:nowrap}
@@ -251,6 +306,11 @@ tr:hover td{background:#fafbff}
   </div>
   <button type="submit">Loc</button>
   <a class="reset" href="<?= h($_SERVER['PHP_SELF']) ?>">Xoa loc</a>
+  <?php
+    $eq = $_GET; $eq['export'] = 'csv'; unset($eq['page']);
+    $export_url = $_SERVER['PHP_SELF'] . '?' . http_build_query($eq);
+  ?>
+  <a class="export" href="<?= h($export_url) ?>">Tai CSV</a>
 </form>
 
 <div class="wrap">

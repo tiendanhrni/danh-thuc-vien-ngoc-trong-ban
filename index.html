@@ -113,6 +113,8 @@ const QUIZ_QUESTIONS=[
   {id:12,part:3,q:"Hiện tại, mức độ quan tâm của bạn về phương pháp 'Khai vấn tỉnh thức' (Mindful Coaching) như thế nào?",opts:["Đã nghe qua nhưng chưa có ý định trở thành một người Coach chuyên nghiệp trong tương lai gần.","Tôi biết đây là một công cụ tạo ra chuyển hoá rất tuyệt vời và mong muốn được học.","Tôi biết đây là một mảnh ghép cần thiết để phát triển sự nghiệp trao giá trị một cách bền vững và tôi muốn học để có được chứng chỉ hành nghề khai vấn quốc tế."]}
 ];
 
+const ADMIN_EMAILS=['danh.mkt.rni@gmail.com'];
+
 const QUIZ_RESULTS={
   R:{stage:"Trở Về",subtitle:"Return — Tìm lại chính mình",icon:"🌱",accent:"#78533a",gradFrom:"#fef3e8",gradTo:"#fdfbf7",border:"#e8d5c0",
     rubyVideoId:"PrjM9Q2X6oM",
@@ -531,7 +533,8 @@ const COURSES={
 /* ─── HELPERS ──────────────────────────────────────────────────────── */
 const getModules=(cId)=>COURSES[cId]?.modules||[];
 const getAllLessons=(cId)=>getModules(cId).flatMap(m=>m.lessons.map(l=>({...l,moduleId:m.id,isQA:!!m.isQA,isStory:!!m.isStory})));
-const isUnlocked=(lId,prog,cId)=>{
+const isUnlocked=(lId,prog,cId,isAdmin=false)=>{
+  if(isAdmin) return true;
   const all=getAllLessons(cId);
   const lesson=all.find(l=>l.id===lId);
   if(lesson?.isStory)return true; // story luôn mở
@@ -570,7 +573,7 @@ function PBar({val,max,color='#9b1106',h=6}){
 }
 
 /* ─── PRE-QUIZ SCREEN ─────────────────────────────────────────── */
-function PreQuizScreen({onStart}){
+function PreQuizScreen({onStart,onAdminLogin}){
   const [name,setName]=useState('');
   const [email,setEmail]=useState('');
   const [loading,setLoading]=useState(false);
@@ -580,10 +583,12 @@ function PreQuizScreen({onStart}){
     if(!name.trim())return setErr('Bạn chưa nhập tên.');
     if(!email.trim()||!email.includes('@'))return setErr('Email chưa hợp lệ.');
     setErr('');setLoading(true);
-    try{
-      try{localStorage.setItem('rni-pre-name',name.trim());localStorage.setItem('rni-pre-email',email.trim());}catch{}
-    }finally{
-      setLoading(false);onStart();
+    try{localStorage.setItem('rni-pre-name',name.trim());localStorage.setItem('rni-pre-email',email.trim());}catch{}
+    setLoading(false);
+    if(ADMIN_EMAILS.includes(email.trim().toLowerCase())){
+      onAdminLogin(name.trim());
+    }else{
+      onStart();
     }
   };
 
@@ -892,6 +897,121 @@ function QuizResultScreen({result,onContinue,onBack}){
           <p className="text-xs text-gray-400 mt-4"><span className="font-semibold text-rni-600">Học viện RNI</span> · Return · Nurture · Illuminate</p>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ─── CONNECT SCREEN ────────────────────────────────────────────── */
+function ConnectScreen({onContinue}){
+  const [connected,setConnected]=useState({zalo:false,messenger:false});
+  const [popup,setPopup]=useState(null);
+  const bothConnected=connected.zalo&&connected.messenger;
+
+  // Load Zalo SDK khi mở popup Zalo
+  useEffect(()=>{
+    if(popup==='zalo'){
+      const existing=document.getElementById('zalo-sdk');
+      if(!existing){
+        const s=document.createElement('script');
+        s.id='zalo-sdk';
+        s.src='https://page.widget.zalo.me/static/libs/sdk.js';
+        s.onload=()=>{if(window.ZaloSocialSDK)window.ZaloSocialSDK.reload();};
+        document.body.appendChild(s);
+      }else{
+        setTimeout(()=>{if(window.ZaloSocialSDK)window.ZaloSocialSDK.reload();},100);
+      }
+    }
+  },[popup]);
+
+  const confirm=(id)=>{
+    setConnected(p=>({...p,[id]:true}));
+    setPopup(null);
+  };
+
+  const CHANNELS={
+    zalo:{label:'Kết nối đội ngũ hỗ trợ',bg:'linear-gradient(135deg,#06b96f,#059955)'},
+    messenger:{label:'Cổng thông báo Học viện RNI',bg:'linear-gradient(135deg,#0a84ff,#0066cc)'}
+  };
+
+  return(
+    <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full slide-up">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4"><Logo size={54}/></div>
+          <h2 className="font-heading font-black text-2xl text-gray-900 mb-3">Kết nối với đội ngũ RNI</h2>
+          <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto">
+            Nhấn <strong>Quan tâm / Tham gia kênh</strong> để nhận thông báo và nhắc nhở lịch học từ đội ngũ hỗ trợ RNI
+          </p>
+        </div>
+
+        <div className="space-y-3 mb-6">
+          {['zalo','messenger'].map(id=>{
+            const c=CHANNELS[id];
+            const done=connected[id];
+            return(
+              <button key={id} onClick={()=>!done&&setPopup(id)} disabled={done}
+                className="w-full flex items-center justify-between px-6 py-4 rounded-2xl text-white font-semibold text-base transition-all active:scale-95"
+                style={{background:done?'#9ca3af':c.bg}}>
+                <span>{done?'✓ Đã kết nối':c.label}</span>
+                {!done&&<span className="text-white/80">→</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        {bothConnected?(
+          <button onClick={onContinue}
+            className="w-full py-4 rounded-2xl text-white font-bold text-base pulse-glow transition-all active:scale-95 slide-up"
+            style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+            Bắt đầu khoá học →
+          </button>
+        ):(
+          <p className="text-center text-xs text-gray-400 mt-2">
+            {!connected.zalo&&!connected.messenger?'Kết nối cả hai kênh để tiếp tục'
+              :!connected.zalo?'Còn thiếu: Zalo OA'
+              :'Còn thiếu: Kênh thông báo'}
+          </p>
+        )}
+      </div>
+
+      {/* Popup Zalo */}
+      {popup==='zalo'&&(
+        <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 px-4 pb-4 sm:pb-0">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 bounce-in">
+            <div className="text-center mb-5">
+              <p className="font-heading font-black text-xl text-gray-900 mb-1">Học viện RNI — Zalo OA</p>
+              <p className="text-gray-500 text-sm">Nhấn <strong>Quan tâm</strong> bên dưới để kết nối</p>
+            </div>
+            <div className="flex justify-center mb-5">
+              <div className="zalo-follow-only-button" data-oaid="4096198069463501502" data-customize="true"></div>
+            </div>
+            <button onClick={()=>confirm('zalo')}
+              className="w-full py-3.5 rounded-2xl font-bold text-base text-white active:scale-95 transition-all"
+              style={{background:'#06b96f'}}>
+              Đã quan tâm rồi ✓
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Popup Messenger */}
+      {popup==='messenger'&&(
+        <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 px-4 pb-4 sm:pb-0">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 bounce-in">
+            <div className="text-center mb-5">
+              <div className="text-4xl mb-3">📣</div>
+              <p className="font-heading font-black text-xl text-gray-900 mb-2">Kênh thông báo Học viện RNI</p>
+              <p className="text-gray-500 text-sm leading-relaxed">Nhấn <strong>Tham gia kênh</strong> để theo dõi thông báo, lịch học và nội dung mới nhất từ Học viện RNI qua Messenger.</p>
+            </div>
+            <a href="https://www.messenger.com/channel/IamRubyNguyen" target="_blank" rel="noopener noreferrer"
+              onClick={()=>confirm('messenger')}
+              className="w-full flex items-center justify-center py-3.5 rounded-2xl font-bold text-base text-white mb-3 active:scale-95 transition-all"
+              style={{background:'#0a84ff'}}>
+              Tham gia kênh →
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1878,8 +1998,40 @@ function CourseSlider({courses}){
     </div>
   );
 }
+/* ─── ADMIN COURSE PICKER ───────────────────────────────────────── */
+function AdminCoursePicker({userName,onPick}){
+  return(
+    <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full slide-up">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-3"><Logo size={54}/></div>
+          <div className="inline-block bg-rni-100 text-rni-700 text-xs font-bold px-3 py-1 rounded-full mb-3">ADMIN MODE</div>
+          <h2 className="font-heading font-black text-2xl text-gray-900">Xin chào, {userName}!</h2>
+          <p className="text-gray-500 text-sm mt-1">Chọn khoá học để xem và chỉnh sửa</p>
+        </div>
+        <div className="space-y-3">
+          {['R','N','I'].map(id=>{
+            const r=QUIZ_RESULTS[id];
+            return(
+              <button key={id} onClick={()=>onPick(id)}
+                className="w-full bg-white border-2 border-gray-100 rounded-2xl p-5 text-left hover:border-rni-300 hover:shadow-sm transition-all flex items-center gap-4">
+                <span className="text-3xl">{r.icon}</span>
+                <div>
+                  <p className="font-bold text-gray-900">{r.stage}</p>
+                  <p className="text-sm text-gray-500">{r.subtitle}</p>
+                </div>
+                <span className="ml-auto text-gray-300 text-lg">›</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── DASHBOARD ─────────────────────────────────────────────────── */
-function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
+function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo,isAdmin}){
   const [expanded,setExpanded]=useState(1);
   const course=COURSES[courseId];
   const mods=getModules(courseId);
@@ -1968,7 +2120,7 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo}){
               {isExp&&(
                 <div className="border-t border-gray-100">
                   {ml.map((lesson,li)=>{
-                    const unlocked=isUnlocked(lesson.id,progress,courseId);
+                    const unlocked=isUnlocked(lesson.id,progress,courseId,isAdmin);
                     const lDone=!!progress[lesson.id];
                     const isCurrent=!lDone&&unlocked;
                     return(
@@ -2532,6 +2684,7 @@ function App(){
   const [lesson,setLesson]=useState(null);
   const [progress,setProgress]=useState(()=>{try{return JSON.parse(localStorage.getItem('rni-progress')||'{}');}catch{return{};}});
   const [showWelcomeBack,setShowWelcomeBack]=useState(false);
+  const [isAdmin,setIsAdmin]=useState(false);
 
   useEffect(()=>{try{localStorage.setItem('rni-progress',JSON.stringify(progress));}catch{}},[progress]);
       // Welcome back nếu rời đi > 2 tiếng
@@ -2597,6 +2750,9 @@ if(n&&c&&isReturning){
     setScreen('preQuiz');setUserName('');setCourseId(null);setQuizResult(null);setProgress({});
   };
   const handleQuizResultContinue=()=>{
+    setScreen('connect');
+  };
+  const handleConnectContinue=()=>{
   const preN=localStorage.getItem('rni-pre-name')||'Học viên';
   const preE=localStorage.getItem('rni-pre-email')||'';
   setUserName(preN);
@@ -2621,7 +2777,8 @@ if(n&&c&&isReturning){
   </div>
 );
   
-  if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('quizTransition')}/>;
+  if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('quizTransition')} onAdminLogin={n=>{setUserName(n);setIsAdmin(true);setScreen('adminPicker');}}/>;
+  if(screen==='adminPicker')return <AdminCoursePicker userName={userName} onPick={id=>{setCourseId(id);setScreen('dashboard');}}/>;
   if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('preQuiz')}/>;
   if(screen==='quiz')return <QuizScreen onDone={r=>{
     setQuizResult(r);setCourseId(r);
@@ -2661,9 +2818,10 @@ const email=localStorage.getItem('rni-pre-email')||'';
   if(screen==='quizLoading')return <QuizLoading onDone={()=>setScreen('rniOverview')}/>;
   if(screen==='rniOverview')return <RniOverviewScreen onContinue={()=>setScreen('quizResult')}/>;
   if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={handleQuizResultContinue} onBack={()=>setScreen('quiz')}/>;
+  if(screen==='connect')return <ConnectScreen onContinue={handleConnectContinue}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}}/>;
-  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} onRedo={()=>{try{localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');localStorage.removeItem('rni-email');}catch{}setUserName('');setCourseId(null);setScreen('preQuiz');}}/>;
+  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');localStorage.removeItem('rni-email');}catch{}setUserName('');setCourseId(null);setScreen('preQuiz');}}/>;
 }
 
 const root=ReactDOM.createRoot(document.getElementById('root'));

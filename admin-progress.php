@@ -1,21 +1,31 @@
 <?php
 // ── Mật khẩu bảo vệ trang ───────────────────────────────────────────────────
 define('ADMIN_PASS', 'rni2025');
+define('COOKIE_NAME', 'rni_admin_v1');
+define('COOKIE_TOKEN', hash('sha256', ADMIN_PASS . 'rni_salt_2025'));
 
-session_start();
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
-    if ($_POST['password'] === ADMIN_PASS) {
-        $_SESSION['rni_admin'] = true;
-    } else {
-        $login_error = true;
-    }
-}
+// Đăng xuất
 if (isset($_POST['logout'])) {
-    session_destroy();
+    setcookie(COOKIE_NAME, '', time() - 3600, '/');
     header('Location: ' . $_SERVER['PHP_SELF']);
     exit;
 }
-if (empty($_SESSION['rni_admin'])) {
+
+// Đăng nhập
+$login_error = false;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
+    if ($_POST['password'] === ADMIN_PASS) {
+        setcookie(COOKIE_NAME, COOKIE_TOKEN, time() + 86400 * 7, '/'); // 7 ngày
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+    $login_error = true;
+}
+
+// Kiểm tra đã đăng nhập chưa
+$logged_in = isset($_COOKIE[COOKIE_NAME]) && $_COOKIE[COOKIE_NAME] === COOKIE_TOKEN;
+
+if (!$logged_in) {
     ?><!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -23,23 +33,24 @@ if (empty($_SESSION['rni_admin'])) {
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Đăng nhập – RNI Admin</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;display:flex;align-items:center;justify-content:center;min-height:100vh}
-  .box{background:#fff;padding:40px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1);width:100%;max-width:360px}
-  h2{text-align:center;margin-bottom:24px;color:#1a202c}
-  input[type=password]{width:100%;padding:10px 14px;border:1px solid #cbd5e0;border-radius:8px;font-size:15px;margin-bottom:12px}
-  button{width:100%;padding:11px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:15px;cursor:pointer}
-  button:hover{background:#4338ca}
-  .err{color:#e53e3e;font-size:13px;margin-bottom:10px;text-align:center}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.box{background:#fff;padding:40px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1);width:100%;max-width:360px}
+h2{text-align:center;margin-bottom:24px;color:#1a202c;font-size:20px}
+input[type=password]{width:100%;padding:10px 14px;border:1px solid #cbd5e0;border-radius:8px;font-size:15px;margin-bottom:12px;outline:none}
+input[type=password]:focus{border-color:#4f46e5}
+button{width:100%;padding:11px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:15px;cursor:pointer}
+button:hover{background:#4338ca}
+.err{color:#e53e3e;font-size:13px;margin-bottom:10px;text-align:center;padding:8px;background:#fff5f5;border-radius:6px}
 </style>
 </head>
 <body>
 <div class="box">
-  <h2>🔐 RNI Admin</h2>
-  <?php if (!empty($login_error)): ?><p class="err">Mật khẩu không đúng</p><?php endif; ?>
+  <h2>RNI Admin</h2>
+  <?php if ($login_error): ?><p class="err">Mat khau khong dung</p><?php endif; ?>
   <form method="post">
-    <input type="password" name="password" placeholder="Nhập mật khẩu" autofocus/>
-    <button type="submit">Đăng nhập</button>
+    <input type="password" name="password" placeholder="Nhap mat khau..." autofocus/>
+    <button type="submit">Dang nhap</button>
   </form>
 </div>
 </body></html><?php
@@ -59,7 +70,16 @@ try {
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
     );
 } catch (PDOException $e) {
-    die('<p style="color:red;padding:20px">Không kết nối được database</p>');
+    showError('Khong ket noi duoc database. Kiem tra lai thong tin MySQL trong file.');
+    exit;
+}
+
+// Kiểm tra bảng tồn tại chưa
+try {
+    $pdo->query("SELECT 1 FROM user_progress_v2 LIMIT 1");
+} catch (PDOException $e) {
+    showError('Bang <b>user_progress_v2</b> chua duoc tao. Vao phpMyAdmin va chay lenh SQL tao bang truoc.');
+    exit;
 }
 
 // ── Bộ lọc ───────────────────────────────────────────────────────────────────
@@ -67,44 +87,58 @@ $filter_email  = trim($_GET['email']  ?? '');
 $filter_course = trim($_GET['course'] ?? '');
 $filter_event  = trim($_GET['event']  ?? '');
 $filter_date   = trim($_GET['date']   ?? '');
-$page = max(1, (int)($_GET['page'] ?? 1));
+$page     = max(1, (int)($_GET['page'] ?? 1));
 $per_page = 50;
 
-$where = ['1=1'];
+$where  = ['1=1'];
 $params = [];
-if ($filter_email)  { $where[] = 'email LIKE ?';       $params[] = "%{$filter_email}%"; }
-if ($filter_course) { $where[] = 'course_name LIKE ?'; $params[] = "%{$filter_course}%"; }
-if ($filter_event)  { $where[] = 'event = ?';          $params[] = $filter_event; }
+if ($filter_email)  { $where[] = 'email LIKE ?';         $params[] = "%{$filter_email}%"; }
+if ($filter_course) { $where[] = 'course_id = ?';        $params[] = $filter_course; }
+if ($filter_event)  { $where[] = 'event = ?';            $params[] = $filter_event; }
 if ($filter_date)   { $where[] = 'DATE(created_at) = ?'; $params[] = $filter_date; }
-$where_sql = implode(' AND ', $where);
+$wsql = implode(' AND ', $where);
 
-// Tổng số bản ghi
-$total = $pdo->prepare("SELECT COUNT(*) FROM user_progress_v2 WHERE {$where_sql}");
-$total->execute($params);
-$total_rows = (int) $total->fetchColumn();
-$total_pages = max(1, ceil($total_rows / $per_page));
-$offset = ($page - 1) * $per_page;
+try {
+    // Tổng số bản ghi
+    $q = $pdo->prepare("SELECT COUNT(*) FROM user_progress_v2 WHERE {$wsql}");
+    $q->execute($params);
+    $total_rows  = (int) $q->fetchColumn();
+    $total_pages = max(1, (int) ceil($total_rows / $per_page));
+    $offset      = ($page - 1) * $per_page;
 
-// Dữ liệu trang hiện tại
-$stmt = $pdo->prepare("SELECT * FROM user_progress_v2 WHERE {$where_sql} ORDER BY id DESC LIMIT {$per_page} OFFSET {$offset}");
-$stmt->execute($params);
-$rows = $stmt->fetchAll();
+    // Dữ liệu trang hiện tại
+    $q2 = $pdo->prepare("SELECT * FROM user_progress_v2 WHERE {$wsql} ORDER BY id DESC LIMIT {$per_page} OFFSET {$offset}");
+    $q2->execute($params);
+    $rows = $q2->fetchAll();
 
-// Thống kê tổng quan
-$stats = $pdo->query("
-    SELECT
-        COUNT(DISTINCT email) AS total_students,
-        SUM(event='session_start') AS total_sessions,
-        SUM(event='lesson_complete') AS total_completes,
-        SUM(event='lesson_open') AS total_opens
-    FROM user_progress_v2
-")->fetch();
+    // Thống kê tổng quan
+    $stats = $pdo->query("
+        SELECT
+            COUNT(DISTINCT email)          AS total_students,
+            SUM(event='session_start')     AS total_sessions,
+            SUM(event='lesson_complete')   AS total_completes,
+            SUM(event='lesson_open')       AS total_opens
+        FROM user_progress_v2
+    ")->fetch();
 
-// Danh sách học viên duy nhất để autocomplete
-$emails = $pdo->query("SELECT DISTINCT email FROM user_progress_v2 ORDER BY email")->fetchAll(PDO::FETCH_COLUMN);
+    // Danh sách email để autocomplete
+    $emails = $pdo->query("SELECT DISTINCT email FROM user_progress_v2 ORDER BY email LIMIT 500")->fetchAll(PDO::FETCH_COLUMN);
 
-function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES); }
-function q($k, $v = null) {
+} catch (PDOException $e) {
+    showError('Loi truy van du lieu: ' . htmlspecialchars($e->getMessage()));
+    exit;
+}
+
+function showError($msg) { ?>
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"/><title>Loi</title>
+<style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fff5f5}
+.box{background:#fff;border:1px solid #fed7d7;border-radius:10px;padding:30px 36px;max-width:500px;text-align:center}
+h3{color:#c53030;margin-bottom:12px}p{color:#4a5568;line-height:1.6}</style></head>
+<body><div class="box"><h3>Co loi xay ra</h3><p><?= $msg ?></p></div></body></html><?php
+}
+
+function h($s) { return htmlspecialchars((string)($s ?? ''), ENT_QUOTES, 'UTF-8'); }
+function qurl($k, $v = null) {
     $p = $_GET;
     if ($v === null) unset($p[$k]); else $p[$k] = $v;
     unset($p['page']);
@@ -116,128 +150,126 @@ function q($k, $v = null) {
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Tiến độ học viên – RNI</title>
+<title>Tien do hoc vien - RNI</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f7f8fc;color:#1a202c;font-size:14px}
-header{background:#4f46e5;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
-header h1{font-size:18px;font-weight:600}
+header{background:#4f46e5;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+header h1{font-size:17px;font-weight:600}
 header form button{background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px}
 header form button:hover{background:rgba(255,255,255,.35)}
-.stats{display:flex;gap:16px;padding:20px 24px;flex-wrap:wrap}
-.stat{background:#fff;border-radius:10px;padding:16px 22px;flex:1;min-width:140px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.stat .num{font-size:28px;font-weight:700;color:#4f46e5}
+.stats{display:flex;gap:14px;padding:18px 24px;flex-wrap:wrap}
+.stat{background:#fff;border-radius:10px;padding:14px 20px;flex:1;min-width:130px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.stat .num{font-size:26px;font-weight:700;color:#4f46e5}
 .stat .lbl{font-size:12px;color:#718096;margin-top:2px}
-.filters{background:#fff;margin:0 24px 16px;padding:14px 18px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.filters{background:#fff;margin:0 24px 14px;padding:14px 18px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
 .filters label{font-size:12px;color:#718096;display:block;margin-bottom:4px}
-.filters input,.filters select{padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;min-width:160px}
+.filters input,.filters select{padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;min-width:150px}
+.filters input:focus,.filters select:focus{outline:none;border-color:#4f46e5}
 .filters button{padding:8px 18px;background:#4f46e5;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px}
 .filters button:hover{background:#4338ca}
 .filters a.reset{padding:8px 14px;background:#e2e8f0;color:#4a5568;border-radius:7px;text-decoration:none;font-size:13px}
 .wrap{padding:0 24px 24px;overflow-x:auto}
-table{width:100%;background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-collapse:collapse;overflow:hidden}
+table{width:100%;background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-collapse:collapse}
 th{background:#f1f5f9;padding:10px 14px;text-align:left;font-size:12px;color:#718096;font-weight:600;white-space:nowrap}
-td{padding:10px 14px;border-top:1px solid #f1f5f9;vertical-align:middle}
+td{padding:9px 14px;border-top:1px solid #f1f5f9;vertical-align:middle}
 tr:hover td{background:#fafbff}
-.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
-.badge.session_start{background:#ebf8ff;color:#2b6cb0}
-.badge.lesson_open{background:#fefcbf;color:#744210}
-.badge.lesson_complete{background:#f0fff4;color:#276749}
-.badge.unknown{background:#f7fafc;color:#a0aec0}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.ev-session_start{background:#ebf8ff;color:#2b6cb0}
+.ev-lesson_open{background:#fefcbf;color:#744210}
+.ev-lesson_complete{background:#f0fff4;color:#276749}
 .pct-bar{display:flex;align-items:center;gap:8px}
-.pct-bar .bar{flex:1;height:7px;background:#e2e8f0;border-radius:4px;min-width:60px}
+.pct-bar .bar{flex:1;height:6px;background:#e2e8f0;border-radius:4px;min-width:50px}
 .pct-bar .fill{height:100%;border-radius:4px;background:#4f46e5}
 .pct-bar span{font-size:12px;color:#4a5568;white-space:nowrap}
-.pagination{display:flex;gap:6px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.pagination{display:flex;gap:5px;justify-content:center;margin-top:16px;flex-wrap:wrap}
 .pagination a,.pagination span{padding:6px 12px;border-radius:7px;text-decoration:none;font-size:13px}
 .pagination a{background:#fff;border:1px solid #e2e8f0;color:#4a5568}
 .pagination a:hover{background:#4f46e5;color:#fff;border-color:#4f46e5}
 .pagination span{background:#4f46e5;color:#fff}
 .empty{text-align:center;padding:40px;color:#a0aec0}
-@media(max-width:600px){.stats{padding:14px}.stat .num{font-size:22px}.filters{gap:8px}.wrap{padding:0 12px 20px}.stats{padding:14px 12px}}
+.meta{text-align:center;color:#a0aec0;font-size:12px;margin-top:12px}
+@media(max-width:600px){.stats,.filters{padding:12px}.wrap{padding:0 12px 20px}}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>📊 Tiến độ học viên – RNI</h1>
-  <form method="post"><button name="logout" value="1">Đăng xuất</button></form>
+  <h1>Tien do hoc vien - RNI</h1>
+  <form method="post"><button name="logout" value="1">Dang xuat</button></form>
 </header>
 
-<!-- Thống kê tổng quan -->
 <div class="stats">
-  <div class="stat"><div class="num"><?= number_format($stats['total_students']) ?></div><div class="lbl">Học viên</div></div>
-  <div class="stat"><div class="num"><?= number_format($stats['total_sessions']) ?></div><div class="lbl">Lần mở app</div></div>
-  <div class="stat"><div class="num"><?= number_format($stats['total_opens']) ?></div><div class="lbl">Bài học đã mở</div></div>
-  <div class="stat"><div class="num"><?= number_format($stats['total_completes']) ?></div><div class="lbl">Bài học hoàn thành</div></div>
+  <div class="stat"><div class="num"><?= number_format((int)$stats['total_students']) ?></div><div class="lbl">Hoc vien</div></div>
+  <div class="stat"><div class="num"><?= number_format((int)$stats['total_sessions']) ?></div><div class="lbl">Lan mo app</div></div>
+  <div class="stat"><div class="num"><?= number_format((int)$stats['total_opens']) ?></div><div class="lbl">Bai hoc da mo</div></div>
+  <div class="stat"><div class="num"><?= number_format((int)$stats['total_completes']) ?></div><div class="lbl">Bai hoc hoan thanh</div></div>
 </div>
 
-<!-- Bộ lọc -->
 <form method="get" class="filters">
   <div>
-    <label>Email học viên</label>
-    <input list="emails" name="email" value="<?= h($filter_email) ?>" placeholder="Tìm theo email…"/>
-    <datalist id="emails"><?php foreach ($emails as $e): ?><option value="<?= h($e) ?>"><?php endforeach; ?></datalist>
+    <label>Email hoc vien</label>
+    <input list="email-list" name="email" value="<?= h($filter_email) ?>" placeholder="Tim theo email..."/>
+    <datalist id="email-list"><?php foreach ($emails as $e): ?><option value="<?= h($e) ?>"><?php endforeach; ?></datalist>
   </div>
   <div>
-    <label>Khóa học</label>
+    <label>Khoa hoc</label>
     <select name="course">
-      <option value="">— Tất cả —</option>
+      <option value="">— Tat ca —</option>
       <?php foreach (['R','N','I'] as $c): ?>
-      <option value="<?= $c ?>" <?= $filter_course === $c ? 'selected' : '' ?>><?= $c ?></option>
+      <option value="<?= $c ?>"<?= $filter_course===$c?' selected':'' ?>><?= $c ?></option>
       <?php endforeach; ?>
     </select>
   </div>
   <div>
-    <label>Sự kiện</label>
+    <label>Su kien</label>
     <select name="event">
-      <option value="">— Tất cả —</option>
-      <option value="session_start"   <?= $filter_event==='session_start'   ? 'selected':'' ?>>Mở app</option>
-      <option value="lesson_open"     <?= $filter_event==='lesson_open'     ? 'selected':'' ?>>Mở bài học</option>
-      <option value="lesson_complete" <?= $filter_event==='lesson_complete' ? 'selected':'' ?>>Hoàn thành bài</option>
+      <option value="">— Tat ca —</option>
+      <option value="session_start"<?= $filter_event==='session_start'?' selected':'' ?>>Mo app</option>
+      <option value="lesson_open"<?= $filter_event==='lesson_open'?' selected':'' ?>>Mo bai hoc</option>
+      <option value="lesson_complete"<?= $filter_event==='lesson_complete'?' selected':'' ?>>Hoan thanh bai</option>
     </select>
   </div>
   <div>
-    <label>Ngày</label>
+    <label>Ngay</label>
     <input type="date" name="date" value="<?= h($filter_date) ?>"/>
   </div>
-  <button type="submit">Lọc</button>
-  <a class="reset" href="<?= $_SERVER['PHP_SELF'] ?>">Xóa lọc</a>
+  <button type="submit">Loc</button>
+  <a class="reset" href="<?= h($_SERVER['PHP_SELF']) ?>">Xoa loc</a>
 </form>
 
-<!-- Bảng dữ liệu -->
 <div class="wrap">
   <table>
     <thead>
       <tr>
         <th>#</th>
-        <th>Thời gian</th>
+        <th>Thoi gian</th>
         <th>Email</th>
-        <th>Tên</th>
-        <th>Khóa</th>
-        <th>Sự kiện</th>
-        <th>Bài học</th>
-        <th>Tiến độ</th>
+        <th>Ten</th>
+        <th>Khoa</th>
+        <th>Su kien</th>
+        <th>Bai hoc</th>
+        <th>Tien do</th>
       </tr>
     </thead>
     <tbody>
     <?php if (empty($rows)): ?>
-      <tr><td colspan="8" class="empty">Không có dữ liệu</td></tr>
+      <tr><td colspan="8" class="empty">Khong co du lieu</td></tr>
     <?php else: ?>
       <?php foreach ($rows as $r): ?>
       <tr>
-        <td style="color:#a0aec0"><?= $r['id'] ?></td>
-        <td style="white-space:nowrap"><?= h($r['created_at']) ?></td>
+        <td style="color:#a0aec0;font-size:12px"><?= (int)$r['id'] ?></td>
+        <td style="white-space:nowrap;font-size:12px"><?= h($r['created_at']) ?></td>
         <td><?= h($r['email']) ?></td>
         <td><?= h($r['name']) ?></td>
-        <td style="font-weight:600"><?= h($r['course_id']) ?></td>
-        <td><span class="badge <?= h($r['event']) ?>"><?= h($r['event']) ?></span></td>
-        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?= h($r['lesson_title']) ?>"><?= h($r['lesson_title']) ?: '—' ?></td>
+        <td style="font-weight:600;text-align:center"><?= h($r['course_id']) ?></td>
+        <td><span class="badge ev-<?= h($r['event']) ?>"><?= h($r['event']) ?></span></td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?= h($r['lesson_title']) ?>"><?= h($r['lesson_title']) ?: '—' ?></td>
         <td>
-          <?php if ($r['total_count'] > 0): ?>
+          <?php if ((int)$r['total_count'] > 0): ?>
           <div class="pct-bar">
-            <div class="bar"><div class="fill" style="width:<?= $r['progress_pct'] ?>%"></div></div>
-            <span><?= $r['completed_count'] ?>/<?= $r['total_count'] ?> (<?= $r['progress_pct'] ?>%)</span>
+            <div class="bar"><div class="fill" style="width:<?= (int)$r['progress_pct'] ?>%"></div></div>
+            <span><?= (int)$r['completed_count'] ?>/<?= (int)$r['total_count'] ?> (<?= (int)$r['progress_pct'] ?>%)</span>
           </div>
           <?php else: ?>—<?php endif; ?>
         </td>
@@ -247,28 +279,21 @@ tr:hover td{background:#fafbff}
     </tbody>
   </table>
 
-  <!-- Phân trang -->
   <?php if ($total_pages > 1): ?>
   <div class="pagination">
-    <?php if ($page > 1): ?><a href="<?= q('page', $page-1) ?>">‹ Trước</a><?php endif; ?>
+    <?php if ($page > 1): ?><a href="<?= h(qurl('page', $page-1)) ?>">&#8249; Truoc</a><?php endif; ?>
     <?php
-    $start = max(1, $page-2); $end = min($total_pages, $page+2);
-    for ($i = $start; $i <= $end; $i++):
+    $s = max(1, $page-2); $e = min($total_pages, $page+2);
+    for ($i = $s; $i <= $e; $i++):
     ?>
-      <?php if ($i === $page): ?>
-        <span><?= $i ?></span>
-      <?php else: ?>
-        <a href="<?= q('page', $i) ?>"><?= $i ?></a>
-      <?php endif; ?>
+      <?php if ($i === $page): ?><span><?= $i ?></span>
+      <?php else: ?><a href="<?= h(qurl('page', $i)) ?>"><?= $i ?></a><?php endif; ?>
     <?php endfor; ?>
-    <?php if ($page < $total_pages): ?><a href="<?= q('page', $page+1) ?>">Tiếp ›</a><?php endif; ?>
+    <?php if ($page < $total_pages): ?><a href="<?= h(qurl('page', $page+1)) ?>">Tiep &#8250;</a><?php endif; ?>
   </div>
   <?php endif; ?>
 
-  <p style="text-align:center;color:#a0aec0;font-size:12px;margin-top:12px">
-    <?= number_format($total_rows) ?> bản ghi
-    <?php if ($total_pages > 1): ?> · Trang <?= $page ?>/<?= $total_pages ?><?php endif; ?>
-  </p>
+  <p class="meta"><?= number_format($total_rows) ?> ban ghi<?= $total_pages > 1 ? " &middot; Trang {$page}/{$total_pages}" : '' ?></p>
 </div>
 
 </body>

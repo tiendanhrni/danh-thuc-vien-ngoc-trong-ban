@@ -904,40 +904,34 @@ function QuizResultScreen({result,onContinue,onBack}){
 /* ─── CONNECT SCREEN ────────────────────────────────────────────── */
 function ConnectScreen({onContinue}){
   const [connected,setConnected]=useState({zalo:false,messenger:false});
-  const [popup,setPopup]=useState(null); // 'zalo' | 'messenger' | null
+  const [popup,setPopup]=useState(null);
   const bothConnected=connected.zalo&&connected.messenger;
 
-  const CHANNELS={
-    zalo:{
-      label:'Kết nối đội ngũ hỗ trợ',
-      bg:'linear-gradient(135deg,#06b96f,#059955)',
-      icon:'💬',
-      popupTitle:'Học viện RNI — Zalo OA',
-      popupDesc:'Nhấn "Quan tâm" để nhận thông báo và nhắc nhở lịch học từ đội ngũ hỗ trợ RNI qua Zalo.',
-      btnLabel:'Quan tâm trên Zalo →',
-      href:'https://zalo.me/4096198069463501502',
-      color:'#06b96f'
-    },
-    messenger:{
-      label:'Cổng thông báo Học viện RNI',
-      bg:'linear-gradient(135deg,#0a84ff,#0066cc)',
-      icon:'📣',
-      popupTitle:'Kênh thông báo Học viện RNI',
-      popupDesc:'Nhấn "Tham gia kênh" để theo dõi thông báo, lịch học và nội dung mới nhất từ Học viện RNI.',
-      btnLabel:'Tham gia kênh →',
-      href:'https://www.messenger.com/channel/IamRubyNguyen',
-      color:'#0a84ff'
+  // Load Zalo SDK khi mở popup Zalo
+  useEffect(()=>{
+    if(popup==='zalo'){
+      const existing=document.getElementById('zalo-sdk');
+      if(!existing){
+        const s=document.createElement('script');
+        s.id='zalo-sdk';
+        s.src='https://page.widget.zalo.me/static/libs/sdk.js';
+        s.onload=()=>{if(window.ZaloSocialSDK)window.ZaloSocialSDK.reload();};
+        document.body.appendChild(s);
+      }else{
+        setTimeout(()=>{if(window.ZaloSocialSDK)window.ZaloSocialSDK.reload();},100);
+      }
     }
-  };
+  },[popup]);
 
-  const openPopup=(id)=>{ if(!connected[id]) setPopup(id); };
-  const confirmConnect=(id)=>{
-    window.open(CHANNELS[id].href,'_blank','noopener,noreferrer');
+  const confirm=(id)=>{
     setConnected(p=>({...p,[id]:true}));
     setPopup(null);
   };
 
-  const ch=popup?CHANNELS[popup]:null;
+  const CHANNELS={
+    zalo:{label:'Kết nối đội ngũ hỗ trợ',bg:'linear-gradient(135deg,#06b96f,#059955)'},
+    messenger:{label:'Cổng thông báo Học viện RNI',bg:'linear-gradient(135deg,#0a84ff,#0066cc)'}
+  };
 
   return(
     <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12">
@@ -955,7 +949,7 @@ function ConnectScreen({onContinue}){
             const c=CHANNELS[id];
             const done=connected[id];
             return(
-              <button key={id} onClick={()=>openPopup(id)} disabled={done}
+              <button key={id} onClick={()=>!done&&setPopup(id)} disabled={done}
                 className="w-full flex items-center justify-between px-6 py-4 rounded-2xl text-white font-semibold text-base transition-all active:scale-95"
                 style={{background:done?'#9ca3af':c.bg}}>
                 <span>{done?'✓ Đã kết nối':c.label}</span>
@@ -980,26 +974,41 @@ function ConnectScreen({onContinue}){
         )}
       </div>
 
-      {/* Popup */}
-      {popup&&ch&&(
-        <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 px-4 pb-4 sm:pb-0"
-          onClick={()=>setPopup(null)}>
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 bounce-in"
-            onClick={e=>e.stopPropagation()}>
+      {/* Popup Zalo */}
+      {popup==='zalo'&&(
+        <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 px-4 pb-4 sm:pb-0">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 bounce-in">
             <div className="text-center mb-5">
-              <div className="text-4xl mb-3">{ch.icon}</div>
-              <h3 className="font-heading font-black text-xl text-gray-900 mb-2">{ch.popupTitle}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{ch.popupDesc}</p>
+              <p className="font-heading font-black text-xl text-gray-900 mb-1">Học viện RNI — Zalo OA</p>
+              <p className="text-gray-500 text-sm">Nhấn <strong>Quan tâm</strong> bên dưới để kết nối</p>
             </div>
-            <button onClick={()=>confirmConnect(popup)}
-              className="w-full py-3.5 rounded-2xl text-white font-bold text-base mb-3 active:scale-95 transition-all"
-              style={{background:ch.color}}>
-              {ch.btnLabel}
+            <div className="flex justify-center mb-5">
+              <div className="zalo-follow-only-button" data-oaid="4096198069463501502" data-customize="true"></div>
+            </div>
+            <button onClick={()=>confirm('zalo')}
+              className="w-full py-3.5 rounded-2xl font-bold text-base text-white active:scale-95 transition-all"
+              style={{background:'#06b96f'}}>
+              Đã quan tâm rồi ✓
             </button>
-            <button onClick={()=>setPopup(null)}
-              className="w-full py-2.5 rounded-2xl text-gray-400 text-sm font-medium hover:text-gray-600 transition-colors">
-              Để sau
-            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Popup Messenger */}
+      {popup==='messenger'&&(
+        <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 px-4 pb-4 sm:pb-0">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 bounce-in">
+            <div className="text-center mb-5">
+              <div className="text-4xl mb-3">📣</div>
+              <p className="font-heading font-black text-xl text-gray-900 mb-2">Kênh thông báo Học viện RNI</p>
+              <p className="text-gray-500 text-sm leading-relaxed">Nhấn <strong>Tham gia kênh</strong> để theo dõi thông báo, lịch học và nội dung mới nhất từ Học viện RNI qua Messenger.</p>
+            </div>
+            <a href="https://www.messenger.com/channel/IamRubyNguyen" target="_blank" rel="noopener noreferrer"
+              onClick={()=>confirm('messenger')}
+              className="w-full flex items-center justify-center py-3.5 rounded-2xl font-bold text-base text-white mb-3 active:scale-95 transition-all"
+              style={{background:'#0a84ff'}}>
+              Tham gia kênh →
+            </a>
           </div>
         </div>
       )}

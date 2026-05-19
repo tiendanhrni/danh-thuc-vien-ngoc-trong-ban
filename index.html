@@ -904,13 +904,11 @@ function QuizResultScreen({result,onContinue,onBack}){
 /* ─── CONNECT SCREEN ────────────────────────────────────────────── */
 /* ─── CONNECT POPUP (sau mỗi bài học) ───────────────────────────── */
 function ConnectPopup({onDone,lessonIndex}){
-  // Xác định lần này hiện Zalo hay Messenger (luân phiên theo bài)
+  // Zalo: bài 1,3,5 (lIdx chẵn) — Messenger: bài 2,4,6 (lIdx lẻ)
   const channelId=lessonIndex%2===0?'zalo':'messenger';
-  const [showZaloWidget,setShowZaloWidget]=useState(false);
 
   useEffect(()=>{
     if(channelId==='zalo'){
-      setShowZaloWidget(true);
       const existing=document.getElementById('zalo-sdk');
       if(!existing){
         const s=document.createElement('script');
@@ -952,17 +950,28 @@ function ConnectPopup({onDone,lessonIndex}){
             </button>
           </>
         ):(
-          <a href="https://www.messenger.com/channel/IamRubyNguyen" target="_blank" rel="noopener noreferrer"
-            onClick={()=>handleConnect('messenger')}
-            className="w-full flex items-center justify-center py-3.5 rounded-2xl font-bold text-base text-white mb-3 active:scale-95 transition-all"
-            style={{background:'#0a84ff'}}>
-            Tham gia kênh thông báo →
-          </a>
+          <>
+            <a href="https://www.messenger.com/channel/IamRubyNguyen" target="_blank" rel="noopener noreferrer"
+              className="w-full flex items-center justify-center py-3.5 rounded-2xl font-bold text-base text-white mb-3 active:scale-95 transition-all"
+              style={{background:'#0a84ff',display:'flex'}}>
+              Tham gia kênh thông báo →
+            </a>
+            <button onClick={()=>handleConnect('messenger')}
+              className="w-full py-3.5 rounded-2xl font-bold text-base text-white active:scale-95 transition-all mb-3"
+              style={{background:'#0a84ff',opacity:0.85}}>
+              Đã tham gia rồi ✓
+            </button>
+          </>
         )}
 
         <button onClick={()=>onDone(false)}
           className="w-full py-2 text-gray-400 text-sm font-medium hover:text-gray-600 transition-colors">
           Để sau
+        </button>
+      </div>
+    </div>
+  );
+}
         </button>
       </div>
     </div>

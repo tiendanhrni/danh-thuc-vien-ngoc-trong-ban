@@ -901,6 +901,57 @@ function QuizResultScreen({result,onContinue,onBack}){
   );
 }
 
+/* ─── CONNECT SCREEN ────────────────────────────────────────────── */
+function ConnectScreen({onContinue}){
+  const [clicked,setClicked]=useState({zalo:false,messenger:false});
+  const anyClicked=clicked.zalo||clicked.messenger;
+
+  const BtnConnect=({id,href,label,bg})=>(
+    <a href={href} target="_blank" rel="noopener noreferrer"
+      onClick={()=>setClicked(p=>({...p,[id]:true}))}
+      className="w-full flex items-center justify-between px-6 py-4 rounded-2xl text-white font-semibold text-base transition-all active:scale-95"
+      style={{background:clicked[id]?'#9ca3af':bg,pointerEvents:clicked[id]?'none':'auto'}}>
+      <span>{clicked[id]?'✓ Đã kết nối':label}</span>
+      {!clicked[id]&&<span className="text-white/80">→</span>}
+    </a>
+  );
+
+  return(
+    <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full slide-up">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4"><Logo size={54}/></div>
+          <h2 className="font-heading font-black text-2xl text-gray-900 mb-3">Kết nối với đội ngũ RNI</h2>
+          <p className="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto">
+            Nhấn <strong>Quan tâm / Tham gia kênh</strong> để nhận thông báo và nhắc nhở lịch học từ đội ngũ hỗ trợ RNI
+          </p>
+        </div>
+
+        <div className="space-y-3 mb-6">
+          <BtnConnect id="zalo" href="https://zalo.me/4096198069463501502"
+            label="Kết nối đội ngũ hỗ trợ"
+            bg="linear-gradient(135deg,#06b96f,#059955)"/>
+          <BtnConnect id="messenger" href="https://www.messenger.com/channel/IamRubyNguyen"
+            label="Cổng thông báo Học viện RNI"
+            bg="linear-gradient(135deg,#0a84ff,#0066cc)"/>
+        </div>
+
+        {anyClicked&&(
+          <button onClick={onContinue}
+            className="w-full py-4 rounded-2xl text-white font-bold text-base pulse-glow transition-all active:scale-95 slide-up"
+            style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+            Bắt đầu khoá học →
+          </button>
+        )}
+
+        {!anyClicked&&(
+          <p className="text-center text-xs text-gray-400 mt-2">Kết nối ít nhất 1 kênh để tiếp tục</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ─── REGISTER ────────────────────────────────────────────────── */
 function RegisterScreen({courseId,onDone,onBack}){
   const [name,setName]=useState('');
@@ -2635,6 +2686,9 @@ if(n&&c&&isReturning){
     setScreen('preQuiz');setUserName('');setCourseId(null);setQuizResult(null);setProgress({});
   };
   const handleQuizResultContinue=()=>{
+    setScreen('connect');
+  };
+  const handleConnectContinue=()=>{
   const preN=localStorage.getItem('rni-pre-name')||'Học viên';
   const preE=localStorage.getItem('rni-pre-email')||'';
   setUserName(preN);
@@ -2700,6 +2754,7 @@ const email=localStorage.getItem('rni-pre-email')||'';
   if(screen==='quizLoading')return <QuizLoading onDone={()=>setScreen('rniOverview')}/>;
   if(screen==='rniOverview')return <RniOverviewScreen onContinue={()=>setScreen('quizResult')}/>;
   if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={handleQuizResultContinue} onBack={()=>setScreen('quiz')}/>;
+  if(screen==='connect')return <ConnectScreen onContinue={handleConnectContinue}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}}/>;
   return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');localStorage.removeItem('rni-email');}catch{}setUserName('');setCourseId(null);setScreen('preQuiz');}}/>;

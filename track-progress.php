@@ -80,15 +80,12 @@ try {
 }
 
 // ── Ghi bản ghi ─────────────────────────────────────────────────────────────
-// progress: JSON string của toàn bộ tiến độ (tuỳ chọn)
-$progressJson = isset($input['progress']) ? json_encode($input['progress']) : '';
-
 try {
     $stmt = $pdo->prepare("
         INSERT INTO user_progress_v2
             (email, name, phone, course_id, course_name, event,
-             lesson_id, lesson_title, completed_count, total_count, progress_pct, progress)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             lesson_id, lesson_title, completed_count, total_count, progress_pct)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
     $stmt->execute([
@@ -103,7 +100,6 @@ try {
         (int) ($input['completedCount'] ?? 0),
         (int) ($input['totalCount']     ?? 0),
         (int) ($input['progressPct']    ?? 0),
-        $progressJson,
     ]);
 
     echo json_encode(['success' => true, 'id' => (int) $pdo->lastInsertId()]);

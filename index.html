@@ -121,7 +121,10 @@ function sendProgressEvent(payload){
   const email=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
   const phone=localStorage.getItem('rni-phone')||localStorage.getItem('rni-pre-phone')||'';
   if(!email) return;
-  const body=JSON.stringify({name,email,phone,timestamp:new Date().toISOString(),...payload});
+  const data={name,email,phone,timestamp:new Date().toISOString(),...payload};
+  const body=JSON.stringify(data);
+
+  // Gửi lên track-progress.php (retry 3 lần)
   (async()=>{
     for(let i=0;i<3;i++){
       try{
@@ -134,6 +137,13 @@ function sendProgressEvent(payload){
       }
     }
   })();
+
+  // Gửi lên n8n → Odoo khi hoàn thành bài học
+  if(payload.event==='lesson_complete'){
+    fetch('https://n8n.rni.vn/webhook/rni-progress',{
+      method:'POST',headers:{'Content-Type':'application/json'},body
+    }).catch(()=>{});
+  }
 }
 
 const QUIZ_RESULTS={

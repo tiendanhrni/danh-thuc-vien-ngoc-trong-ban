@@ -115,6 +115,26 @@ const QUIZ_QUESTIONS=[
 
 const ADMIN_EMAILS=['danh.mkt.rni@gmail.com'];
 
+// Gửi sự kiện tiến độ học tập lên n8n (fire-and-forget)
+function sendProgressEvent(payload){
+  const name=localStorage.getItem('rni-name')||localStorage.getItem('rni-pre-name')||'';
+  const email=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
+  if(!email) return; // chỉ track khi đã có email
+  const body=JSON.stringify({name,email,timestamp:new Date().toISOString(),...payload});
+  (async()=>{
+    for(let i=0;i<3;i++){
+      try{
+        const res=await fetch('https://thuvien.rni.vn/track-progress.php',{
+          method:'POST',headers:{'Content-Type':'application/json'},body
+        });
+        if(res.ok) break;
+      }catch(e){
+        if(i<2) await new Promise(ok=>setTimeout(ok,2000));
+      }
+    }
+  })();
+}
+
 const QUIZ_RESULTS={
   R:{stage:"Trở Về",subtitle:"Return — Tìm lại chính mình",icon:"🌱",accent:"#78533a",gradFrom:"#fef3e8",gradTo:"#fdfbf7",border:"#e8d5c0",
     rubyVideoId:"PrjM9Q2X6oM",
@@ -2685,6 +2705,8 @@ if(n&&c&&isReturning){
   setShowWelcomeBack(true);
 }
       if(n&&c){
+        // Track session start
+        sendProgressEvent({event:'session_start',courseId:c,courseName:COURSES[c]?.title||c});
         // Đã đăng ký → vào dashboard
         setUserName(n);setCourseId(c);
         // Nếu đang ở bước cert thì giữ nguyên
@@ -2710,7 +2732,28 @@ if(n&&c&&isReturning){
     }catch{}
   },[screen]);
 
-  const done=(id)=>setProgress(p=>({...p,[id]:true}));
+  const done=(id)=>{
+    setProgress(p=>{
+      const next={...p,[id]:true};
+      // Track lesson completion
+      if(!p[id]){
+        const allLessons=getAllLessons(courseId);
+        const completedCount=Object.keys(next).filter(k=>allLessons.some(l=>l.id===k)).length;
+        const lesson=allLessons.find(l=>l.id===id);
+        sendProgressEvent({
+          event:'lesson_complete',
+          courseId,
+          courseName:COURSES[courseId]?.title||courseId,
+          lessonId:id,
+          lessonTitle:lesson?.title||id,
+          completedCount,
+          totalCount:allLessons.length,
+          progressPct:Math.round(completedCount/allLessons.length*100)
+        });
+      }
+      return next;
+    });
+  };
   const reset=()=>{
     try{
       localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');
@@ -2787,7 +2830,9 @@ const email=localStorage.getItem('rni-pre-email')||'';
   if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={handleQuizResultContinue} onBack={()=>setScreen('quiz')}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}} isAdmin={isAdmin}/>;
-  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-course');}catch{}setCourseId(null);setQuizResult(null);setScreen('quizTransition');}}/>;
+  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{
+    if(!isAdmin) sendProgressEvent({event:'lesson_open',courseId,courseName:COURSES[courseId]?.title||courseId,lessonId:l.id,lessonTitle:l.title,completedCount:Object.keys(progress).filter(k=>getAllLessons(courseId).some(x=>x.id===k)).length,totalCount:getAllLessons(courseId).length,progressPct:Math.round(Object.keys(progress).filter(k=>getAllLessons(courseId).some(x=>x.id===k)).length/getAllLessons(courseId).length*100)});
+    setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-course');}catch{}setCourseId(null);setQuizResult(null);setScreen('quizTransition');}}/>;
 }
 
 const root=ReactDOM.createRoot(document.getElementById('root'));

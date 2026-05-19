@@ -31,12 +31,48 @@
 
 // ── CORS ────────────────────────────────────────────────────────────────────
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
+    exit;
+}
+
+// ── GET: Lấy danh sách bài đã hoàn thành theo email ─────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $email = mb_substr(trim($_GET['email'] ?? ''), 0, 255);
+    if (!$email) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Thiếu email']);
+        exit;
+    }
+
+    $db_host = 'localhost';
+    $db_name = 'rni_courses_quiz_RNI_DTVNBT';
+    $db_user = 'rni_quiz_user';
+    $db_pass = 'RNI-quiz-dtvnbt';
+
+    try {
+        $pdo = new PDO(
+            "mysql:host={$db_host};dbname={$db_name};charset=utf8mb4",
+            $db_user, $db_pass,
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
+        $stmt = $pdo->prepare("
+            SELECT DISTINCT lesson_id
+            FROM user_progress_v2
+            WHERE email = ? AND event = 'lesson_complete' AND lesson_id != ''
+        ");
+        $stmt->execute([$email]);
+        $lessons = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        echo json_encode(['completedLessons' => $lessons]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Lỗi truy vấn']);
+        error_log('[RNI progress] GET error: ' . $e->getMessage());
+    }
     exit;
 }
 

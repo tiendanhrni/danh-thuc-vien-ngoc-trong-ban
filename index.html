@@ -149,6 +149,17 @@ function sendProgressEvent(payload){
   }
 }
 
+async function fetchServerProgress(email){
+  try{
+    const res=await fetch('https://thuvien.rni.vn/track-progress.php?email='+encodeURIComponent(email));
+    if(!res.ok) return {};
+    const data=await res.json();
+    const p={};
+    (data.completedLessons||[]).forEach(id=>{p[id]=true;});
+    return p;
+  }catch(e){return {};}
+}
+
 const QUIZ_RESULTS={
   R:{stage:"Trở Về",subtitle:"Return — Tìm lại chính mình",icon:"🌱",accent:"#78533a",gradFrom:"#fef3e8",gradTo:"#fdfbf7",border:"#e8d5c0",
     rubyVideoId:"PrjM9Q2X6oM",
@@ -2748,9 +2759,17 @@ if(n&&c&&isReturning){
       if(n&&c){
         // Đã đăng ký → vào dashboard
         setUserName(n);setCourseId(c);
-        // Nếu đang ở bước cert thì giữ nguyên
         if(savedScreen==='cert'){setScreen('cert');}
         else{setScreen('dashboard');}
+        // Sync tiến độ từ server (merge với localStorage)
+        const email=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email');
+        if(email){
+          fetchServerProgress(email).then(serverP=>{
+            if(Object.keys(serverP).length>0){
+              setProgress(p=>({...serverP,...p}));
+            }
+          });
+        }
       } else if(savedResult){
         // Đã làm quiz xong nhưng chưa đăng ký → về quizResult
         setQuizResult(savedResult);setCourseId(savedResult);
@@ -2813,6 +2832,14 @@ if(n&&c&&isReturning){
     localStorage.setItem('rni-course',quizResult);
     localStorage.removeItem('rni-quiz-result');
   }catch{}
+  // Sync tiến độ từ server phòng trường hợp email này đã học trước đó
+  if(preE){
+    fetchServerProgress(preE).then(serverP=>{
+      if(Object.keys(serverP).length>0){
+        setProgress(p=>({...serverP,...p}));
+      }
+    });
+  }
   setScreen('dashboard');
 };
   if(showWelcomeBack)return(

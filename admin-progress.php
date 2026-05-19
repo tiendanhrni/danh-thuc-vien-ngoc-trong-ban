@@ -74,13 +74,20 @@ try {
     exit;
 }
 
-// Kiểm tra bảng tồn tại chưa
+// Kiểm tra bảng tồn tại + phát hiện cột
 try {
-    $pdo->query("SELECT 1 FROM user_progress_v2 LIMIT 1");
+    $cols = [];
+    foreach ($pdo->query("SHOW COLUMNS FROM user_progress_v2") as $col) {
+        $cols[] = $col['Field'];
+    }
 } catch (PDOException $e) {
     showError('Bang <b>user_progress_v2</b> chua duoc tao. Vao phpMyAdmin va chay lenh SQL tao bang truoc.');
     exit;
 }
+$has_event   = in_array('event',      $cols);
+$has_course  = in_array('course_id',  $cols);
+$has_lesson  = in_array('lesson_title', $cols);
+$has_pct     = in_array('progress_pct', $cols);
 
 // ── Bộ lọc ───────────────────────────────────────────────────────────────────
 $filter_email  = trim($_GET['email']  ?? '');
@@ -92,10 +99,10 @@ $per_page = 50;
 
 $where  = ['1=1'];
 $params = [];
-if ($filter_email)  { $where[] = 'email LIKE ?';         $params[] = "%{$filter_email}%"; }
-if ($filter_course) { $where[] = 'course_id = ?';        $params[] = $filter_course; }
-if ($filter_event)  { $where[] = 'event = ?';            $params[] = $filter_event; }
-if ($filter_date)   { $where[] = 'DATE(created_at) = ?'; $params[] = $filter_date; }
+if ($filter_email)                   { $where[] = 'email LIKE ?';         $params[] = "%{$filter_email}%"; }
+if ($filter_course && $has_course)   { $where[] = 'course_id = ?';        $params[] = $filter_course; }
+if ($filter_event  && $has_event)    { $where[] = 'event = ?';            $params[] = $filter_event; }
+if ($filter_date)                    { $where[] = 'DATE(created_at) = ?'; $params[] = $filter_date; }
 $wsql = implode(' AND ', $where);
 
 try {
@@ -112,14 +119,22 @@ try {
     $rows = $q2->fetchAll();
 
     // Thống kê tổng quan
-    $stats = $pdo->query("
-        SELECT
-            COUNT(DISTINCT email)          AS total_students,
-            SUM(event='session_start')     AS total_sessions,
-            SUM(event='lesson_complete')   AS total_completes,
-            SUM(event='lesson_open')       AS total_opens
-        FROM user_progress_v2
-    ")->fetch();
+    if ($has_event) {
+        $stats = $pdo->query("
+            SELECT
+                COUNT(DISTINCT email)          AS total_students,
+                SUM(event='session_start')     AS total_sessions,
+                SUM(event='lesson_complete')   AS total_completes,
+                SUM(event='lesson_open')       AS total_opens
+            FROM user_progress_v2
+        ")->fetch();
+    } else {
+        $stats = $pdo->query("
+            SELECT COUNT(DISTINCT email) AS total_students, 0 AS total_sessions,
+                   0 AS total_completes, 0 AS total_opens
+            FROM user_progress_v2
+        ")->fetch();
+    }
 
     // Danh sách email để autocomplete
     $emails = $pdo->query("SELECT DISTINCT email FROM user_progress_v2 ORDER BY email LIMIT 500")->fetchAll(PDO::FETCH_COLUMN);
@@ -240,39 +255,42 @@ tr:hover td{background:#fafbff}
 
 <div class="wrap">
   <table>
+    <?php $colspan = 4 + (int)$has_course + (int)$has_event + (int)$has_lesson + (int)$has_pct; ?>
     <thead>
       <tr>
         <th>#</th>
         <th>Thoi gian</th>
         <th>Email</th>
         <th>Ten</th>
-        <th>Khoa</th>
-        <th>Su kien</th>
-        <th>Bai hoc</th>
-        <th>Tien do</th>
+        <?php if ($has_course): ?><th>Khoa</th><?php endif; ?>
+        <?php if ($has_event):  ?><th>Su kien</th><?php endif; ?>
+        <?php if ($has_lesson): ?><th>Bai hoc</th><?php endif; ?>
+        <?php if ($has_pct):    ?><th>Tien do</th><?php endif; ?>
       </tr>
     </thead>
     <tbody>
     <?php if (empty($rows)): ?>
-      <tr><td colspan="8" class="empty">Khong co du lieu</td></tr>
+      <tr><td colspan="<?= $colspan ?>" class="empty">Khong co du lieu</td></tr>
     <?php else: ?>
       <?php foreach ($rows as $r): ?>
       <tr>
         <td style="color:#a0aec0;font-size:12px"><?= (int)$r['id'] ?></td>
         <td style="white-space:nowrap;font-size:12px"><?= h($r['created_at']) ?></td>
         <td><?= h($r['email']) ?></td>
-        <td><?= h($r['name']) ?></td>
-        <td style="font-weight:600;text-align:center"><?= h($r['course_id']) ?></td>
-        <td><span class="badge ev-<?= h($r['event']) ?>"><?= h($r['event']) ?></span></td>
-        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?= h($r['lesson_title']) ?>"><?= h($r['lesson_title']) ?: '—' ?></td>
+        <td><?= h($r['name'] ?? '') ?></td>
+        <?php if ($has_course): ?><td style="font-weight:600;text-align:center"><?= h($r['course_id'] ?? '') ?></td><?php endif; ?>
+        <?php if ($has_event):  ?><td><span class="badge ev-<?= h($r['event'] ?? '') ?>"><?= h($r['event'] ?? '') ?></span></td><?php endif; ?>
+        <?php if ($has_lesson): ?><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?= h($r['lesson_title'] ?? '') ?>"><?= h($r['lesson_title'] ?? '') ?: '—' ?></td><?php endif; ?>
+        <?php if ($has_pct): ?>
         <td>
-          <?php if ((int)$r['total_count'] > 0): ?>
+          <?php if ((int)($r['total_count'] ?? 0) > 0): ?>
           <div class="pct-bar">
             <div class="bar"><div class="fill" style="width:<?= (int)$r['progress_pct'] ?>%"></div></div>
             <span><?= (int)$r['completed_count'] ?>/<?= (int)$r['total_count'] ?> (<?= (int)$r['progress_pct'] ?>%)</span>
           </div>
           <?php else: ?>—<?php endif; ?>
         </td>
+        <?php endif; ?>
       </tr>
       <?php endforeach; ?>
     <?php endif; ?>

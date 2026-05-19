@@ -173,16 +173,16 @@ try {
     if ($has_event) {
         $stats = $pdo->query("
             SELECT
-                COUNT(DISTINCT email)          AS total_students,
-                SUM(event='session_start')     AS total_sessions,
-                SUM(event='lesson_complete')   AS total_completes,
-                SUM(event='lesson_open')       AS total_opens
+                COUNT(*)                                    AS total_students,
+                SUM(event = 'lesson_complete')              AS total_completes,
+                SUM(completed_count > 0)                    AS total_started,
+                ROUND(AVG(NULLIF(progress_pct, 0)))         AS avg_pct
             FROM user_progress_v2
         ")->fetch();
     } else {
         $stats = $pdo->query("
-            SELECT COUNT(DISTINCT email) AS total_students, 0 AS total_sessions,
-                   0 AS total_completes, 0 AS total_opens
+            SELECT COUNT(*) AS total_students, 0 AS total_completes,
+                   0 AS total_started, 0 AS avg_pct
             FROM user_progress_v2
         ")->fetch();
     }
@@ -269,9 +269,9 @@ tr:hover td{background:#fafbff}
 
 <div class="stats">
   <div class="stat"><div class="num"><?= number_format((int)$stats['total_students']) ?></div><div class="lbl">Hoc vien</div></div>
-  <div class="stat"><div class="num"><?= number_format((int)$stats['total_sessions']) ?></div><div class="lbl">Lan mo app</div></div>
-  <div class="stat"><div class="num"><?= number_format((int)$stats['total_opens']) ?></div><div class="lbl">Bai hoc da mo</div></div>
-  <div class="stat"><div class="num"><?= number_format((int)$stats['total_completes']) ?></div><div class="lbl">Bai hoc hoan thanh</div></div>
+  <div class="stat"><div class="num"><?= number_format((int)$stats['total_started']) ?></div><div class="lbl">Da hoc it nhat 1 bai</div></div>
+  <div class="stat"><div class="num"><?= number_format((int)$stats['total_completes']) ?></div><div class="lbl">Dang hoan thanh bai</div></div>
+  <div class="stat"><div class="num"><?= $stats['avg_pct'] ? $stats['avg_pct'].'%' : '—' ?></div><div class="lbl">Tien do trung binh</div></div>
 </div>
 
 <form method="get" class="filters">

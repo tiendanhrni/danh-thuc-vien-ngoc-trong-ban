@@ -2787,7 +2787,7 @@ const email=localStorage.getItem('rni-pre-email')||'';
   if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={handleQuizResultContinue} onBack={()=>setScreen('quiz')}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}}/>;
-  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-name');localStorage.removeItem('rni-course');localStorage.removeItem('rni-email');}catch{}setUserName('');setCourseId(null);setScreen('preQuiz');}}/>;
+  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-course');}catch{}setCourseId(null);setQuizResult(null);setScreen('quizTransition');}}/>;
 }
 
 const root=ReactDOM.createRoot(document.getElementById('root'));

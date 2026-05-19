@@ -1707,6 +1707,206 @@ function MatchingGame({quiz,onComplete}){
   );
 }
   
+/* ─── LESSON COMMENTS ──────────────────────────────────────────── */
+const COMMENTS_API='https://thuvien.rni.vn/comments.php';
+function LessonComments({lessonId}){
+  const userEmail=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
+  const userName=localStorage.getItem('rni-name')||localStorage.getItem('rni-pre-name')||'Học viên';
+  const PER_PAGE=10;
+  const [comments,setComments]=useState([]);
+  const [total,setTotal]=useState(0);
+  const [page,setPage]=useState(1);
+  const [loading,setLoading]=useState(true);
+  const [submitting,setSubmitting]=useState(false);
+  const [text,setText]=useState('');
+  const [replyTo,setReplyTo]=useState(null);
+  const [replyText,setReplyText]=useState('');
+  const [expandedReplies,setExpandedReplies]=useState({});
+  const [likedIds,setLikedIds]=useState(new Set());
+
+  const fetchComments=async(p=1)=>{
+    setLoading(true);
+    try{
+      const res=await fetch(`${COMMENTS_API}?lesson_id=${encodeURIComponent(lessonId)}&page=${p}&per_page=${PER_PAGE}&user_email=${encodeURIComponent(userEmail)}`);
+      const data=await res.json();
+      setComments(data.comments||[]);
+      setTotal(data.total||0);
+      setLikedIds(new Set((data.liked_ids||[]).map(Number)));
+    }catch(e){}
+    setLoading(false);
+  };
+  useEffect(()=>{fetchComments(page);},[lessonId,page]);
+
+  const handleSubmit=async()=>{
+    if(!text.trim()||!userEmail)return;
+    setSubmitting(true);
+    try{
+      await fetch(COMMENTS_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'add',lesson_id:lessonId,user_email:userEmail,user_name:userName,content:text.trim()})});
+      setText('');setPage(1);await fetchComments(1);
+    }catch(e){}
+    setSubmitting(false);
+  };
+
+  const handleReply=async(parentId)=>{
+    if(!replyText.trim()||!userEmail)return;
+    setSubmitting(true);
+    try{
+      await fetch(COMMENTS_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'add',lesson_id:lessonId,parent_id:parentId,user_email:userEmail,user_name:userName,content:replyText.trim()})});
+      setReplyTo(null);setReplyText('');await fetchComments(page);
+    }catch(e){}
+    setSubmitting(false);
+  };
+
+  const handleLike=async(commentId)=>{
+    if(!userEmail)return;
+    const liked=likedIds.has(commentId);
+    setLikedIds(prev=>{const n=new Set(prev);liked?n.delete(commentId):n.add(commentId);return n;});
+    setComments(prev=>prev.map(c=>{
+      if(c.id===commentId)return{...c,likes:c.likes+(liked?-1:1)};
+      return{...c,replies:(c.replies||[]).map(r=>r.id===commentId?{...r,likes:r.likes+(liked?-1:1)}:r)};
+    }));
+    try{await fetch(COMMENTS_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'like',comment_id:commentId,user_email:userEmail})});}catch(e){}
+  };
+
+  const timeAgo=(d)=>{
+    const s=(Date.now()-new Date(d).getTime())/1000;
+    if(s<60)return'Vừa xong';
+    if(s<3600)return`${Math.floor(s/60)} phút trước`;
+    if(s<86400)return`${Math.floor(s/3600)} giờ trước`;
+    if(s<2592000)return`${Math.floor(s/86400)} ngày trước`;
+    return new Date(d).toLocaleDateString('vi-VN');
+  };
+
+  const avatarColors=['#9b1106','#b45309','#15803d','#1d4ed8','#7c3aed','#be185d'];
+  const avatarColor=(email)=>avatarColors[Math.abs(email.split('').reduce((a,c)=>a+c.charCodeAt(0),0))%avatarColors.length];
+
+  function CommentItem({c,isReply=false}){
+    return(
+      <div className={`flex gap-3${isReply?' ml-9 mt-3':''}`}>
+        <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold" style={{background:avatarColor(c.user_email||c.user_name),opacity:isReply?0.8:1}}>
+          {(c.user_name||'?')[0].toUpperCase()}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="bg-gray-50 rounded-2xl px-4 py-3">
+            <p className="text-xs font-bold text-gray-800 mb-1">{c.user_name}</p>
+            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap break-words">{c.content}</p>
+          </div>
+          <div className="flex items-center gap-3 mt-1.5 px-1">
+            <span className="text-xs text-gray-400">{timeAgo(c.created_at)}</span>
+            <button onClick={()=>handleLike(c.id)} className={`flex items-center gap-1 text-xs font-medium transition-all active:scale-90${likedIds.has(c.id)?' text-red-500':' text-gray-400 hover:text-red-400'}`}>
+              {likedIds.has(c.id)?'❤️':'🤍'}{c.likes>0&&<span className="ml-0.5">{c.likes}</span>}
+            </button>
+            {!isReply&&userEmail&&(
+              <button onClick={()=>setReplyTo(replyTo?.id===c.id?null:{id:c.id,userName:c.user_name})} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
+                Phản hồi
+              </button>
+            )}
+          </div>
+          {replyTo?.id===c.id&&(
+            <div className="mt-2 flex gap-2">
+              <textarea value={replyText} onChange={e=>setReplyText(e.target.value)} placeholder={`Phản hồi ${c.user_name}...`} rows={2}
+                className="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 resize-none focus:outline-none focus:border-gray-300 transition-colors"
+                onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleReply(c.id);}}}/>
+              <div className="flex flex-col gap-1">
+                <button onClick={()=>handleReply(c.id)} disabled={submitting||!replyText.trim()}
+                  className="px-3 py-1.5 text-xs text-white font-semibold rounded-lg disabled:opacity-40 transition-all active:scale-95" style={{background:'#9b1106'}}>
+                  Gửi
+                </button>
+                <button onClick={()=>{setReplyTo(null);setReplyText('');}} className="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50">
+                  Huỷ
+                </button>
+              </div>
+            </div>
+          )}
+          {!isReply&&c.replies&&c.replies.length>0&&(
+            <div className="mt-1">
+              {!expandedReplies[c.id]&&c.replies.length>2?(
+                <>
+                  {c.replies.slice(0,2).map(r=><CommentItem key={r.id} c={r} isReply={true}/>)}
+                  <button onClick={()=>setExpandedReplies(p=>({...p,[c.id]:true}))}
+                    className="ml-9 mt-2 text-xs font-semibold hover:underline" style={{color:'#9b1106'}}>
+                    Xem thêm {c.replies.length-2} phản hồi...
+                  </button>
+                </>
+              ):(
+                c.replies.map(r=><CommentItem key={r.id} c={r} isReply={true}/>)
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  const totalPages=Math.ceil(total/PER_PAGE);
+
+  return(
+    <div className="mt-6 bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="px-5 py-4 border-b border-gray-100">
+        <h3 className="font-semibold text-gray-900 text-sm">
+          💬 Bình luận {total>0&&<span className="text-gray-400 font-normal text-xs ml-1">({total})</span>}
+        </h3>
+      </div>
+      {userEmail?(
+        <div className="px-5 pt-4 pb-3 border-b border-gray-100 flex gap-3">
+          <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold" style={{background:avatarColor(userEmail)}}>
+            {(userName||'?')[0].toUpperCase()}
+          </div>
+          <div className="flex-1">
+            <textarea value={text} onChange={e=>setText(e.target.value)} placeholder="Chia sẻ cảm nhận của bạn về bài học..." rows={2}
+              className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 resize-none focus:outline-none focus:border-gray-300 transition-colors"
+              onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSubmit();}}}/>
+            <div className="flex justify-end mt-2">
+              <button onClick={handleSubmit} disabled={submitting||!text.trim()}
+                className="px-4 py-2 text-xs text-white font-semibold rounded-xl disabled:opacity-40 transition-all active:scale-95" style={{background:'#9b1106'}}>
+                {submitting?'Đang gửi...':'Gửi bình luận'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ):(
+        <div className="px-5 py-3 border-b border-gray-100 text-xs text-gray-400 italic">
+          Đăng nhập để tham gia bình luận.
+        </div>
+      )}
+      <div className="px-5 py-4 space-y-5">
+        {loading?(
+          <div className="text-center py-6 text-sm text-gray-400">Đang tải...</div>
+        ):comments.length===0?(
+          <div className="text-center py-8">
+            <p className="text-3xl mb-2">💬</p>
+            <p className="text-sm text-gray-400">Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ!</p>
+          </div>
+        ):(
+          comments.map(c=><CommentItem key={c.id} c={c}/>)
+        )}
+      </div>
+      {totalPages>1&&(
+        <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-center gap-2">
+          <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1}
+            className="w-8 h-8 rounded-lg text-sm text-gray-600 border border-gray-200 disabled:opacity-30 hover:bg-gray-50 transition-colors">‹</button>
+          {Array.from({length:Math.min(5,totalPages)},(_,i)=>{
+            let p;
+            if(totalPages<=5)p=i+1;
+            else if(page<=3)p=i+1;
+            else if(page>=totalPages-2)p=totalPages-4+i;
+            else p=page-2+i;
+            return(
+              <button key={p} onClick={()=>setPage(p)}
+                className={`w-8 h-8 rounded-lg text-xs font-semibold transition-colors${page===p?' text-white':' text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
+                style={page===p?{background:'#9b1106'}:{}}>
+                {p}
+              </button>
+            );
+          })}
+          <button onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={page===totalPages}
+            className="w-8 h-8 rounded-lg text-sm text-gray-600 border border-gray-200 disabled:opacity-30 hover:bg-gray-50 transition-colors">›</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── LESSON VIEW ──────────────────────────────────────────────── */
 function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
   const [tab,setTab]=useState('video');
@@ -1982,11 +2182,14 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
                   <a key={i} href={item.url} target="_blank" rel="noopener noreferrer"
                     className="block bg-white rounded-2xl border border-gray-100 px-5 py-4 hover:border-rni-200 hover:shadow-sm transition-all">
                     <p className="text-sm text-gray-700 leading-relaxed mb-2 italic">"{item.q}"</p>
-                  
+
                   </a>
                 ))}
               </div>
             )}
+
+            {/* Bình luận bài học */}
+            <LessonComments lessonId={lesson.id}/>
           </div>
 
           {/* sidebar — sách only */}

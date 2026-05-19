@@ -124,7 +124,7 @@ function sendProgressEvent(payload){
   (async()=>{
     for(let i=0;i<3;i++){
       try{
-        const res=await fetch('https://n8n.rni.vn/webhook/rni-progress',{
+        const res=await fetch('https://thuvien.rni.vn/track-progress.php',{
           method:'POST',headers:{'Content-Type':'application/json'},body
         });
         if(res.ok) break;
@@ -2830,7 +2830,9 @@ const email=localStorage.getItem('rni-pre-email')||'';
   if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={handleQuizResultContinue} onBack={()=>setScreen('quiz')}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}} isAdmin={isAdmin}/>;
-  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-course');}catch{}setCourseId(null);setQuizResult(null);setScreen('quizTransition');}}/>;
+  return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{
+    if(!isAdmin) sendProgressEvent({event:'lesson_open',courseId,courseName:COURSES[courseId]?.title||courseId,lessonId:l.id,lessonTitle:l.title,completedCount:Object.keys(progress).filter(k=>getAllLessons(courseId).some(x=>x.id===k)).length,totalCount:getAllLessons(courseId).length,progressPct:Math.round(Object.keys(progress).filter(k=>getAllLessons(courseId).some(x=>x.id===k)).length/getAllLessons(courseId).length*100)});
+    setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-course');}catch{}setCourseId(null);setQuizResult(null);setScreen('quizTransition');}}/>;
 }
 
 const root=ReactDOM.createRoot(document.getElementById('root'));

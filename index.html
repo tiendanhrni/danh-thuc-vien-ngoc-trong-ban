@@ -2231,7 +2231,10 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
               </div>
             )}
 
-                        {/* Share block */}
+                        {/* Bình luận bài học */}
+            <LessonComments lessonId={lesson.id}/>
+
+            {/* Share block */}
             <div className="mt-6 bg-white rounded-2xl border border-gray-100 px-5 py-5">
               <p className="text-xs text-gray-500 leading-relaxed mb-4 italic">
                 Nếu khoá học này chạm đến bạn, có thể đâu đó trong cuộc đời bạn đang có người cần điều tương tự. Trao đi là cách viên ngọc trong bạn bắt đầu toả sáng.
@@ -2270,8 +2273,6 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
               </div>
             )}
 
-            {/* Bình luận bài học */}
-            <LessonComments lessonId={lesson.id}/>
           </div>
 
           {/* sidebar — sách only */}

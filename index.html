@@ -1783,6 +1783,43 @@ function MatchingGame({quiz,onComplete}){
   
 /* ─── LESSON COMMENTS ──────────────────────────────────────────── */
 const COMMENTS_API='https://thuvien.rni.vn/comments.php';
+const PUSH_SUBSCRIBE_API='https://thuvien.rni.vn/push-subscribe.php';
+const VAPID_PUBLIC_KEY='BH6-XOsyTWZG-ebLHimL-6-0OqhcEs0nTI9FRVoS4fF_zCw9vi48BtsSOr0Nit-X3d4JkR1DJ_ZVjKcwbSMaWLc';
+
+// Đăng ký Web Push (gọi sau khi user đã có email)
+async function registerPush(userEmail){
+  try{
+    if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
+    const reg=await navigator.serviceWorker.register('/sw.js');
+    const permission=await Notification.requestPermission();
+    if(permission!=='granted')return;
+    const existing=await reg.pushManager.getSubscription();
+    if(existing){
+      // Cập nhật email nếu chưa có
+      await fetch(PUSH_SUBSCRIBE_API,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'subscribe',endpoint:existing.endpoint,
+          keys:{p256dh:btoa(String.fromCharCode(...new Uint8Array(existing.getKey('p256dh')))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''),
+                auth:btoa(String.fromCharCode(...new Uint8Array(existing.getKey('auth')))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')},
+          user_email:userEmail})});
+      return;
+    }
+    const sub=await reg.pushManager.subscribe({
+      userVisibleOnly:true,
+      applicationServerKey:urlB64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+    const p256dh=btoa(String.fromCharCode(...new Uint8Array(sub.getKey('p256dh')))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+    const auth=btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth')))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+    await fetch(PUSH_SUBSCRIBE_API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'subscribe',endpoint:sub.endpoint,keys:{p256dh,auth},user_email:userEmail})});
+  }catch(e){console.warn('[RNI push]',e);}
+}
+
+function urlB64ToUint8Array(base64String){
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=atob(base64);
+  return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)));
+}
 function LessonComments({lessonId}){
   const userEmail=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
   const userName=localStorage.getItem('rni-name')||localStorage.getItem('rni-pre-name')||'Học viên';
@@ -3201,6 +3238,8 @@ if(n&&c&&isReturning){
     setUserName(name);setCourseId(cId);
     const serverP={};completedLessons.forEach(id=>{serverP[id]=true;});
     setProgress(p=>({...serverP,...p}));
+    const email=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
+    if(email)setTimeout(()=>registerPush(email),2000);
     setScreen('dashboard');
   };
 
@@ -3223,6 +3262,7 @@ if(n&&c&&isReturning){
         setProgress(p=>({...serverP,...p}));
       }
     });
+    setTimeout(()=>registerPush(preE),2000);
   }
   setScreen('dashboard');
 };

@@ -21,22 +21,21 @@ if ($secret !== 'RNI_PUSH_2026') {
 
 // ── Tin nhắn nhắc trưa ────────────────────────────────────────────────────────
 $noon_messages = [
-    ['title' => '☀️ Giờ vàng học tập!', 'body' => 'Buổi trưa là thời điểm tuyệt vời để học một bài mới. Vào học ngay thôi nào bạn ơi! 🌟'],
-    ['title' => '🌞 Chào buổi trưa!', 'body' => 'Dành 15 phút cho bản thân nhé — hành trình viên ngọc đang chờ bạn! ✨'],
-    ['title' => '⏰ Nhắc lịch học nè!', 'body' => 'Trễ học rồi, vào học ngay nhé! Bạn chỉ cần một bài thôi là tinh thần lên ngay đó 💪'],
-    ['title' => '🌱 Gieo hạt mỗi ngày', 'body' => 'Mỗi bài học hôm nay là một hạt giống cho cuộc đời ngày mai. Vào học một chút nào! 🌻'],
-    ['title' => '💫 Bạn ơi, học nào!', 'body' => 'Các học viên khác đang học rồi đó — bạn không vào thì thua nha! 😄'],
-    ['title' => '🎯 Mục tiêu hôm nay', 'body' => 'Một bài học = một bước gần hơn đến phiên bản tốt hơn của bạn. Bắt đầu ngay nào! ✨'],
+    ['title' => '☀️ Giờ học trưa nay', 'body' => 'Dành 10 phút nghỉ trưa để mình cùng vào bài học mới nhé bạn.'],
+    ['title' => '🌸 Nghỉ trưa cùng bài học', 'body' => 'Một chút tĩnh lặng cùng bài học trưa nay cho tâm hồn thêm sáng rõ nhé.'],
+    ['title' => '🌿 Tạm gác công việc nhé', 'body' => 'Đã đến lúc tạm gác công việc để vào bài học dành riêng cho bạn rồi.'],
+    ['title' => '🍃 Thảnh thơi trưa nay', 'body' => 'Mời bạn dành ít phút thảnh thơi trưa nay để tiếp tục bài học cùng tôi.'],
+    ['title' => '✨ Bài học đang chờ bạn', 'body' => 'Bài học hôm nay đã sẵn sàng, mình cùng vào học một chút nhé bạn.'],
 ];
 
 // ── Tin nhắn nhắc tối ────────────────────────────────────────────────────────
 $evening_messages = [
-    ['title' => '🌙 Trước khi ngủ...', 'body' => 'Kết thúc ngày hôm nay với một bài học thôi nhé — ngủ ngon hơn nhiều đó bạn! 💤'],
-    ['title' => '🌟 Buổi tối bình yên', 'body' => 'Đây là thời gian dành riêng cho bạn. Vào học một bài rồi thư giãn nào! ☕'],
-    ['title' => '✨ Nhắc nhở yêu thương', 'body' => 'Ngày hôm nay bạn đã làm tốt lắm rồi — thêm một bài học nhỏ là hoàn hảo! 🤍'],
-    ['title' => '🌙 Chào buổi tối!', 'body' => 'Cả ngày bận rộn phải không? Dành 10 phút tối nay cho hành trình của mình nhé! 🌿'],
-    ['title' => '💫 Đêm nay học gì?', 'body' => 'Hành trình đánh thức viên ngọc đang chờ bạn. Vào học ngay thôi nào! 🌸'],
-    ['title' => '🌸 Bạn xứng đáng được đầu tư', 'body' => 'Dành thời gian tối nay cho chính mình — một bài học nhỏ, một bước tiến lớn! ✨'],
+    ['title' => '🌙 Trước khi khép lại ngày', 'body' => 'Trước khi khép lại một ngày, mình cùng dành chút thời gian cho bài học nhé.'],
+    ['title' => '🕯️ Bài học tối nay', 'body' => '10 phút trọn vẹn cho bài học tối nay để tâm hồn được vỗ về bạn nhé.'],
+    ['title' => '🌿 Bài học đang chờ bạn', 'body' => 'Bài học hôm nay vẫn đang chờ bạn ghé thăm, mình vào học một chút nhé.'],
+    ['title' => '🌙 Bình yên cuối ngày', 'body' => 'Một chút bình yên với bài học cuối ngày trước khi đi ngủ bạn nhé.'],
+    ['title' => '💫 10 phút cho chính mình', 'body' => 'Đừng quên dành 10 phút tối nay để hoàn thành bài học cho chính mình.'],
+    ['title' => '🌸 Mài sáng viên ngọc', 'body' => 'Mời bạn vào bài học tối nay để cùng tôi mài sáng viên ngọc bên trong nhé.'],
 ];
 
 $messages = $session === 'evening' ? $evening_messages : $noon_messages;

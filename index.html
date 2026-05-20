@@ -3055,6 +3055,7 @@ function App(){
   const [showWelcomeBack,setShowWelcomeBack]=useState(false);
   const [isAdmin,setIsAdmin]=useState(false);
 
+  useEffect(()=>{window.scrollTo(0,0);},[screen]);
   useEffect(()=>{try{localStorage.setItem('rni-progress',JSON.stringify(progress));}catch{}},[progress]);
       // Welcome back nếu rời đi > 2 tiếng
 

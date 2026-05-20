@@ -2,12 +2,12 @@
 /**
  * push-send.php — Gửi Web Push notification tới tất cả hoặc từng user
  * POST {"secret":"RNI_PUSH_2026","title":"...","body":"...","url":"...","email":"(optional)"}
- *
- * Sử dụng thư viện VAPID tích hợp sẵn (không cần composer).
  */
 header('Content-Type: application/json; charset=utf-8');
 
-// ── Xác thực secret ──────────────────────────────────────────────────────────
+require_once __DIR__ . '/push-encrypt.php';
+
+// ── Xác thực secret ───────────────────────────────────────────────────────────
 $input  = json_decode(file_get_contents('php://input'), true) ?? [];
 $secret = $input['secret'] ?? '';
 if ($secret !== 'RNI_PUSH_2026') {
@@ -16,11 +16,6 @@ if ($secret !== 'RNI_PUSH_2026') {
     exit;
 }
 
-// ── VAPID keys ────────────────────────────────────────────────────────────────
-define('VAPID_PUBLIC_KEY',  'BH6-XOsyTWZG-ebLHimL-6-0OqhcEs0nTI9FRVoS4fF_zCw9vi48BtsSOr0Nit-X3d4JkR1DJ_ZVjKcwbSMaWLc');
-define('VAPID_PRIVATE_KEY', 'ZLDpySCOEG9y7MKztlrv4BgPLP4txxy1l2Rp9ZxRrDg');
-define('VAPID_SUBJECT',     'mailto:support@rni.institute');
-
 // ── DB ────────────────────────────────────────────────────────────────────────
 $host = getenv('DB_HOST') ?: 'localhost';
 $db   = getenv('DB_NAME') ?: 'rni_courses_quiz_RNI_DTVNBT';
@@ -28,9 +23,12 @@ $user = getenv('DB_USER') ?: 'rni_courses_quiz';
 $pass = getenv('DB_PASS') ?: '';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass,
+                   [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 } catch (PDOException $e) {
-    http_response_code(500); echo json_encode(['error' => 'DB error']); exit;
+    http_response_code(500);
+    echo json_encode(['error' => 'DB error']);
+    exit;
 }
 
 // ── Lấy subscriptions ─────────────────────────────────────────────────────────
@@ -51,83 +49,45 @@ $payload = json_encode([
     'icon'  => 'https://thuvien.rni.vn/icon-192.png',
 ]);
 
-// ── Hàm VAPID (không cần composer) ───────────────────────────────────────────
-function b64url_decode($s) { return base64_decode(str_pad(strtr($s,'-_','+/'), strlen($s)+((4-strlen($s)%4)%4), '=')); }
-function b64url_encode($s) { return rtrim(strtr(base64_encode($s),'+/','-_'),'='); }
-
-function vapid_headers($endpoint, $payload_len) {
-    $parts   = parse_url($endpoint);
-    $aud     = $parts['scheme'].'://'.$parts['host'];
-    $exp     = time() + 43200; // 12h
-    $header  = b64url_encode(json_encode(['typ'=>'JWT','alg'=>'ES256']));
-    $claims  = b64url_encode(json_encode(['aud'=>$aud,'exp'=>$exp,'sub'=>VAPID_SUBJECT]));
-    $signing = $header.'.'.$claims;
-
-    // Sign with EC private key
-    $priv_raw = b64url_decode(VAPID_PRIVATE_KEY);
-    $pub_raw  = b64url_decode(VAPID_PUBLIC_KEY);
-
-    // Build DER-encoded private key (PKCS#8 for P-256)
-    $oid   = "\x06\x08\x2a\x86\x48\xce\x3d\x03\x01\x07"; // OID prime256v1
-    $inner = "\x02\x01\x01\x04\x20".$priv_raw."\xa1\x44\x03\x42\x00".$pub_raw;
-    $seq1  = "\x30\x13\x06\x07\x2a\x86\x48\xce\x3d\x02\x01".$oid;
-    $eckey = "\x30".chr(strlen($inner)).$inner;
-    $der   = "\x30".chr(strlen($seq1)+4+strlen($eckey))."\x30".chr(strlen($seq1)).$seq1."\x04".chr(strlen($eckey)).$eckey;
-
-    $pkey = openssl_pkey_get_private("-----BEGIN PRIVATE KEY-----\n".chunk_split(base64_encode($der),64,"\n")."-----END PRIVATE KEY-----");
-    openssl_sign($signing, $sig, $pkey, OPENSSL_ALGO_SHA256);
-
-    // DER signature → R||S (64 bytes)
-    $offset = 4;
-    $rLen   = ord($sig[3]);
-    if (ord($sig[4]) === 0) { $rLen--; $offset++; }
-    $r = substr($sig, $offset, $rLen);
-    $offset += $rLen + 2;
-    $sLen = ord($sig[$offset-1]);
-    if (ord($sig[$offset]) === 0) { $sLen--; $offset++; }
-    $s = substr($sig, $offset, $sLen);
-    $r = str_pad($r, 32, "\x00", STR_PAD_LEFT);
-    $s = str_pad($s, 32, "\x00", STR_PAD_LEFT);
-    $jwt = $signing.'.'.b64url_encode($r.$s);
-
-    return [
-        'Authorization' => 'vapid t='.$jwt.', k='.VAPID_PUBLIC_KEY,
-        'Content-Type'  => 'application/octet-stream',
-        'Content-Length'=> (string)$payload_len,
-        'TTL'           => '86400',
-    ];
-}
-
 // ── Gửi notification ──────────────────────────────────────────────────────────
 $ok = 0; $fail = 0; $expired = [];
 
 foreach ($subs as $sub) {
-    $headers = vapid_headers($sub['endpoint'], strlen($payload));
-    $header_str = '';
-    foreach ($headers as $k => $v) $header_str .= "$k: $v\r\n";
+    try {
+        $encrypted = encrypt_web_push($payload, $sub['p256dh'], $sub['auth_key']);
+        $headers   = make_vapid_headers($sub['endpoint'], strlen($encrypted));
+        if (!$headers) { $fail++; continue; }
 
-    $ctx = stream_context_create(['http' => [
-        'method'  => 'POST',
-        'header'  => $header_str,
-        'content' => $payload,
-        'ignore_errors' => true,
-        'timeout' => 10,
-    ]]);
+        $hdr_str = '';
+        foreach ($headers as $k => $v) $hdr_str .= "$k: $v\r\n";
 
-    $response = @file_get_contents($sub['endpoint'], false, $ctx);
-    $code = 0;
-    if (isset($http_response_header[0])) {
-        preg_match('/HTTP\/\S+\s+(\d+)/', $http_response_header[0], $m);
-        $code = (int)($m[1] ?? 0);
-    }
+        $ctx = stream_context_create(['http' => [
+            'method'         => 'POST',
+            'header'         => $hdr_str,
+            'content'        => $encrypted,
+            'ignore_errors'  => true,
+            'timeout'        => 10,
+        ]]);
 
-    if ($code >= 200 && $code < 300) {
-        $ok++;
-    } elseif ($code === 410 || $code === 404) {
-        $expired[] = $sub['endpoint'];
+        @file_get_contents($sub['endpoint'], false, $ctx);
+        $code = 0;
+        if (isset($http_response_header[0])) {
+            preg_match('/HTTP\/\S+\s+(\d+)/', $http_response_header[0], $m);
+            $code = (int)($m[1] ?? 0);
+        }
+
+        if ($code >= 200 && $code < 300) {
+            $ok++;
+        } elseif ($code === 410 || $code === 404) {
+            $expired[] = $sub['endpoint'];
+            $fail++;
+        } else {
+            $fail++;
+            error_log("[RNI Push] HTTP $code endpoint=" . substr($sub['endpoint'], 0, 60));
+        }
+    } catch (\Exception $e) {
         $fail++;
-    } else {
-        $fail++;
+        error_log('[RNI Push] ' . $e->getMessage());
     }
 }
 

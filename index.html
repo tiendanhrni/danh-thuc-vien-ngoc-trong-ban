@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Học Viện RNI — Return · Nurture · Illuminate</title>
 <meta name="description" content="Khám phá hành trình phát triển bản thân phù hợp với bạn tại Học viện RNI — Ruby Nguyen."/>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="RNI"/>
+<link rel="apple-touch-icon" href="https://thuvien.rni.vn/icon-192.png"/>
+<meta name="theme-color" content="#9b1106"/>
 
 <!-- Meta Pixel Code -->
 <script>
@@ -1786,21 +1793,43 @@ const COMMENTS_API='https://thuvien.rni.vn/comments.php';
 const PUSH_SUBSCRIBE_API='https://thuvien.rni.vn/push-subscribe.php';
 const VAPID_PUBLIC_KEY='BH6-XOsyTWZG-ebLHimL-6-0OqhcEs0nTI9FRVoS4fF_zCw9vi48BtsSOr0Nit-X3d4JkR1DJ_ZVjKcwbSMaWLc';
 
-// Đăng ký Web Push (gọi sau khi user đã có email)
-async function registerPush(userEmail,onBlocked){
+function urlB64ToUint8Array(base64String){
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=atob(base64);
+  return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)));
+}
+
+// Detect iOS Safari (chưa cài PWA)
+function isIosSafari(){
+  const ua=navigator.userAgent;
+  return /iP(hone|ad|od)/.test(ua)&&/WebKit/.test(ua)&&!/CriOS|FxiOS|OPiOS|EdgiOS/.test(ua);
+}
+function isInStandaloneMode(){
+  return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+}
+
+function keyToB64u(key){
+  return btoa(String.fromCharCode(...new Uint8Array(key))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+
+async function registerPush(userEmail, onBlocked, onIosNotPwa){
   try{
-    if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
+    if(!('serviceWorker' in navigator)||!('PushManager' in window)){
+      // iOS Safari chưa cài PWA → gọi callback để hiển thị hướng dẫn
+      if(isIosSafari()&&!isInStandaloneMode()&&onIosNotPwa)onIosNotPwa();
+      return;
+    }
     if(Notification.permission==='denied'){if(onBlocked)onBlocked();return;}
     const reg=await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
     const permission=await Notification.requestPermission();
     if(permission!=='granted'){if(permission==='denied'&&onBlocked)onBlocked();return;}
     const existing=await reg.pushManager.getSubscription();
     if(existing){
-      // Cập nhật email nếu chưa có
       await fetch(PUSH_SUBSCRIBE_API,{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'subscribe',endpoint:existing.endpoint,
-          keys:{p256dh:btoa(String.fromCharCode(...new Uint8Array(existing.getKey('p256dh')))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''),
-                auth:btoa(String.fromCharCode(...new Uint8Array(existing.getKey('auth')))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')},
+          keys:{p256dh:keyToB64u(existing.getKey('p256dh')),auth:keyToB64u(existing.getKey('auth'))},
           user_email:userEmail})});
       return;
     }
@@ -1808,18 +1837,11 @@ async function registerPush(userEmail,onBlocked){
       userVisibleOnly:true,
       applicationServerKey:urlB64ToUint8Array(VAPID_PUBLIC_KEY)
     });
-    const p256dh=btoa(String.fromCharCode(...new Uint8Array(sub.getKey('p256dh')))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-    const auth=btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth')))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
     await fetch(PUSH_SUBSCRIBE_API,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'subscribe',endpoint:sub.endpoint,keys:{p256dh,auth},user_email:userEmail})});
+      body:JSON.stringify({action:'subscribe',endpoint:sub.endpoint,
+        keys:{p256dh:keyToB64u(sub.getKey('p256dh')),auth:keyToB64u(sub.getKey('auth'))},
+        user_email:userEmail})});
   }catch(e){console.warn('[RNI push]',e);}
-}
-
-function urlB64ToUint8Array(base64String){
-  const padding='='.repeat((4-base64String.length%4)%4);
-  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
-  const raw=atob(base64);
-  return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)));
 }
 function LessonComments({lessonId}){
   const userEmail=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
@@ -3127,6 +3149,7 @@ function App(){
   const [quizResult,setQuizResult]=useState(null);
   const [courseId,setCourseId]=useState(null);
   const [lesson,setLesson]=useState(null);
+  const [showIosPrompt,setShowIosPrompt]=useState(false);
   const [progress,setProgress]=useState(()=>{try{return JSON.parse(localStorage.getItem('rni-progress')||'{}');}catch{return{};}});
   const [showWelcomeBack,setShowWelcomeBack]=useState(false);
   const [isAdmin,setIsAdmin]=useState(false);
@@ -3174,7 +3197,7 @@ if(n&&c&&isReturning){
               setProgress(p=>({...serverP,...p}));
             }
           });
-          setTimeout(()=>registerPush(email,()=>setPushBlocked(true)),2000);
+          setTimeout(()=>registerPush(email,()=>setPushBlocked(true),()=>setShowIosPrompt(true)),2000);
         }
       } else if(savedResult){
         // Đã làm quiz xong nhưng chưa đăng ký → về quizResult
@@ -3242,7 +3265,7 @@ if(n&&c&&isReturning){
     const serverP={};completedLessons.forEach(id=>{serverP[id]=true;});
     setProgress(p=>({...serverP,...p}));
     const email=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
-    if(email)setTimeout(()=>registerPush(email,()=>setPushBlocked(true)),2000);
+    if(email)setTimeout(()=>registerPush(email,()=>setPushBlocked(true),()=>setShowIosPrompt(true)),2000);
     setScreen('dashboard');
   };
 
@@ -3265,7 +3288,7 @@ if(n&&c&&isReturning){
         setProgress(p=>({...serverP,...p}));
       }
     });
-    setTimeout(()=>registerPush(preE,()=>setPushBlocked(true)),2000);
+    setTimeout(()=>registerPush(preE,()=>setPushBlocked(true),()=>setShowIosPrompt(true)),2000);
   }
   setScreen('dashboard');
 };
@@ -3278,7 +3301,7 @@ if(n&&c&&isReturning){
       <button onClick={()=>{
         setShowWelcomeBack(false);
         const em=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
-        if(em)setTimeout(()=>registerPush(em,()=>setPushBlocked(true)),2000);
+        if(em)setTimeout(()=>registerPush(em,()=>setPushBlocked(true),()=>setShowIosPrompt(true)),2000);
       }} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm pulse-glow" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
         Tiếp tục hành trình →
       </button>
@@ -3303,6 +3326,24 @@ if(n&&c&&isReturning){
   </div>
 );
   
+  if(showIosPrompt)return(
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+    <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center bounce-in">
+      <div className="text-4xl mb-3">📲</div>
+      <h3 className="font-heading font-black text-lg text-gray-900 mb-2">Nhận thông báo nhắc học</h3>
+      <p className="text-gray-500 text-sm leading-relaxed mb-4">Trên iPhone/iPad, bạn cần thêm trang vào màn hình chính trước, sau đó mở lại từ đó để bật thông báo.</p>
+      <ol className="text-left text-sm text-gray-600 space-y-2 mb-5 pl-2">
+        <li>① Nhấn nút <b>Chia sẻ</b> <span style={{fontSize:'1.1em'}}>⎋</span> ở thanh dưới Safari</li>
+        <li>② Chọn <b>"Thêm vào màn hình chính"</b></li>
+        <li>③ Mở lại ứng dụng từ màn hình chính</li>
+        <li>④ Thông báo sẽ tự động được bật</li>
+      </ol>
+      <button onClick={()=>setShowIosPrompt(false)} className="w-full py-3 rounded-xl text-white font-semibold text-sm" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+        Đã hiểu
+      </button>
+    </div>
+  </div>
+);
   if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('quizTransition')} onAdminLogin={n=>{setUserName(n);setIsAdmin(true);setScreen('adminPicker');}} onReturn={handleReturn}/>;
   if(screen==='adminPicker')return <AdminCoursePicker userName={userName} onPick={id=>{setCourseId(id);setScreen('dashboard');}}/>;
   if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('preQuiz')}/>;

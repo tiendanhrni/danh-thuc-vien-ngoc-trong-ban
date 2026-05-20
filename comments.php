@@ -288,5 +288,69 @@ if ($action === 'like') {
     exit;
 }
 
-http_response_code(400);
-echo json_encode(['error' => 'Action không hợp lệ']);
+// ── action: edit — sửa nội dung bình luận (chỉ chủ sở hữu) ──────────────────
+if ($action === 'edit') {
+    $comment_id = (int) ($input['comment_id'] ?? 0);
+    $user_email = mb_substr(trim($input['user_email'] ?? ''), 0, 255);
+    $content    = mb_substr(trim($input['content'] ?? ''), 0, 2000);
+
+    if (!$comment_id || !$user_email || !$content) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Thiếu thông tin']);
+        exit;
+    }
+
+    try {
+        $stmt = $pdo->prepare(
+            "UPDATE lesson_comments SET content=? WHERE id=? AND user_email=?"
+        );
+        $stmt->execute([$content, $comment_id, $user_email]);
+        if ($stmt->rowCount() === 0) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Không có quyền hoặc bình luận không tồn tại']);
+            exit;
+        }
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Lỗi cập nhật']);
+        error_log('[RNI comments] EDIT error: ' . $e->getMessage());
+    }
+    exit;
+}
+
+// ── action: delete — xoá bình luận (chỉ chủ sở hữu) ─────────────────────────
+if ($action === 'delete') {
+    $comment_id = (int) ($input['comment_id'] ?? 0);
+    $user_email = mb_substr(trim($input['user_email'] ?? ''), 0, 255);
+
+    if (!$comment_id || !$user_email) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Thiếu thông tin']);
+        exit;
+    }
+
+    try {
+        // Xoá likes liên quan trước
+        $pdo->prepare("DELETE FROM comment_likes WHERE comment_id=?")->execute([$comment_id]);
+        // Xoá replies nếu là comment gốc
+        $pdo->prepare("DELETE FROM comment_likes WHERE comment_id IN (SELECT id FROM lesson_comments WHERE parent_id=?)")->execute([$comment_id]);
+        $pdo->prepare("DELETE FROM lesson_comments WHERE parent_id=?")->execute([$comment_id]);
+        // Xoá comment chính
+        $stmt = $pdo->prepare("DELETE FROM lesson_comments WHERE id=? AND user_email=?");
+        $stmt->execute([$comment_id, $user_email]);
+        if ($stmt->rowCount() === 0) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Không có quyền hoặc bình luận không tồn tại']);
+            exit;
+        }
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Lỗi xoá bình luận']);
+        error_log('[RNI comments] DELETE error: ' . $e->getMessage());
+    }
+    exit;
+}
+
+

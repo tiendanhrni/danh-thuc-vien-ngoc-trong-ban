@@ -17,10 +17,10 @@ if ($secret !== 'RNI_PUSH_2026') {
 }
 
 // ── DB ────────────────────────────────────────────────────────────────────────
-$host = getenv('DB_HOST') ?: 'localhost';
-$db   = getenv('DB_NAME') ?: 'rni_courses_quiz_RNI_DTVNBT';
-$user = getenv('DB_USER') ?: 'rni_courses_quiz';
-$pass = getenv('DB_PASS') ?: '';
+$host = 'localhost';
+$db   = 'rni_courses_quiz_RNI_DTVNBT';
+$user = 'rni_quiz_user';
+$pass = 'RNI-quiz-dtvnbt';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass,

@@ -3172,6 +3172,7 @@ if(n&&c&&isReturning){
               setProgress(p=>({...serverP,...p}));
             }
           });
+          setTimeout(()=>registerPush(email),2000);
         }
       } else if(savedResult){
         // Đã làm quiz xong nhưng chưa đăng ký → về quizResult
@@ -3272,7 +3273,11 @@ if(n&&c&&isReturning){
       <div className="text-4xl mb-3 float">🌿</div>
       <h3 className="font-heading font-black text-xl text-gray-900 mb-2">Chào mừng bạn quay trở lại!</h3>
       <p className="text-gray-500 text-sm leading-relaxed mb-5">Hành trình của bạn vẫn đang chờ. Mừng bạn trở lại để tiếp tục hiện diện cùng hành trình này.</p>
-      <button onClick={()=>setShowWelcomeBack(false)} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm pulse-glow" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+      <button onClick={()=>{
+        setShowWelcomeBack(false);
+        const em=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
+        if(em)setTimeout(()=>registerPush(em),2000);
+      }} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm pulse-glow" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
         Tiếp tục hành trình →
       </button>
     </div>

@@ -25,6 +25,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
 // Kiểm tra đã đăng nhập chưa
 $logged_in = isset($_COOKIE[COOKIE_NAME]) && $_COOKIE[COOKIE_NAME] === COOKIE_TOKEN;
 
+// Export CSV nhóm học viên
+if ($logged_in && isset($_GET['export']) && $_GET['export'] === 'csv_groups') {
+    $db_host='localhost';$db_name='rni_courses_quiz_RNI_DTVNBT';$db_user='rni_quiz_user';$db_pass='RNI-quiz-dtvnbt';
+    try { $pdo_e=new PDO("mysql:host={$db_host};dbname={$db_name};charset=utf8mb4",$db_user,$db_pass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]); } catch(PDOException $e){die('Loi DB');}
+    $fc=trim($_GET['course']??'');$fg=trim($_GET['group']??'');
+    $gw=['1=1'];$gp=[];
+    if($fc){$gw[]='course_id=?';$gp[]=$fc;}
+    $q=$pdo_e->prepare("SELECT email,MAX(name) as name,MAX(CASE WHEN phone!='' THEN phone END) as phone,MAX(course_id) as course_id,MAX(progress_pct) as max_pct,MAX(completed_count) as max_completed,MAX(CASE WHEN total_count>0 THEN total_count END) as total_count,MAX(created_at) as last_activity,SUM(event='quiz_complete') as has_quiz,SUM(event IN ('lesson_open','lesson_complete')) as has_lesson FROM user_progress_v2 WHERE ".implode(' AND ',$gw)." GROUP BY email ORDER BY last_activity DESC");
+    $q->execute($gp);$users=$q->fetchAll();
+    $fn=function($r){$pct=(int)$r['max_pct'];$days=(time()-strtotime($r['last_activity']))/86400;if($pct>=100)return'hoan_thanh';if((int)$r['has_lesson']>0&&$pct>0&&$days<=7)return'dang_hoc';if((int)$r['has_lesson']>0&&$pct>0&&$days>7)return'bo_do';return'chua_hoc';};
+    $labels=['chua_hoc'=>'Xong quiz, chua hoc','dang_hoc'=>'Dang hoc','bo_do'=>'Bo do','hoan_thanh'=>'Hoan thanh'];
+    if($fg) $users=array_values(array_filter($users,fn($u)=>$fn($u)===$fg));
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="phan-nhom-hoc-vien-'.date('Ymd-His').'.csv"');
+    $out=fopen('php://output','w');fprintf($out,chr(0xEF).chr(0xBB).chr(0xBF));
+    fputcsv($out,['Email','Ten','SDT','Khoa','Nhom','Tien do (%)','Da xong','Tong bai','Hoat dong cuoi']);
+    foreach($users as $u){fputcsv($out,[$u['email'],$u['name']??'',$u['phone']??'',$u['course_id']??'',$labels[$fn($u)]??'',(int)$u['max_pct'],(int)$u['max_completed'],(int)$u['total_count'],$u['last_activity']]);}
+    fclose($out);exit;
+}
+
 // Export CSV
 if ($logged_in && isset($_GET['export']) && $_GET['export'] === 'csv') {
     $db_host = 'localhost';
@@ -143,11 +163,15 @@ $has_lesson  = in_array('lesson_title', $cols);
 $has_pct     = in_array('progress_pct', $cols);
 $has_phone   = in_array('phone',        $cols);
 
+// ── Chế độ xem ───────────────────────────────────────────────────────────────
+$view = $_GET['view'] ?? 'events'; // events | groups
+
 // ── Bộ lọc ───────────────────────────────────────────────────────────────────
 $filter_email  = trim($_GET['email']  ?? '');
 $filter_course = trim($_GET['course'] ?? '');
 $filter_event  = trim($_GET['event']  ?? '');
 $filter_date   = trim($_GET['date']   ?? '');
+$filter_group  = trim($_GET['group']  ?? '');
 $page     = max(1, (int)($_GET['page'] ?? 1));
 $per_page = 50;
 
@@ -188,6 +212,56 @@ try {
     }
 
     $emails = $pdo->query("SELECT DISTINCT email FROM user_progress_v2 ORDER BY email LIMIT 500")->fetchAll(PDO::FETCH_COLUMN);
+
+    // ── Phân nhóm học viên ────────────────────────────────────────────────────
+    $gw = ['1=1']; $gp = [];
+    if ($filter_course) { $gw[] = 'course_id = ?'; $gp[] = $filter_course; }
+    $gwsql = implode(' AND ', $gw);
+    $group_rows = $pdo->prepare("
+        SELECT email,
+               MAX(name) as name,
+               MAX(CASE WHEN phone != '' THEN phone END) as phone,
+               MAX(course_id) as course_id,
+               MAX(progress_pct) as max_pct,
+               MAX(completed_count) as max_completed,
+               MAX(CASE WHEN total_count > 0 THEN total_count END) as total_count,
+               MAX(created_at) as last_activity,
+               SUM(event='quiz_complete') as has_quiz,
+               SUM(event IN ('lesson_open','lesson_complete')) as has_lesson
+        FROM user_progress_v2
+        WHERE {$gwsql}
+        GROUP BY email
+        ORDER BY last_activity DESC
+    ");
+    $group_rows->execute($gp);
+    $all_users = $group_rows->fetchAll();
+
+    $fn_group = function($r) {
+        $pct = (int)$r['max_pct'];
+        $days = (time() - strtotime($r['last_activity'])) / 86400;
+        if ($pct >= 100)                                   return 'hoan_thanh';
+        if ((int)$r['has_lesson'] > 0 && $pct > 0 && $days <= 7) return 'dang_hoc';
+        if ((int)$r['has_lesson'] > 0 && $pct > 0 && $days > 7)  return 'bo_do';
+        return 'chua_hoc';
+    };
+    $group_labels = [
+        'chua_hoc'   => 'Xong quiz, chưa học',
+        'dang_hoc'   => 'Đang học',
+        'bo_do'      => 'Bỏ dở',
+        'hoan_thanh' => 'Hoàn thành',
+    ];
+    $group_colors = [
+        'chua_hoc'   => ['bg'=>'#faf5ff','color'=>'#553c9a'],
+        'dang_hoc'   => ['bg'=>'#ebf8ff','color'=>'#2b6cb0'],
+        'bo_do'      => ['bg'=>'#fffaf0','color'=>'#c05621'],
+        'hoan_thanh' => ['bg'=>'#f0fff4','color'=>'#276749'],
+    ];
+    $group_counts = array_fill_keys(array_keys($group_labels), 0);
+    foreach ($all_users as $u) $group_counts[$fn_group($u)]++;
+
+    $filtered_users = $filter_group
+        ? array_values(array_filter($all_users, fn($u) => $fn_group($u) === $filter_group))
+        : $all_users;
 
 } catch (PDOException $e) {
     showError('Loi truy van du lieu: ' . htmlspecialchars($e->getMessage()));
@@ -257,6 +331,16 @@ tr:hover td{background:#fafbff}
 .pagination span{background:#4f46e5;color:#fff}
 .empty{text-align:center;padding:40px;color:#a0aec0}
 .meta{text-align:center;color:#a0aec0;font-size:12px;margin-top:12px}
+.tabs{display:flex;gap:4px;padding:14px 24px 0;border-bottom:2px solid #e2e8f0;margin-bottom:0}
+.tab{padding:9px 20px;border-radius:8px 8px 0 0;font-size:13px;font-weight:600;text-decoration:none;color:#718096;background:#f1f5f9;border:2px solid transparent;border-bottom:none;margin-bottom:-2px}
+.tab.active{background:#fff;color:#4f46e5;border-color:#e2e8f0;border-bottom-color:#fff}
+.tab:hover:not(.active){background:#e2e8f0}
+.group-cards{display:flex;gap:12px;padding:18px 24px;flex-wrap:wrap}
+.gc{background:#fff;border-radius:10px;padding:14px 20px;flex:1;min-width:140px;box-shadow:0 1px 4px rgba(0,0,0,.08);cursor:pointer;border:2px solid transparent;text-decoration:none;display:block}
+.gc:hover{border-color:#4f46e5}
+.gc.active{border-color:#4f46e5;background:#fafbff}
+.gc .num{font-size:24px;font-weight:700}
+.gc .lbl{font-size:12px;color:#718096;margin-top:2px}
 @media(max-width:600px){.stats,.filters{padding:12px}.wrap{padding:0 12px 20px}}
 </style>
 </head>
@@ -267,6 +351,11 @@ tr:hover td{background:#fafbff}
   <form method="post"><button name="logout" value="1">Dang xuat</button></form>
 </header>
 
+<div class="tabs">
+  <a href="?view=events" class="tab <?= $view==='events'?'active':'' ?>">📋 Nhật ký sự kiện</a>
+  <a href="?view=groups" class="tab <?= $view==='groups'?'active':'' ?>">👥 Phân nhóm học viên</a>
+</div>
+
 <div class="stats">
   <div class="stat"><div class="num"><?= number_format((int)$stats['total_students']) ?></div><div class="lbl">Hoc vien</div></div>
   <div class="stat"><div class="num"><?= number_format((int)$stats['total_started']) ?></div><div class="lbl">Da hoc it nhat 1 bai</div></div>
@@ -274,7 +363,83 @@ tr:hover td{background:#fafbff}
   <div class="stat"><div class="num"><?= $stats['avg_pct'] ? $stats['avg_pct'].'%' : '—' ?></div><div class="lbl">Tien do trung binh</div></div>
 </div>
 
-<form method="get" class="filters">
+<?php if ($view === 'groups'): ?>
+<div class="group-cards">
+  <?php foreach ($group_labels as $gk => $gl):
+    $gc = $group_colors[$gk];
+    $active = $filter_group === $gk ? 'active' : '';
+    $href = $filter_group === $gk ? '?view=groups' : '?view=groups&group='.$gk.($filter_course?'&course='.h($filter_course):'');
+  ?>
+  <a class="gc <?= $active ?>" href="<?= $href ?>" style="border-left:4px solid <?= $gc['color'] ?>">
+    <div class="num" style="color:<?= $gc['color'] ?>"><?= $group_counts[$gk] ?></div>
+    <div class="lbl"><?= $gl ?></div>
+  </a>
+  <?php endforeach; ?>
+</div>
+
+<div class="filters" style="margin-top:0">
+  <div>
+    <label>Khoa hoc</label>
+    <select name="course" onchange="location='?view=groups&group=<?= h($filter_group) ?>&course='+this.value">
+      <option value="">— Tat ca —</option>
+      <?php foreach (['R','N','I'] as $c): ?>
+      <option value="<?= $c ?>"<?= $filter_course===$c?' selected':'' ?>><?= $c ?></option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+  <?php
+    $eq2 = ['view'=>'groups','group'=>$filter_group,'course'=>$filter_course,'export'=>'csv_groups'];
+    $export_url2 = $_SERVER['PHP_SELF'] . '?' . http_build_query(array_filter($eq2));
+  ?>
+  <a class="export" href="<?= h($export_url2) ?>">⬇ Tải CSV nhóm này</a>
+</div>
+
+<div class="wrap">
+<?php if (empty($filtered_users)): ?>
+  <p class="empty">Không có học viên nào trong nhóm này</p>
+<?php else: ?>
+  <table>
+    <thead><tr>
+      <th>#</th><th>Email</th><th>Tên</th><th>SDT</th><th>Khoá</th>
+      <th>Nhóm</th><th>Tiến độ</th><th>Hoạt động cuối</th>
+    </tr></thead>
+    <tbody>
+    <?php foreach ($filtered_users as $i => $u):
+      $gk = $fn_group($u);
+      $gc = $group_colors[$gk];
+      $gl = $group_labels[$gk];
+      $pct = (int)$u['max_pct'];
+      $done = (int)$u['max_completed'];
+      $total = (int)$u['total_count'];
+      $days = round((time() - strtotime($u['last_activity'])) / 86400);
+      $days_lbl = $days === 0 ? 'Hôm nay' : ($days === 1 ? 'Hôm qua' : "{$days} ngày trước");
+    ?>
+    <tr>
+      <td style="color:#a0aec0;font-size:12px"><?= $i+1 ?></td>
+      <td><?= h($u['email']) ?></td>
+      <td><?= h($u['name'] ?? '') ?></td>
+      <td style="white-space:nowrap"><?= h($u['phone'] ?? '') ?: '—' ?></td>
+      <td style="text-align:center;font-weight:600"><?= h($u['course_id'] ?? '') ?: '—' ?></td>
+      <td><span class="badge" style="background:<?= $gc['bg'] ?>;color:<?= $gc['color'] ?>"><?= $gl ?></span></td>
+      <td>
+        <?php if ($total > 0): ?>
+        <div class="pct-bar">
+          <div class="bar"><div class="fill" style="width:<?= $pct ?>%"></div></div>
+          <span><?= $done ?>/<?= $total ?> (<?= $pct ?>%)</span>
+        </div>
+        <?php else: ?>—<?php endif; ?>
+      </td>
+      <td style="font-size:12px;color:#718096;white-space:nowrap"><?= h($days_lbl) ?></td>
+    </tr>
+    <?php endforeach; ?>
+    </tbody>
+  </table>
+  <p class="meta"><?= count($filtered_users) ?> học viên<?= $filter_group ? ' — nhóm: '.$group_labels[$filter_group] : '' ?></p>
+<?php endif; ?>
+</div>
+<?php endif; ?>
+
+<form method="get" class="filters" <?= $view==='groups'?'style="display:none"':'' ?>>
   <div>
     <label>Email hoc vien</label>
     <input list="email-list" name="email" value="<?= h($filter_email) ?>" placeholder="Tim theo email..."/>

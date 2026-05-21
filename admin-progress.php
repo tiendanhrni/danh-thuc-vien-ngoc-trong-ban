@@ -29,14 +29,18 @@ $logged_in = isset($_COOKIE[COOKIE_NAME]) && $_COOKIE[COOKIE_NAME] === COOKIE_TO
 if ($logged_in && isset($_GET['export']) && $_GET['export'] === 'csv_groups') {
     $db_host='localhost';$db_name='rni_courses_quiz_RNI_DTVNBT';$db_user='rni_quiz_user';$db_pass='RNI-quiz-dtvnbt';
     try { $pdo_e=new PDO("mysql:host={$db_host};dbname={$db_name};charset=utf8mb4",$db_user,$db_pass,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]); } catch(PDOException $e){die('Loi DB');}
-    $fc=trim($_GET['course']??'');$fg=trim($_GET['group']??'');
+    $fc=trim($_GET['course']??'');$fg=trim($_GET['group']??'');$fd=(int)($_GET['days']??0);
     $gw=['1=1'];$gp=[];
     if($fc){$gw[]='course_id=?';$gp[]=$fc;}
     $q=$pdo_e->prepare("SELECT email,MAX(name) as name,MAX(CASE WHEN phone!='' THEN phone END) as phone,MAX(course_id) as course_id,MAX(progress_pct) as max_pct,MAX(completed_count) as max_completed,MAX(CASE WHEN total_count>0 THEN total_count END) as total_count,MAX(created_at) as last_activity,SUM(event='quiz_complete') as has_quiz,SUM(event IN ('lesson_open','lesson_complete')) as has_lesson FROM user_progress_v2 WHERE ".implode(' AND ',$gw)." GROUP BY email ORDER BY last_activity DESC");
     $q->execute($gp);$users=$q->fetchAll();
     $fn=function($r){$pct=(int)$r['max_pct'];$days=(time()-strtotime($r['last_activity']))/86400;if($pct>=100)return'hoan_thanh';if((int)$r['has_lesson']>0&&$pct>0&&$days<=7)return'dang_hoc';if((int)$r['has_lesson']>0&&$pct>0&&$days>7)return'bo_do';return'chua_hoc';};
     $labels=['chua_hoc'=>'Xong quiz, chua hoc','dang_hoc'=>'Dang hoc','bo_do'=>'Bo do','hoan_thanh'=>'Hoan thanh'];
-    if($fg) $users=array_values(array_filter($users,fn($u)=>$fn($u)===$fg));
+    $users=array_values(array_filter($users,function($u)use($fg,$fd,$fn){
+        if($fg&&$fn($u)!==$fg)return false;
+        if($fd>0&&(time()-strtotime($u['last_activity']))/86400<$fd)return false;
+        return true;
+    }));
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="phan-nhom-hoc-vien-'.date('Ymd-His').'.csv"');
     $out=fopen('php://output','w');fprintf($out,chr(0xEF).chr(0xBB).chr(0xBF));
@@ -172,6 +176,7 @@ $filter_course = trim($_GET['course'] ?? '');
 $filter_event  = trim($_GET['event']  ?? '');
 $filter_date   = trim($_GET['date']   ?? '');
 $filter_group  = trim($_GET['group']  ?? '');
+$filter_days   = (int)($_GET['days']   ?? 0);
 $page     = max(1, (int)($_GET['page'] ?? 1));
 $per_page = 50;
 
@@ -259,9 +264,14 @@ try {
     $group_counts = array_fill_keys(array_keys($group_labels), 0);
     foreach ($all_users as $u) $group_counts[$fn_group($u)]++;
 
-    $filtered_users = $filter_group
-        ? array_values(array_filter($all_users, fn($u) => $fn_group($u) === $filter_group))
-        : $all_users;
+    $filtered_users = array_values(array_filter($all_users, function($u) use ($filter_group, $filter_days, $fn_group) {
+        if ($filter_group && $fn_group($u) !== $filter_group) return false;
+        if ($filter_days > 0) {
+            $days = (time() - strtotime($u['last_activity'])) / 86400;
+            if ($days < $filter_days) return false;
+        }
+        return true;
+    }));
 
 } catch (PDOException $e) {
     showError('Loi truy van du lieu: ' . htmlspecialchars($e->getMessage()));
@@ -379,20 +389,38 @@ tr:hover td{background:#fafbff}
 
 <div class="filters" style="margin-top:0">
   <div>
-    <label>Khoa hoc</label>
-    <select name="course" onchange="location='?view=groups&group=<?= h($filter_group) ?>&course='+this.value">
-      <option value="">— Tat ca —</option>
+    <label>Khoá học</label>
+    <select onchange="applyGroupFilter();" id="gf-course">
+      <option value="">— Tất cả —</option>
       <?php foreach (['R','N','I'] as $c): ?>
       <option value="<?= $c ?>"<?= $filter_course===$c?' selected':'' ?>><?= $c ?></option>
       <?php endforeach; ?>
     </select>
   </div>
+  <div>
+    <label>Không hoạt động</label>
+    <select onchange="applyGroupFilter();" id="gf-days">
+      <option value="0">— Tất cả —</option>
+      <option value="2"<?= $filter_days===2?' selected':'' ?>>Hơn 2 ngày</option>
+      <option value="4"<?= $filter_days===4?' selected':'' ?>>Hơn 4 ngày</option>
+      <option value="7"<?= $filter_days===7?' selected':'' ?>>Hơn 7 ngày</option>
+    </select>
+  </div>
   <?php
-    $eq2 = ['view'=>'groups','group'=>$filter_group,'course'=>$filter_course,'export'=>'csv_groups'];
-    $export_url2 = $_SERVER['PHP_SELF'] . '?' . http_build_query(array_filter($eq2));
+    $eq2 = ['view'=>'groups','group'=>$filter_group,'course'=>$filter_course,'days'=>$filter_days,'export'=>'csv_groups'];
+    $export_url2 = $_SERVER['PHP_SELF'] . '?' . http_build_query(array_filter($eq2, fn($v)=>$v!==''&&$v!==0));
   ?>
   <a class="export" href="<?= h($export_url2) ?>">⬇ Tải CSV nhóm này</a>
 </div>
+<script>
+function applyGroupFilter(){
+  var c=document.getElementById('gf-course').value;
+  var d=document.getElementById('gf-days').value;
+  var g='<?= h($filter_group) ?>';
+  var u='?view=groups'+(g?'&group='+g:'')+(c?'&course='+c:'')+(d&&d!='0'?'&days='+d:'');
+  location=u;
+}
+</script>
 
 <div class="wrap">
 <?php if (empty($filtered_users)): ?>

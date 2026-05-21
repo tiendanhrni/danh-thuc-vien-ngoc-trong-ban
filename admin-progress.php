@@ -206,7 +206,7 @@ function h($s) { return htmlspecialchars((string)($s ?? ''), ENT_QUOTES, 'UTF-8'
 function qurl($k, $v = null) {
     $p = $_GET;
     if ($v === null) unset($p[$k]); else $p[$k] = $v;
-    unset($p['page']);
+    if ($k !== 'page') unset($p['page']);
     return '?' . http_build_query($p);
 }
 ?>
@@ -340,7 +340,11 @@ tr:hover td{background:#fafbff}
         <td><?= h($r['name'] ?? '') ?></td>
         <?php if ($has_phone):  ?><td style="white-space:nowrap"><?= h($r['phone'] ?? '') ?: '—' ?></td><?php endif; ?>
         <?php if ($has_course): ?><td style="font-weight:600;text-align:center"><?= h($r['course_id'] ?? '') ?></td><?php endif; ?>
-        <?php if ($has_event):  ?><td><span class="badge ev-<?= h($r['event'] ?? '') ?>"><?= h($r['event'] ?? '') ?></span></td><?php endif; ?>
+        <?php if ($has_event):
+          $ev_map = ['session_start'=>'Mở app','lesson_open'=>'Mở bài học','lesson_complete'=>'Hoàn thành bài','quiz_complete'=>'Kết quả quiz'];
+          $ev_raw = $r['event'] ?? '';
+          $ev_lbl = $ev_map[$ev_raw] ?? $ev_raw;
+        ?><td><span class="badge ev-<?= h($ev_raw) ?>" title="<?= h($ev_raw) ?>"><?= h($ev_lbl) ?></span></td><?php endif; ?>
         <?php if ($has_lesson): ?><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?= h($r['lesson_title'] ?? '') ?>"><?= h($r['lesson_title'] ?? '') ?: '—' ?></td><?php endif; ?>
         <?php if ($has_pct): ?>
         <td>

@@ -20,6 +20,16 @@ if ($secret !== 'RNI_PUSH_2026') {
 }
 
 // ── Tin nhắn nhắc ─────────────────────────────────────────────────────────────
+$morning_messages = [
+    ['title' => '🌅 Bài học sáng nay',           'body' => 'Mời bạn bắt đầu ngày mới bằng 10 phút tĩnh lặng cùng bài học sáng nay.'],
+    ['title' => '🌿 Chào ngày mới',               'body' => 'Chào ngày mới bằng sự hiện diện trọn vẹn trong bài học cùng tôi bạn nhé.'],
+    ['title' => '☀️ Trước khi ngày bắt đầu',      'body' => 'Trước khi ngày mới bắt đầu bận rộn, mình dành chút thời gian vào bài học nhé.'],
+    ['title' => '💎 Sáng sớm cùng bài học',       'body' => 'Mời bạn thức dậy cùng bài học sáng nay để viên ngọc trong mình thêm sáng rõ.'],
+    ['title' => '🍃 Thảnh thơi lúc sớm mai',      'body' => 'Một chút thảnh thơi lúc sớm mai cùng bài học, bạn sẵn sàng chưa?'],
+    ['title' => '🌸 Khởi đầu trong tỉnh thức',   'body' => 'Mời bạn vào bài học sớm nay để khởi đầu một ngày trong sự tỉnh thức.'],
+    ['title' => '✨ Phút đầu ngày cho mình',       'body' => 'Dành những phút đầu ngày cho bài học để tâm hồn thêm vững chãi bạn nhé.'],
+    ['title' => '🌄 Ngày mới bắt đầu',            'body' => 'Ngày mới đã bắt đầu, mình cùng dành 10 phút vào bài học cho chính mình nhé.'],
+];
 $noon_messages = [
     ['title' => '☀️ Giờ học trưa nay',        'body' => 'Dành 10 phút nghỉ trưa để mình cùng vào bài học mới nhé bạn.'],
     ['title' => '🌸 Nghỉ trưa cùng bài học',   'body' => 'Một chút tĩnh lặng cùng bài học trưa nay cho tâm hồn thêm sáng rõ nhé.'],
@@ -36,7 +46,7 @@ $evening_messages = [
     ['title' => '🌸 Mài sáng viên ngọc',       'body' => 'Mời bạn vào bài học tối nay để cùng tôi mài sáng viên ngọc bên trong nhé.'],
 ];
 
-$messages = $session === 'evening' ? $evening_messages : $noon_messages;
+$messages = $session === 'evening' ? $evening_messages : ($session === 'morning' ? $morning_messages : $noon_messages);
 $msg      = $messages[array_rand($messages)];
 
 $payload = json_encode([

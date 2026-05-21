@@ -34,11 +34,13 @@ if ($logged_in && isset($_GET['export']) && $_GET['export'] === 'csv_groups') {
     if($fc){$gw[]='course_id=?';$gp[]=$fc;}
     $q=$pdo_e->prepare("SELECT email,MAX(name) as name,MAX(CASE WHEN phone!='' THEN phone END) as phone,MAX(course_id) as course_id,MAX(progress_pct) as max_pct,MAX(completed_count) as max_completed,MAX(CASE WHEN total_count>0 THEN total_count END) as total_count,MAX(created_at) as last_activity,SUM(event='quiz_complete') as has_quiz,SUM(event IN ('lesson_open','lesson_complete')) as has_lesson FROM user_progress_v2 WHERE ".implode(' AND ',$gw)." GROUP BY email ORDER BY last_activity DESC");
     $q->execute($gp);$users=$q->fetchAll();
-    $fn=function($r){$pct=(int)$r['max_pct'];$days=(time()-strtotime($r['last_activity']))/86400;if($pct>=100)return'hoan_thanh';if((int)$r['has_lesson']>0&&$pct>0&&$days<=7)return'dang_hoc';if((int)$r['has_lesson']>0&&$pct>0&&$days>7)return'bo_do';return'chua_hoc';};
-    $labels=['chua_hoc'=>'Xong quiz, chua hoc','dang_hoc'=>'Dang hoc','bo_do'=>'Bo do','hoan_thanh'=>'Hoan thanh'];
+    $fn=function($r){$pct=(int)$r['max_pct'];if($pct>=100)return'hoan_thanh';if((int)$r['has_lesson']>0&&$pct>0)return'dang_hoc';return'chua_hoc';};
+    $labels=['chua_hoc'=>'Xong quiz, chua hoc','dang_hoc'=>'Dang hoc','hoan_thanh'=>'Hoan thanh'];
     $users=array_values(array_filter($users,function($u)use($fg,$fd,$fn){
         if($fg&&$fn($u)!==$fg)return false;
-        if($fd>0&&(time()-strtotime($u['last_activity']))/86400<$fd)return false;
+        $days_ago=(time()-strtotime($u['last_activity']))/86400;
+        if($fd>0&&$days_ago<$fd)return false;
+        if($fd<0&&$days_ago>=abs($fd))return false;
         return true;
     }));
     header('Content-Type: text/csv; charset=utf-8');
@@ -262,10 +264,9 @@ try {
 
     $filtered_users = array_values(array_filter($all_users, function($u) use ($filter_group, $filter_days, $fn_group) {
         if ($filter_group && $fn_group($u) !== $filter_group) return false;
-        if ($filter_days > 0) {
-            $days = (time() - strtotime($u['last_activity'])) / 86400;
-            if ($days < $filter_days) return false;
-        }
+        $days_ago = (time() - strtotime($u['last_activity'])) / 86400;
+        if ($filter_days > 0 && $days_ago < $filter_days) return false;
+        if ($filter_days < 0 && $days_ago >= abs($filter_days)) return false;
         return true;
     }));
 
@@ -394,9 +395,10 @@ tr:hover td{background:#fafbff}
     </select>
   </div>
   <div>
-    <label>Không hoạt động</label>
+    <label>Lần vào cuối</label>
     <select onchange="applyGroupFilter();" id="gf-days">
       <option value="0">— Tất cả —</option>
+      <option value="-1"<?= $filter_days===-1?' selected':'' ?>>Trong 1 ngày qua</option>
       <option value="2"<?= $filter_days===2?' selected':'' ?>>Hơn 2 ngày</option>
       <option value="4"<?= $filter_days===4?' selected':'' ?>>Hơn 4 ngày</option>
       <option value="7"<?= $filter_days===7?' selected':'' ?>>Hơn 7 ngày</option>

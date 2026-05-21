@@ -30,9 +30,10 @@ if ($secret !== 'RNI_KAJABI_2026') {
 }
 
 // ── Cấu hình Kajabi ──────────────────────────────────────────────────────────
-// Lấy API key tại: Kajabi → Settings → Integrations → API
-define('KAJABI_API_KEY',  'YOUR_KAJABI_API_KEY_HERE');
-define('KAJABI_BASE_URL', 'https://kajabi.com/api/v1');
+// Lấy tại: Kajabi → Settings → Integrations → API Credentials
+define('KAJABI_CLIENT_ID',     '2pNY4LLuQeDZW6bP4SwoGQPS');
+define('KAJABI_CLIENT_SECRET', 'YOUR_API_SECRET_HERE');      // dán API Secret vào đây
+define('KAJABI_BASE_URL',      'https://kajabi.com/api/v1');
 
 // ── Kết nối DB ───────────────────────────────────────────────────────────────
 $db_host = 'localhost';
@@ -84,16 +85,38 @@ function get_inactive_tags($last_activity) {
     return $tags;
 }
 
+// ── Lấy OAuth2 access token từ Kajabi ────────────────────────────────────────
+function kajabi_get_token() {
+    $ctx = stream_context_create(['http' => [
+        'method'        => 'POST',
+        'header'        => "Content-Type: application/x-www-form-urlencoded\r\nAccept: application/json",
+        'content'       => http_build_query([
+            'grant_type'    => 'client_credentials',
+            'client_id'     => KAJABI_CLIENT_ID,
+            'client_secret' => KAJABI_CLIENT_SECRET,
+        ]),
+        'ignore_errors' => true,
+        'timeout'       => 15,
+    ]]);
+    $res  = @file_get_contents('https://kajabi.com/oauth/token', false, $ctx);
+    $data = json_decode($res ?: '{}', true);
+    if (empty($data['access_token'])) {
+        error_log('[RNI Kajabi] Không lấy được token: ' . $res);
+        return null;
+    }
+    return $data['access_token'];
+}
+
 // ── Hàm gọi Kajabi API ───────────────────────────────────────────────────────
-function kajabi_request($method, $path, $body = null) {
-    $url = KAJABI_BASE_URL . $path;
+function kajabi_request($method, $path, $body = null, $token = '') {
+    $url  = KAJABI_BASE_URL . $path;
     $opts = [
         'http' => [
             'method'        => $method,
             'header'        => implode("\r\n", [
                 'Content-Type: application/json',
                 'Accept: application/json',
-                'X-Kajabi-Key: ' . KAJABI_API_KEY,
+                'Authorization: Bearer ' . $token,
             ]),
             'ignore_errors' => true,
             'timeout'       => 15,
@@ -113,26 +136,34 @@ function kajabi_request($method, $path, $body = null) {
 }
 
 // Tìm person trên Kajabi theo email
-function kajabi_find_person($email) {
-    $res = kajabi_request('GET', '/people?email=' . urlencode($email));
+function kajabi_find_person($email, $token) {
+    $res = kajabi_request('GET', '/people?email=' . urlencode($email), null, $token);
     if ($res['code'] === 200 && !empty($res['body']['people'][0])) {
         return $res['body']['people'][0];
     }
     return null;
 }
 
-// Gán tags cho person (thêm vào, không xoá tags cũ)
-function kajabi_add_tags($person_id, array $tags) {
-    return kajabi_request('POST', "/people/{$person_id}/tags", ['tags' => $tags]);
+// Gán tags cho person
+function kajabi_add_tags($person_id, array $tags, $token) {
+    return kajabi_request('POST', "/people/{$person_id}/tags", ['tags' => $tags], $token);
 }
 
-// Xoá các tag RNI cũ trước khi gán lại (để tránh tag cũ tích luỹ)
-function kajabi_remove_rni_tags($person_id) {
+// Xoá các tag RNI cũ trước khi gán lại
+function kajabi_remove_rni_tags($person_id, $token) {
     $all_rni_tags = [
         'rni-xong-quiz-chua-hoc', 'rni-dang-hoc', 'rni-hoan-thanh',
         'rni-inactive-1d', 'rni-inactive-2d', 'rni-inactive-4d', 'rni-inactive-7d',
     ];
-    return kajabi_request('DELETE', "/people/{$person_id}/tags", ['tags' => $all_rni_tags]);
+    return kajabi_request('DELETE', "/people/{$person_id}/tags", ['tags' => $all_rni_tags], $token);
+}
+
+// ── Lấy token trước khi đồng bộ ─────────────────────────────────────────────
+$token = kajabi_get_token();
+if (!$token) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Không lấy được Kajabi access token. Kiểm tra lại API Key và Secret.']);
+    exit;
 }
 
 // ── Đồng bộ từng học viên ────────────────────────────────────────────────────
@@ -149,7 +180,7 @@ foreach ($users as $u) {
     }
 
     // Tìm người dùng trên Kajabi
-    $person = kajabi_find_person($email);
+    $person = kajabi_find_person($email, $token);
     if (!$person) {
         $results['not_found']++;
         $not_found_emails[] = $email;
@@ -159,7 +190,7 @@ foreach ($users as $u) {
     $person_id = $person['id'];
 
     // Xoá tags RNI cũ
-    kajabi_remove_rni_tags($person_id);
+    kajabi_remove_rni_tags($person_id, $token);
 
     // Tính tags mới
     $group = get_group($u);
@@ -168,7 +199,7 @@ foreach ($users as $u) {
     $new_tags = array_merge($new_tags, $inactive_tags);
 
     // Gán tags mới
-    $res = kajabi_add_tags($person_id, $new_tags);
+    $res = kajabi_add_tags($person_id, $new_tags, $token);
     if ($res['code'] >= 200 && $res['code'] < 300) {
         $results['synced']++;
     } else {

@@ -243,22 +243,18 @@ try {
 
     $fn_group = function($r) {
         $pct = (int)$r['max_pct'];
-        $days = (time() - strtotime($r['last_activity'])) / 86400;
-        if ($pct >= 100)                                   return 'hoan_thanh';
-        if ((int)$r['has_lesson'] > 0 && $pct > 0 && $days <= 7) return 'dang_hoc';
-        if ((int)$r['has_lesson'] > 0 && $pct > 0 && $days > 7)  return 'bo_do';
+        if ($pct >= 100)                              return 'hoan_thanh';
+        if ((int)$r['has_lesson'] > 0 && $pct > 0)   return 'dang_hoc';
         return 'chua_hoc';
     };
     $group_labels = [
         'chua_hoc'   => 'Xong quiz, chưa học',
         'dang_hoc'   => 'Đang học',
-        'bo_do'      => 'Bỏ dở',
         'hoan_thanh' => 'Hoàn thành',
     ];
     $group_colors = [
         'chua_hoc'   => ['bg'=>'#faf5ff','color'=>'#553c9a'],
         'dang_hoc'   => ['bg'=>'#ebf8ff','color'=>'#2b6cb0'],
-        'bo_do'      => ['bg'=>'#fffaf0','color'=>'#c05621'],
         'hoan_thanh' => ['bg'=>'#f0fff4','color'=>'#276749'],
     ];
     $group_counts = array_fill_keys(array_keys($group_labels), 0);

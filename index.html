@@ -1843,6 +1843,13 @@ async function registerPush(userEmail, onBlocked, onIosNotPwa){
         user_email:userEmail})});
   }catch(e){console.warn('[RNI push]',e);}
 }
+function shouldShowPushPrompt(){
+  if(typeof Notification==='undefined'||Notification.permission==='granted')return false;
+  try{const n=parseInt(localStorage.getItem('rni-push-asked')||'0');return n<2;}catch{return false;}
+}
+function incPushPromptCount(){
+  try{const n=parseInt(localStorage.getItem('rni-push-asked')||'0');localStorage.setItem('rni-push-asked',n+1);}catch{}
+}
 function LessonComments({lessonId}){
   const userEmail=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
   const userName=localStorage.getItem('rni-name')||localStorage.getItem('rni-pre-name')||'Học viên';
@@ -3154,6 +3161,7 @@ function App(){
   const [showWelcomeBack,setShowWelcomeBack]=useState(false);
   const [isAdmin,setIsAdmin]=useState(false);
   const [pushBlocked,setPushBlocked]=useState(false);
+  const [showPushPrompt,setShowPushPrompt]=useState(false);
 
   useEffect(()=>{window.scrollTo(0,0);},[screen]);
   useEffect(()=>{try{localStorage.setItem('rni-progress',JSON.stringify(progress));}catch{}},[progress]);
@@ -3288,9 +3296,14 @@ if(n&&c&&isReturning){
         setProgress(p=>({...serverP,...p}));
       }
     });
-    setTimeout(()=>registerPush(preE,()=>setPushBlocked(true),()=>setShowIosPrompt(true)),2000);
   }
-  setScreen('dashboard');
+  if(preE&&shouldShowPushPrompt()){
+    incPushPromptCount();
+    setShowPushPrompt(true);
+  }else{
+    if(preE)setTimeout(()=>registerPush(preE,()=>setPushBlocked(true),()=>setShowIosPrompt(true)),2000);
+    setScreen('dashboard');
+  }
 };
   if(showWelcomeBack)return(
   <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
@@ -3344,6 +3357,37 @@ if(n&&c&&isReturning){
     </div>
   </div>
 );
+  if(showPushPrompt){
+  const _pEmail=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
+  const _isIos=isIosSafari()&&!isInStandaloneMode();
+  return(
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+    <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center bounce-in">
+      <div className="text-4xl mb-3">🔔</div>
+      <h3 className="font-heading font-black text-lg text-gray-900 mb-2">Nhận nhắc lịch học mỗi ngày</h3>
+      <p className="text-gray-500 text-sm leading-relaxed mb-4">Mỗi ngày trưa và tối, tôi sẽ nhẹ nhàng nhắc bạn ghé thăm bài học — để hành trình không bị gián đoạn.</p>
+      {_isIos?(
+        <div className="bg-amber-50 rounded-xl p-3 mb-4 text-left text-xs text-amber-800 space-y-1">
+          <p className="font-semibold mb-1">📲 Trên iPhone/iPad:</p>
+          <p>① Nhấn <b>⎋ Chia sẻ</b> ở thanh dưới Safari</p>
+          <p>② Chọn <b>"Thêm vào màn hình chính"</b></p>
+          <p>③ Mở lại app từ màn hình chính → thông báo tự bật</p>
+        </div>
+      ):(
+        <div className="bg-blue-50 rounded-xl p-3 mb-4 text-left text-xs text-blue-800">
+          <p>Nhấn <b>"Bật thông báo"</b> bên dưới → trình duyệt hỏi xác nhận → chọn <b>"Cho phép"</b> là xong.</p>
+        </div>
+      )}
+      <button onClick={()=>{setShowPushPrompt(false);setScreen('dashboard');if(_pEmail)registerPush(_pEmail,()=>setPushBlocked(true),()=>setShowIosPrompt(true));}} className="w-full py-3 rounded-xl text-white font-semibold text-sm mb-2 pulse-glow" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+        🔔 Bật thông báo
+      </button>
+      <button onClick={()=>{setShowPushPrompt(false);setScreen('dashboard');}} className="w-full py-2.5 rounded-xl text-gray-400 text-sm">
+        Thôi, để sau
+      </button>
+    </div>
+  </div>
+  );
+  }
   if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('quizTransition')} onAdminLogin={n=>{setUserName(n);setIsAdmin(true);setScreen('adminPicker');}} onReturn={handleReturn}/>;
   if(screen==='adminPicker')return <AdminCoursePicker userName={userName} onPick={id=>{setCourseId(id);setScreen('dashboard');}}/>;
   if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('preQuiz')}/>;

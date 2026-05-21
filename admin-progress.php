@@ -399,6 +399,7 @@ tr:hover td{background:#fafbff}
     <select onchange="applyGroupFilter();" id="gf-days">
       <option value="0">— Tất cả —</option>
       <option value="-1"<?= $filter_days===-1?' selected':'' ?>>Trong 1 ngày qua</option>
+      <option value="1"<?= $filter_days===1?' selected':'' ?>>Hơn 1 ngày</option>
       <option value="2"<?= $filter_days===2?' selected':'' ?>>Hơn 2 ngày</option>
       <option value="4"<?= $filter_days===4?' selected':'' ?>>Hơn 4 ngày</option>
       <option value="7"<?= $filter_days===7?' selected':'' ?>>Hơn 7 ngày</option>

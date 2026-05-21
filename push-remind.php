@@ -61,7 +61,15 @@ try {
     exit;
 }
 
-$subs = $pdo->query("SELECT * FROM push_subscriptions")->fetchAll(PDO::FETCH_ASSOC);
+// Bỏ qua học viên đã hoàn thành khoá học (progress_pct = 100)
+$subs = $pdo->query("
+    SELECT ps.* FROM push_subscriptions ps
+    WHERE ps.user_email = ''
+       OR ps.user_email NOT IN (
+           SELECT DISTINCT email FROM user_progress_v2
+           WHERE progress_pct >= 100
+       )
+")->fetchAll(PDO::FETCH_ASSOC);
 
 $ok = 0; $fail = 0; $expired = [];
 

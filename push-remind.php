@@ -65,7 +65,7 @@ try {
 $subs = $pdo->query("
     SELECT ps.* FROM push_subscriptions ps
     WHERE ps.user_email = ''
-       OR ps.user_email NOT IN (
+       OR ps.user_email COLLATE utf8mb4_unicode_ci NOT IN (
            SELECT DISTINCT email FROM user_progress_v2
            WHERE progress_pct >= 100
        )

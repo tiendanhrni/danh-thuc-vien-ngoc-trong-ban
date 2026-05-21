@@ -1805,6 +1805,9 @@ function isIosSafari(){
   const ua=navigator.userAgent;
   return /iP(hone|ad|od)/.test(ua)&&/WebKit/.test(ua)&&!/CriOS|FxiOS|OPiOS|EdgiOS/.test(ua);
 }
+function isIos(){
+  return /iP(hone|ad|od)/.test(navigator.userAgent);
+}
 function isInStandaloneMode(){
   return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 }
@@ -3359,7 +3362,7 @@ if(n&&c&&isReturning){
 );
   if(showPushPrompt){
   const _pEmail=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
-  const _isIos=isIosSafari()&&!isInStandaloneMode();
+  const _isIos=isIos()&&!isInStandaloneMode();
   return(
   <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
     <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center bounce-in">
@@ -3369,9 +3372,10 @@ if(n&&c&&isReturning){
       {_isIos?(
         <div className="bg-amber-50 rounded-xl p-3 mb-4 text-left text-xs text-amber-800 space-y-1">
           <p className="font-semibold mb-1">📲 Trên iPhone/iPad:</p>
-          <p>① Nhấn <b>⎋ Chia sẻ</b> ở thanh dưới Safari</p>
+          {!isIosSafari()&&<p className="text-amber-700 mb-1">⚠️ Chrome/Firefox trên iPhone không hỗ trợ thông báo. Vui lòng mở trang bằng <b>Safari</b> trước.</p>}
+          <p>① Mở trang bằng <b>Safari</b> → nhấn <b>⎋ Chia sẻ</b></p>
           <p>② Chọn <b>"Thêm vào màn hình chính"</b></p>
-          <p>③ Mở lại app từ màn hình chính → thông báo tự bật</p>
+          <p>③ Mở lại app từ icon đó → thông báo tự bật</p>
         </div>
       ):(
         <div className="bg-blue-50 rounded-xl p-3 mb-4 text-left text-xs text-blue-800">

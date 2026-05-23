@@ -1568,28 +1568,21 @@ function PracticeBox({practice,lessonId}){
 }
 
 /* ─── CHAT BUTTON ──────────────────────────────────────────────── */
-/* TẠM ẨN: chatbot đang lỗi, sẽ bật lại sau khi sửa xong */
-function ChatButton(){ return null; }
-function ChatButton_DISABLED(){
-  const [open,setOpen]=useState(false);
+const NOTEBOOK_URL='https://notebooklm.google.com/notebook/c89aedea-4f7a-4fb9-be3f-f10aed45d871/preview';
+function openNotebookLM(){
+  const w=420,h=680;
+  const left=Math.max(0,window.screen.width-w-20);
+  const top=Math.max(0,window.screen.height-h-60);
+  window.open(NOTEBOOK_URL,'notebooklm_chat',`width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+}
+function ChatButton(){
   return(
-    <>
-      <div className="chat-bubble">
-        <button onClick={()=>setOpen(!open)} className="flex items-center gap-2 text-white font-semibold text-sm px-4 py-3 rounded-full shadow-xl transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
-          <span className="text-lg">{open?'✕':'💬'}</span>
-          {!open&&<span className="hidden sm:inline text-xs">Hỏi đáp về bài học</span>}
-        </button>
-      </div>
-      {open&&(
-        <div className="fixed bottom-20 right-4 z-50 w-[340px] h-[500px] rounded-2xl shadow-2xl overflow-hidden border border-gray-200 zalo-popup" style={{maxWidth:'calc(100vw - 32px)'}}>
-          <div className="flex items-center justify-between bg-rni-600 px-4 py-3">
-            <div className="flex items-center gap-2"><span className="text-white text-sm">💬</span><p className="text-white font-semibold text-sm">Hỏi đáp về bài học tại đây</p></div>
-            <button onClick={()=>setOpen(false)} className="text-white opacity-70 hover:opacity-100 text-lg">✕</button>
-          </div>
-          <iframe src="https://udify.app/chatbot/iRRHff5wqLnKt2ct" style={{width:'100%',height:'calc(100% - 48px)',border:'none'}} allow="microphone"/>
-        </div>
-      )}
-    </>
+    <div className="chat-bubble">
+      <button onClick={openNotebookLM} title="Cần tài khoản Google để sử dụng" className="flex items-center gap-2 text-white font-semibold text-sm px-4 py-3 rounded-full shadow-xl transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+        <span className="text-lg">💬</span>
+        <span className="hidden sm:inline text-xs">Hỏi đáp về bài học</span>
+      </button>
+    </div>
   );
 }
 // Curiosity upsell pool — nằm ngoài component để không bị re-create
@@ -2225,10 +2218,10 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
                     <div className="text-center text-white"><p className="text-sm font-medium opacity-70">Video sẽ sớm ra mắt</p><p className="text-xs opacity-40 mt-1">Đang trong quá trình sản xuất</p></div>
                   </div>
                 )}
-                {/* ask chatbot — TẠM ẨN */}
-                {/* <button onClick={()=>document.querySelector('.chat-bubble button')?.click()} className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-rni-200 rounded-2xl py-3 text-rni-600 font-semibold text-sm hover:bg-rni-50 transition-all">
+                {/* ask chatbot — NotebookLM */}
+                <button onClick={openNotebookLM} className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-rni-200 rounded-2xl py-3 text-rni-600 font-semibold text-sm hover:bg-rni-50 transition-all">
                   💬 Hỏi đáp thêm về bài học tại đây →
-                </button> */}
+                </button>
                 {/* simple: just complete */}
                 {isSimple&&(!isDone||isAdmin)&&(
                   <button onClick={handleComplete} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,#9b1106,${accent}cc)`}}>

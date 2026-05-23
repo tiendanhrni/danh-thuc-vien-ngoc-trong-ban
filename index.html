@@ -1865,7 +1865,7 @@ function shouldShowPushPrompt(){
 function incPushPromptCount(){
   try{const n=parseInt(localStorage.getItem('rni-push-asked')||'0');localStorage.setItem('rni-push-asked',n+1);}catch{}
 }
-function LessonComments({lessonId}){
+function LessonComments({lessonId,isAdmin=false}){
   const userEmail=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
   const userName=localStorage.getItem('rni-name')||localStorage.getItem('rni-pre-name')||'Học viên';
   const PER_PAGE=10;
@@ -1955,7 +1955,7 @@ function LessonComments({lessonId}){
   const avatarColor=(email)=>avatarColors[Math.abs(email.split('').reduce((a,c)=>a+c.charCodeAt(0),0))%avatarColors.length];
 
   function CommentItem({c,isReply=false}){
-    const isOwner=userEmail&&c.user_email===userEmail;
+    const isOwner=(userEmail&&c.user_email===userEmail)||isAdmin;
     const [editing,setEditing]=React.useState(false);
     const [editVal,setEditVal]=React.useState(c.content);
     const saveEdit=async()=>{
@@ -2349,7 +2349,7 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
             )}
 
                         {/* Bình luận bài học */}
-            <LessonComments lessonId={lesson.id}/>
+            <LessonComments lessonId={lesson.id} isAdmin={isAdmin}/>
 
             {/* Share block */}
             <div className="mt-6 bg-white rounded-2xl border border-gray-100 px-5 py-5">

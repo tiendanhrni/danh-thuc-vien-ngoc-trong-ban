@@ -1568,7 +1568,9 @@ function PracticeBox({practice,lessonId}){
 }
 
 /* ─── CHAT BUTTON ──────────────────────────────────────────────── */
-function ChatButton(){
+/* TẠM ẨN: chatbot đang lỗi, sẽ bật lại sau khi sửa xong */
+function ChatButton(){ return null; }
+function ChatButton_DISABLED(){
   const [open,setOpen]=useState(false);
   return(
     <>
@@ -2223,10 +2225,10 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
                     <div className="text-center text-white"><p className="text-sm font-medium opacity-70">Video sẽ sớm ra mắt</p><p className="text-xs opacity-40 mt-1">Đang trong quá trình sản xuất</p></div>
                   </div>
                 )}
-                {/* ask chatbot */}
-                <button onClick={()=>document.querySelector('.chat-bubble button')?.click()} className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-rni-200 rounded-2xl py-3 text-rni-600 font-semibold text-sm hover:bg-rni-50 transition-all">
+                {/* ask chatbot — TẠM ẨN */}
+                {/* <button onClick={()=>document.querySelector('.chat-bubble button')?.click()} className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-rni-200 rounded-2xl py-3 text-rni-600 font-semibold text-sm hover:bg-rni-50 transition-all">
                   💬 Hỏi đáp thêm về bài học tại đây →
-                </button>
+                </button> */}
                 {/* simple: just complete */}
                 {isSimple&&(!isDone||isAdmin)&&(
                   <button onClick={handleComplete} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,#9b1106,${accent}cc)`}}>

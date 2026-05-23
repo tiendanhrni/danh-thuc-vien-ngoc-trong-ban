@@ -1568,7 +1568,9 @@ function PracticeBox({practice,lessonId}){
 }
 
 /* ─── CHAT BUTTON ──────────────────────────────────────────────── */
-function ChatButton(){
+/* TẠM ẨN: chatbot đang lỗi, sẽ bật lại sau khi sửa xong */
+function ChatButton(){ return null; }
+function ChatButton_DISABLED(){
   const [open,setOpen]=useState(false);
   return(
     <>
@@ -1863,7 +1865,7 @@ function shouldShowPushPrompt(){
 function incPushPromptCount(){
   try{const n=parseInt(localStorage.getItem('rni-push-asked')||'0');localStorage.setItem('rni-push-asked',n+1);}catch{}
 }
-function LessonComments({lessonId}){
+function LessonComments({lessonId,isAdmin=false}){
   const userEmail=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
   const userName=localStorage.getItem('rni-name')||localStorage.getItem('rni-pre-name')||'Học viên';
   const PER_PAGE=10;
@@ -1953,7 +1955,7 @@ function LessonComments({lessonId}){
   const avatarColor=(email)=>avatarColors[Math.abs(email.split('').reduce((a,c)=>a+c.charCodeAt(0),0))%avatarColors.length];
 
   function CommentItem({c,isReply=false}){
-    const isOwner=userEmail&&c.user_email===userEmail;
+    const isOwner=(userEmail&&c.user_email===userEmail)||isAdmin;
     const [editing,setEditing]=React.useState(false);
     const [editVal,setEditVal]=React.useState(c.content);
     const saveEdit=async()=>{
@@ -2223,10 +2225,10 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
                     <div className="text-center text-white"><p className="text-sm font-medium opacity-70">Video sẽ sớm ra mắt</p><p className="text-xs opacity-40 mt-1">Đang trong quá trình sản xuất</p></div>
                   </div>
                 )}
-                {/* ask chatbot */}
-                <button onClick={()=>document.querySelector('.chat-bubble button')?.click()} className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-rni-200 rounded-2xl py-3 text-rni-600 font-semibold text-sm hover:bg-rni-50 transition-all">
+                {/* ask chatbot — TẠM ẨN */}
+                {/* <button onClick={()=>document.querySelector('.chat-bubble button')?.click()} className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-rni-200 rounded-2xl py-3 text-rni-600 font-semibold text-sm hover:bg-rni-50 transition-all">
                   💬 Hỏi đáp thêm về bài học tại đây →
-                </button>
+                </button> */}
                 {/* simple: just complete */}
                 {isSimple&&(!isDone||isAdmin)&&(
                   <button onClick={handleComplete} className="w-full py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95" style={{background:`linear-gradient(135deg,#9b1106,${accent}cc)`}}>
@@ -2347,7 +2349,7 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
             )}
 
                         {/* Bình luận bài học */}
-            <LessonComments lessonId={lesson.id}/>
+            <LessonComments lessonId={lesson.id} isAdmin={isAdmin}/>
 
             {/* Share block */}
             <div className="mt-6 bg-white rounded-2xl border border-gray-100 px-5 py-5">

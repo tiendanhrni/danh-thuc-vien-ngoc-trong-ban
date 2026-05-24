@@ -83,6 +83,7 @@ body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:#fdfbf7;color:
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .zalo-popup{animation:zaloSlide .4s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes zaloSlide{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 .chat-bubble{position:fixed;bottom:20px;right:16px;z-index:50}
 .upsell-card img{transition:transform .3s ease}
 .upsell-card:hover img{transform:scale(1.04)}
@@ -2110,6 +2111,7 @@ function MatchingGame({quiz,onComplete}){
   
 /* ─── LESSON COMMENTS ──────────────────────────────────────────── */
 const COMMENTS_API='https://thuvien.rni.vn/comments.php';
+const AI_SUMMARY_API='https://thuvien.rni.vn/ai-summary.php';
 const PUSH_SUBSCRIBE_API='https://thuvien.rni.vn/push-subscribe.php';
 const VAPID_PUBLIC_KEY='BH6-XOsyTWZG-ebLHimL-6-0OqhcEs0nTI9FRVoS4fF_zCw9vi48BtsSOr0Nit-X3d4JkR1DJ_ZVjKcwbSMaWLc';
 
@@ -2415,6 +2417,112 @@ function LessonComments({lessonId,isAdmin=false}){
 }
 
 /* ─── LESSON VIEW ──────────────────────────────────────────────── */
+/* ─── AI SUMMARY BOX ─────────────────────────────────────────────── */
+function AiSummaryBox({lesson,accent}){
+  const cacheKey='rni-ai-'+lesson.id;
+  const [open,setOpen]=useState(false);
+  const [status,setStatus]=useState('idle');
+  const [data,setData]=useState(null);
+  const [activeTopic,setActiveTopic]=useState(null);
+  const [explanation,setExplanation]=useState('');
+  const [explLoading,setExplLoading]=useState(false);
+
+  const load=async()=>{
+    if(!open){setOpen(true);}
+    if(data||status==='loading')return;
+    try{const cached=localStorage.getItem(cacheKey);if(cached){setData(JSON.parse(cached));setStatus('done');return;}}catch{}
+    setStatus('loading');
+    try{
+      const quizCtx=(lesson.quiz||[]).filter(q=>q.q).slice(0,5);
+      const res=await fetch(AI_SUMMARY_API,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'summary',title:lesson.title,desc:lesson.desc||'',quiz:quizCtx,practice:lesson.practice?.prompt||''})});
+      const json=await res.json();
+      if(json.summary&&json.topics){setData(json);setStatus('done');try{localStorage.setItem(cacheKey,JSON.stringify(json));}catch{}}
+      else setStatus('error');
+    }catch{setStatus('error');}
+  };
+
+  const explain=async(topic)=>{
+    if(activeTopic===topic.title){setActiveTopic(null);setExplanation('');return;}
+    setActiveTopic(topic.title);setExplanation('');setExplLoading(true);
+    try{
+      const res=await fetch(AI_SUMMARY_API,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'explain',title:lesson.title,desc:lesson.desc||'',quiz:(lesson.quiz||[]).filter(q=>q.q).slice(0,5),topic:topic.title})});
+      const json=await res.json();
+      setExplanation(json.explanation||'Không thể tải. Vui lòng thử lại.');
+    }catch{setExplanation('Không thể tải. Vui lòng thử lại.');}
+    finally{setExplLoading(false);}
+  };
+
+  const accentCol=accent||'#9b1106';
+
+  return(
+    <div className="rounded-2xl overflow-hidden border border-indigo-100 bg-white shadow-sm">
+      <button onClick={load} className="w-full px-5 py-4 flex items-center gap-3 text-left hover:bg-indigo-50 transition-colors">
+        <span className="text-xl">✨</span>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-gray-800">AI Tóm Tắt Bài Học</p>
+          <p className="text-xs text-gray-400">Nắm key insights trong 1 phút · Hỏi đáp chủ đề bất kỳ</p>
+        </div>
+        <span className="text-gray-300 text-xs">{open?'▲':'▼'}</span>
+      </button>
+      {open&&(
+        <div className="border-t border-indigo-50 px-5 pb-5 fade-in">
+          {status==='loading'&&(
+            <div className="py-8 text-center">
+              <div className="inline-block w-6 h-6 border-2 border-indigo-200 border-t-indigo-500 rounded-full" style={{animation:'spin 0.8s linear infinite'}}/>
+              <p className="text-xs text-gray-400 mt-2">AI đang tổng hợp bài học...</p>
+            </div>
+          )}
+          {status==='error'&&(
+            <div className="py-4 text-center">
+              <p className="text-xs text-gray-400">Không thể tải. <button onClick={()=>{setStatus('idle');load();}} className="text-indigo-500 underline">Thử lại</button></p>
+            </div>
+          )}
+          {status==='done'&&data&&(
+            <>
+              <div className="mt-4 bg-indigo-50 rounded-xl px-4 py-3 mb-4">
+                <p className="text-xs font-bold text-indigo-600 mb-1">📝 Tóm tắt nhanh</p>
+                <p className="text-sm text-gray-700 leading-relaxed">{data.summary}</p>
+              </div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Chọn chủ đề để khám phá sâu hơn</p>
+              <div className="space-y-2">
+                {(data.topics||[]).map((t,i)=>(
+                  <div key={i}>
+                    <button onClick={()=>explain(t)}
+                      className={`w-full rounded-xl p-3 text-left transition-all border-2 ${activeTopic===t.title?'border-indigo-300 bg-indigo-50':'border-transparent bg-gray-50 hover:bg-indigo-50 hover:border-indigo-100'}`}>
+                      <div className="flex items-start gap-2">
+                        <span className="text-lg flex-shrink-0">{t.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-gray-800 leading-snug">{t.title}</p>
+                          <p className="text-xs text-gray-500 mt-0.5 leading-snug">{t.hook}</p>
+                        </div>
+                        <span className="text-gray-300 text-xs flex-shrink-0 mt-0.5">{activeTopic===t.title?'▲':'▼'}</span>
+                      </div>
+                    </button>
+                    {activeTopic===t.title&&(
+                      <div className="mt-1 ml-3 pl-3 border-l-2 border-indigo-200 fade-in">
+                        {explLoading?(
+                          <div className="py-3 flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-indigo-200 border-t-indigo-500 rounded-full flex-shrink-0" style={{animation:'spin 0.8s linear infinite'}}/>
+                            <p className="text-xs text-gray-400">Đang giải đáp...</p>
+                          </div>
+                        ):(
+                          <p className="text-sm text-gray-600 leading-relaxed py-3 whitespace-pre-wrap">{explanation}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
   const [tab,setTab]=useState('video');
   const [tabsUnlocked,setTabsUnlocked]=useState(false);// tabs chỉ hiện sau khi bấm "Tiếp theo"
@@ -2516,6 +2624,7 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
                     <p className="text-gray-600 text-sm leading-relaxed">{lesson.desc}</p>
                   </div>
                 )}
+                <AiSummaryBox lesson={lesson} accent={accent}/>
                 {/* multiple videos support */}
                 {lesson.videos?(
                   <div className="space-y-4">

@@ -2433,7 +2433,7 @@ function AiSummaryBox({lesson,accent}){
     try{const cached=localStorage.getItem(cacheKey);if(cached){setData(JSON.parse(cached));setStatus('done');return;}}catch{}
     setStatus('loading');
     try{
-      const quizCtx=(lesson.quiz||[]).filter(q=>q.q).slice(0,5);
+      const quizCtx=(lesson.quiz||[]).filter(q=>q.q).slice(0,5).map(q=>({q:q.q,answer:q.opts?.[q.correct]||''}));
       const res=await fetch(AI_SUMMARY_API,{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'summary',title:lesson.title,desc:lesson.desc||'',quiz:quizCtx,practice:lesson.practice?.prompt||''})});
       const json=await res.json();
@@ -2447,7 +2447,7 @@ function AiSummaryBox({lesson,accent}){
     setActiveTopic(topic.title);setExplanation('');setExplLoading(true);
     try{
       const res=await fetch(AI_SUMMARY_API,{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'explain',title:lesson.title,desc:lesson.desc||'',quiz:(lesson.quiz||[]).filter(q=>q.q).slice(0,5),topic:topic.title})});
+        body:JSON.stringify({action:'explain',title:lesson.title,desc:lesson.desc||'',quiz:(lesson.quiz||[]).filter(q=>q.q).slice(0,5).map(q=>({q:q.q,answer:q.opts?.[q.correct]||''})),topic:topic.title})});
       const json=await res.json();
       setExplanation(json.explanation||'Không thể tải. Vui lòng thử lại.');
     }catch{setExplanation('Không thể tải. Vui lòng thử lại.');}

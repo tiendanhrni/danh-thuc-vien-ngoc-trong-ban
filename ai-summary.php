@@ -21,11 +21,15 @@ if (!$API_KEY) {
     exit;
 }
 
-// Build quiz context from question list
+// Build quiz context: câu hỏi + đáp án đúng = những điểm dạy cốt lõi từ video
 $quizLines = '';
 foreach ($quiz as $q) {
     if (!empty($q['q'])) {
-        $quizLines .= "• {$q['q']}\n";
+        $quizLines .= "Câu hỏi: {$q['q']}\n";
+        if (!empty($q['answer'])) {
+            $quizLines .= "Đáp án: {$q['answer']}\n";
+        }
+        $quizLines .= "\n";
     }
 }
 

@@ -79,7 +79,8 @@ Yêu cầu:
 - Chỉ trả JSON, không có markdown hay code block
 PROMPT;
 
-    $result = callClaude($API_KEY, $prompt, 900);
+    $system = 'Bạn là trợ lý AI của Học Viện RNI. Bạn CHỈ được trả lời bằng JSON hợp lệ, không có text hay markdown nào khác. Nếu nội dung bài học còn ít, hãy tạo nội dung phù hợp dựa trên tiêu đề.';
+    $result = callClaude($API_KEY, $prompt, 900, $system);
     $rawText = $result['text'] ?? '';
     $json = extractJson($rawText);
     if ($json) {
@@ -221,12 +222,14 @@ function httpGet(string $url, array $headers = []): string {
 // Claude API
 // ════════════════════════════════════════════════════════════════════
 
-function callClaude(string $apiKey, string $prompt, int $maxTokens): array {
-    $payload = json_encode([
+function callClaude(string $apiKey, string $prompt, int $maxTokens, string $system = ''): array {
+    $body = [
         'model'      => 'claude-haiku-4-5-20251001',
         'max_tokens' => $maxTokens,
         'messages'   => [['role' => 'user', 'content' => $prompt]],
-    ]);
+    ];
+    if ($system) $body['system'] = $system;
+    $payload = json_encode($body);
 
     $ch = curl_init('https://api.anthropic.com/v1/messages');
     curl_setopt_array($ch, [

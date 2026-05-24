@@ -13,6 +13,7 @@ $desc     = trim($input['desc']     ?? '');
 $quiz     = $input['quiz']     ?? [];
 $practice = trim($input['practice'] ?? '');
 $topic    = trim($input['topic']    ?? '');
+$videoId  = trim($input['videoId']  ?? '');
 
 $API_KEY = getenv('ANTHROPIC_API_KEY');
 if (!$API_KEY) {
@@ -21,7 +22,10 @@ if (!$API_KEY) {
     exit;
 }
 
-// Build quiz context: câu hỏi + đáp án đúng = những điểm dạy cốt lõi từ video
+// ── Lấy transcript YouTube ──────────────────────────────────────────
+$transcript = $videoId ? fetchYouTubeTranscript($videoId) : '';
+
+// ── Build quiz context (fallback khi không có transcript) ───────────
 $quizLines = '';
 foreach ($quiz as $q) {
     if (!empty($q['q'])) {
@@ -33,14 +37,28 @@ foreach ($quiz as $q) {
     }
 }
 
+// ── Build content context ────────────────────────────────────────────
+if ($transcript) {
+    // Giới hạn ~6000 ký tự (~10-15 phút nói)
+    $transcriptTrunc = mb_substr($transcript, 0, 6000, 'UTF-8');
+    if (mb_strlen($transcript, 'UTF-8') > 6000) $transcriptTrunc .= '...';
+    $contentContext = "Transcript video bài giảng:\n{$transcriptTrunc}";
+    $sourceNote = 'transcript';
+} else {
+    $contentContext = "Câu hỏi & đáp án trắc nghiệm (phản ánh nội dung bài):\n{$quizLines}";
+    $sourceNote = 'quiz';
+}
+
+// ── Actions ──────────────────────────────────────────────────────────
 if ($action === 'summary') {
     $prompt = <<<PROMPT
 Bạn là trợ lý học tập của Học Viện RNI — nền tảng phát triển bản thân theo triết lý Return · Nurture · Illuminate của Ruby Nguyen.
 
 Bài học: {$title}
 Mô tả: {$desc}
-Câu hỏi trắc nghiệm chính (phản ánh nội dung bài):
-{$quizLines}
+
+{$contentContext}
+
 Bài thực hành: {$practice}
 
 Trả về JSON theo đúng cấu trúc sau (chỉ JSON, không có text thừa):
@@ -56,14 +74,19 @@ Trả về JSON theo đúng cấu trúc sau (chỉ JSON, không có text thừa)
 
 Yêu cầu:
 - summary: chính xác với nội dung bài, không bịa đặt
-- topics: 4 chủ đề sâu sắc, liên quan trực tiếp bài học, đặt câu hỏi kích thích suy nghĩ
+- topics: 4 chủ đề sâu sắc từ nội dung thực tế, kích thích suy nghĩ
 - Tiếng Việt thuần, giọng mentor đồng hành, ấm áp
 - Chỉ trả JSON, không có markdown hay code block
 PROMPT;
 
-    $result = callClaude($API_KEY, $prompt, 800);
+    $result = callClaude($API_KEY, $prompt, 900);
     $json = extractJson($result['text'] ?? '');
-    echo $json ? json_encode($json, JSON_UNESCAPED_UNICODE) : json_encode(['error' => 'parse_error']);
+    if ($json) {
+        $json['source'] = $sourceNote;
+        echo json_encode($json, JSON_UNESCAPED_UNICODE);
+    } else {
+        echo json_encode(['error' => 'parse_error']);
+    }
 
 } else {
     // explain action
@@ -74,22 +97,127 @@ Bạn là trợ lý học tập của Học Viện RNI — nền tảng phát tr
 
 Bài học: {$title}
 Mô tả: {$desc}
-Câu hỏi trắc nghiệm chính:
-{$quizLines}
+
+{$contentContext}
 
 Học viên muốn hiểu sâu hơn về chủ đề: "{$topic}"
 
 Hãy giải đáp theo cách:
 - Sâu sắc, ngắn gọn (120-170 từ)
-- Kết nối trực tiếp với nội dung bài và triết lý RNI
+- Dẫn dắt trực tiếp từ nội dung bài giảng thực tế
 - Kết thúc bằng 1 câu hỏi phản chiếu ngắn để học viên tự suy ngẫm
 - Giọng ấm áp như mentor đang trò chuyện trực tiếp
 - Tiếng Việt thuần, không dùng bullet points hay markdown
 PROMPT;
 
-    $result = callClaude($API_KEY, $prompt, 400);
-    echo json_encode(['explanation' => $result['text'] ?? ''], JSON_UNESCAPED_UNICODE);
+    $result = callClaude($API_KEY, $prompt, 450);
+    echo json_encode(['explanation' => $result['text'] ?? '', 'source' => $sourceNote], JSON_UNESCAPED_UNICODE);
 }
+
+// ════════════════════════════════════════════════════════════════════
+// YouTube transcript fetching
+// ════════════════════════════════════════════════════════════════════
+
+function fetchYouTubeTranscript(string $videoId): string {
+    // Phương pháp 1: timedtext API trực tiếp (nhanh, hoạt động cho unlisted)
+    $transcript = tryTimedtextDirect($videoId);
+    if ($transcript) return $transcript;
+
+    // Phương pháp 2: scrape trang watch để lấy URL caption chính xác
+    $transcript = tryTimedtextViaScrape($videoId);
+    return $transcript;
+}
+
+function tryTimedtextDirect(string $videoId): string {
+    $variants = [
+        "https://www.youtube.com/api/timedtext?v={$videoId}&lang=vi&fmt=json3",
+        "https://www.youtube.com/api/timedtext?v={$videoId}&lang=vi&fmt=json3&kind=asr",
+        "https://www.youtube.com/api/timedtext?v={$videoId}&lang=vi-VN&fmt=json3",
+    ];
+    foreach ($variants as $url) {
+        $response = httpGet($url);
+        if ($response) {
+            $data = json_decode($response, true);
+            if (!empty($data['events'])) {
+                return parseTimedtextEvents($data['events']);
+            }
+        }
+    }
+    return '';
+}
+
+function tryTimedtextViaScrape(string $videoId): string {
+    $html = httpGet(
+        "https://www.youtube.com/watch?v={$videoId}",
+        [
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept-Language: vi-VN,vi;q=0.9,en;q=0.8',
+            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        ]
+    );
+    if (!$html) return '';
+
+    // Tìm captionTracks trong ytInitialPlayerResponse
+    if (!preg_match('/"captionTracks":\[(.*?)\](?=[,}])/s', $html, $m)) return '';
+
+    $tracks = json_decode('[' . $m[1] . ']', true) ?: [];
+
+    // Ưu tiên track tiếng Việt
+    $captionUrl = '';
+    foreach ($tracks as $track) {
+        $lang = $track['languageCode'] ?? '';
+        if (in_array($lang, ['vi', 'vi-VN'])) {
+            $captionUrl = html_entity_decode($track['baseUrl'] ?? '');
+            break;
+        }
+    }
+    // Fallback: track đầu tiên
+    if (!$captionUrl && !empty($tracks[0]['baseUrl'])) {
+        $captionUrl = html_entity_decode($tracks[0]['baseUrl']);
+    }
+    if (!$captionUrl) return '';
+
+    $response = httpGet($captionUrl . '&fmt=json3');
+    if (!$response) return '';
+
+    $data = json_decode($response, true);
+    return !empty($data['events']) ? parseTimedtextEvents($data['events']) : '';
+}
+
+function parseTimedtextEvents(array $events): string {
+    $parts = [];
+    foreach ($events as $event) {
+        if (empty($event['segs'])) continue;
+        $line = '';
+        foreach ($event['segs'] as $seg) {
+            $line .= $seg['utf8'] ?? '';
+        }
+        $line = trim(preg_replace('/\s+/', ' ', $line));
+        if ($line && $line !== '') $parts[] = $line;
+    }
+    return implode(' ', $parts);
+}
+
+function httpGet(string $url, array $headers = []): string {
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 12,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS      => 3,
+        CURLOPT_ENCODING       => 'gzip, deflate',
+        CURLOPT_HTTPHEADER     => $headers,
+        CURLOPT_SSL_VERIFYPEER => true,
+    ]);
+    $result = curl_exec($ch);
+    $code   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    return ($code === 200 && $result) ? $result : '';
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Claude API
+// ════════════════════════════════════════════════════════════════════
 
 function callClaude(string $apiKey, string $prompt, int $maxTokens): array {
     $payload = json_encode([
@@ -115,9 +243,7 @@ function callClaude(string $apiKey, string $prompt, int $maxTokens): array {
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if ($code !== 200) {
-        return ['text' => '', 'error' => 'http_' . $code];
-    }
+    if ($code !== 200) return ['text' => '', 'error' => 'http_' . $code];
 
     $data = json_decode($res, true);
     return ['text' => $data['content'][0]['text'] ?? ''];

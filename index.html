@@ -83,6 +83,7 @@ body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:#fdfbf7;color:
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .zalo-popup{animation:zaloSlide .4s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes zaloSlide{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 .chat-bubble{position:fixed;bottom:20px;right:16px;z-index:50}
 .upsell-card img{transition:transform .3s ease}
 .upsell-card:hover img{transform:scale(1.04)}
@@ -201,6 +202,91 @@ const QUIZ_RESULTS={
     course:"Xây Dựng Sự Nghiệp Ý Nghĩa Mang Tên Bạn",courseTag:"Giai đoạn Illuminate — Miễn phí",
     benefits:["Hiểu vì sao sự thịnh vượng bên ngoài có thể đi kèm với cạn kiệt bên trong — và cách thoát khỏi vòng lặp đó","Nắm vững bản chất thật sự của Khai Vấn Tỉnh Thức theo chuẩn quốc tế","Xây dựng sự nghiệp mang tên bạn — dựa trên giá trị cốt lõi và hệ thống bền vững","Đồng hành và kiến tạo cộng đồng với những người cùng sứ mệnh"],
     quote:`"Khi bạn thực sự chuyển hóa từ gốc,\nsự hiện diện của bạn chính là món quà giá trị nhất\nbạn có thể trao tặng cho cuộc đời." — Ruby Nguyen`}
+};
+
+/* ─── NEED DISCOVERY GAME DATA ──────────────────────────────────── */
+const NEED_CARDS={
+  R:[
+    {id:'empty',  icon:'😶‍🌫️',text:'Trống rỗng dù bên ngoài có vẻ ổn'},
+    {id:'lost',   icon:'🧭',  text:'Không biết mình thực sự muốn gì'},
+    {id:'expect', icon:'🎭',  text:'Đang sống theo kỳ vọng của người khác'},
+    {id:'busy',   icon:'⏩',  text:'Bận rộn mãi nhưng thiếu ý nghĩa thực sự'},
+    {id:'afraid', icon:'🚪',  text:'Sợ phải nhìn thẳng vào bên trong mình'},
+    {id:'connect',icon:'🫂',  text:'Khao khát được kết nối thực sự với ai đó'},
+  ],
+  N:[
+    {id:'habit',  icon:'🔄',  text:'Biết rồi nhưng chưa làm được thành thói quen'},
+    {id:'emotion',icon:'🌊',  text:'Hay bị cảm xúc tiêu cực cuốn đi'},
+    {id:'steady', icon:'⚖️',  text:'Muốn vững vàng hơn trước những áp lực'},
+    {id:'mindful',icon:'🕯️',  text:'Khó duy trì sự tỉnh thức lâu dài'},
+    {id:'tool',   icon:'🛠️',  text:'Cần công cụ thực tế để chuyển hoá từ gốc'},
+    {id:'self',   icon:'🔍',  text:'Muốn hiểu sâu hơn về thế giới nội tâm'},
+  ],
+  I:[
+    {id:'impact', icon:'🌟',  text:'Muốn tạo tác động ý nghĩa cho người khác'},
+    {id:'package',icon:'📦',  text:'Chưa biết cách đóng gói giá trị bản thân'},
+    {id:'career', icon:'🧩',  text:'Sự nghiệp chưa phản ánh đúng con người bạn'},
+    {id:'comm',   icon:'🤝',  text:'Khao khát cộng đồng cùng chung sứ mệnh'},
+    {id:'income', icon:'💫',  text:'Muốn thu nhập xứng đáng từ giá trị bản thân'},
+    {id:'trans',  icon:'🦋',  text:'Sẵn sàng tạo ra chuyển hoá cho người khác'},
+  ],
+};
+const NEED_RESPONSES={
+  R:{
+    headline:'Khoá học này dành riêng cho bạn',
+    intro:'Những điều bạn vừa chọn là tiếng gọi thật sự từ bên trong — và khoá học này được tạo ra chính xác để đáp lại tiếng gọi đó.',
+    cards:{
+      empty:'Bài học đầu tiên giải thích vì sao cảm giác trống rỗng xuất hiện — và đây không phải điểm kết, mà là điểm khởi đầu thật sự.',
+      lost:'Khoá học giúp bạn xây dựng "la bàn nội tâm" — thứ đã luôn ở trong bạn, chỉ đang bị tiếng ồn bên ngoài che lấp.',
+      expect:'Bạn sẽ học cách nhận ra và nhẹ nhàng thoát khỏi những kịch bản không phải của mình.',
+      busy:'Bạn sẽ khám phá sự khác biệt thực sự giữa bận rộn và sống có ý nghĩa — rồi học cách chọn lại.',
+      afraid:'Khoá học tạo không gian an toàn để bạn dám nhìn vào bên trong mà không bị phán xét.',
+      connect:'Hành trình kết nối thực sự bắt đầu từ chính mình — đây là nền tảng cho mọi mối quan hệ ý nghĩa.',
+    },
+  },
+  N:{
+    headline:'Hành trình của bạn được cá nhân hoá',
+    intro:'Bạn đã biết con đường. Điều còn thiếu là công cụ đúng để đi đến cuối. Khoá học này chính là điều bạn đang tìm.',
+    cards:{
+      habit:'Cả 4 trạm đều có bài tập thực hành cụ thể — không lý thuyết suông, chỉ có hành động nhỏ đủ tạo thay đổi lớn.',
+      emotion:'Trạm Tinh dạy bạn quan sát cảm xúc như người bạn thay vì kẻ thù phải chống lại.',
+      steady:'Trạm Đủ giúp bạn tìm điểm bình an bất biến ngay cả giữa những cơn bão cuộc đời.',
+      mindful:'4 trạm được thiết kế để tỉnh thức trở thành dòng chảy tự nhiên, bền vững — không phụ thuộc cảm hứng.',
+      tool:'Mỗi trạm đều có công cụ thực tế — từ bài tập viết đến thiền định — để chuyển hoá từ gốc.',
+      self:'Trạm Hiển giúp bạn thấy rõ bản thể chân thực và bước tiếp với sự rõ ràng hoàn toàn mới.',
+    },
+  },
+  I:{
+    headline:'Khoá học này sinh ra để dành cho bạn',
+    intro:'Bạn đã sẵn sàng. Những điều bạn chọn cho thấy bạn không cần được thuyết phục — bạn chỉ cần được trang bị đúng cách.',
+    cards:{
+      impact:'Bài học đầu tiên định nghĩa lại "tác động ý nghĩa" theo cách riêng của bạn — không theo chuẩn ai khác.',
+      package:'Khoá học trao hệ thống để "đóng gói" toàn bộ giá trị bản thân thành kết quả thực tế cho người khác.',
+      career:'Bạn sẽ xây dựng bản đồ sự nghiệp phản ánh đúng con người, giá trị và sứ mệnh của bạn.',
+      comm:'Phần cuối khoá học chia sẻ cách kiến tạo cộng đồng cùng sứ mệnh một cách bền vững và ý nghĩa.',
+      income:'Bạn sẽ học cách xây dựng hệ thống để giá trị bạn tạo ra được đền đáp xứng đáng và bền vững.',
+      trans:'Toàn bộ khoá học là hành trình từ hiểu biết sâu bên trong → chuyển hoá thực sự bên ngoài.',
+    },
+  },
+};
+
+/* ─── COURSE SECRETS DATA ───────────────────────────────────────── */
+const COURSE_SECRETS={
+  R:[
+    {emoji:'🔑',title:'Vì sao "cố gắng" không giải quyết được vấn đề này',reveal:'Cố gắng nhiều hơn không phải đáp án — vì gốc rễ không nằm ở nỗ lực. Bài học đầu tiên sẽ chỉ cho bạn thấy điều thực sự đang xảy ra.'},
+    {emoji:'🧭',title:'La bàn nội tâm của bạn chưa từng biến mất',reveal:'Bạn không cần "xây dựng" la bàn mới. Bạn chỉ cần bỏ đi những thứ đang che nó. Khoá học dạy bạn cách làm chính xác điều đó.'},
+    {emoji:'⚡',title:'1 thay đổi nhỏ tạo hiệu ứng domino cho toàn bộ cuộc đời',reveal:'Không cần thay đổi tất cả cùng lúc. Khoá học tập trung vào 1 điểm tựa quan trọng nhất — và mọi thứ khác sẽ theo sau một cách tự nhiên.'},
+  ],
+  N:[
+    {emoji:'🌊',title:'Vì sao tỉnh thức "được một lúc" rồi lại mất',reveal:'Không phải bạn thiếu ý chí. Đó là vì bạn đang dùng sai công cụ. 4 Trạm Soi Sáng sẽ trao cho bạn hệ thống đúng để thay đổi điều này.'},
+    {emoji:'💎',title:'Sự bình an không đến từ việc loại bỏ khó khăn',reveal:'Sự bình an thực sự được xây dựng ngay giữa những khó khăn. Trạm Đủ sẽ trao cho bạn bí mật mà ít người biết này.'},
+    {emoji:'🌱',title:'Thay đổi bền vững luôn bắt đầu từ 1 hành động nhỏ',reveal:'Khoá học không yêu cầu bạn lật ngược cuộc sống. Chỉ cần 1 hành động nhỏ mỗi ngày — được thực hành đúng cách — là đủ để tạo ra chuyển hoá thực sự.'},
+  ],
+  I:[
+    {emoji:'💡',title:'Giá trị thực không nằm ở kiến thức — mà ở khả năng tạo chuyển hoá',reveal:'AI có thể copy kiến thức nhưng không thể copy sự chuyển hoá bạn tạo ra cho người khác. Đây là lợi thế cạnh tranh không thể thay thế của bạn.'},
+    {emoji:'🏗️',title:'Sự nghiệp ý nghĩa cần hệ thống — không chỉ đam mê',reveal:'Đam mê tạo ra khởi đầu. Hệ thống tạo ra sự bền vững. Khoá học này trao cho bạn cả hai — theo đúng thứ tự.'},
+    {emoji:'🦋',title:'Khi bạn thay đổi, người xung quanh thay đổi theo',reveal:'Bạn không cần thuyết phục ai. Khi bạn sống đúng với giá trị cốt lõi, ảnh hưởng tự nhiên lan ra. Khoá học dạy cơ chế này.'},
+  ],
 };
 
 /* ─── UPSELL PRODUCTS ───────────────────────────────────────────── */
@@ -1270,6 +1356,211 @@ function RegisterScreen({courseId,onDone,onBack}){
   );
 }
 
+/* ─── NEED DISCOVERY GAME ─────────────────────────────────────────── */
+function NeedDiscoveryGame({courseId,onDone}){
+  const r=QUIZ_RESULTS[courseId];
+  const cards=(NEED_CARDS[courseId]||NEED_CARDS.R);
+  const resp=(NEED_RESPONSES[courseId]||NEED_RESPONSES.R);
+  const [selected,setSelected]=useState([]);
+  const [phase,setPhase]=useState('pick');
+  const MAX=3;
+
+  const toggle=(id)=>setSelected(prev=>{
+    if(prev.includes(id))return prev.filter(x=>x!==id);
+    if(prev.length>=MAX)return prev;
+    return [...prev,id];
+  });
+
+  if(phase==='result'){
+    const selectedCards=selected.map(id=>cards.find(c=>c.id===id)).filter(Boolean);
+    return(
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12" style={{background:`linear-gradient(150deg,${r?.gradFrom||'#fef2f2'},#fdfbf7)`}}>
+        <div className="max-w-md w-full bounce-in">
+          <div className="text-center mb-6">
+            <div className="text-5xl mb-3 float">{r?.icon||'✨'}</div>
+            <h2 className="font-heading text-2xl font-black text-gray-900 mb-2 leading-tight">{resp.headline}</h2>
+            <p className="text-gray-500 text-sm leading-relaxed px-2">{resp.intro}</p>
+          </div>
+          <div className="space-y-3 mb-6">
+            {selectedCards.map(card=>{
+              const msg=resp.cards[card.id];
+              return(
+                <div key={card.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex gap-3 items-start fade-in">
+                  <div className="text-2xl flex-shrink-0 mt-0.5">{card.icon}</div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 mb-1">{card.text}</p>
+                    {msg&&<p className="text-sm text-gray-700 leading-relaxed">{msg}</p>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <button onClick={onDone} className="w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg transition-all active:scale-95 pulse-glow mb-3" style={{background:`linear-gradient(135deg,${r?.accent||'#9b1106'},#c41a0a)`}}>
+            Bắt đầu hành trình của tôi →
+          </button>
+          <p className="text-center text-xs text-gray-400">Miễn phí hoàn toàn · Học theo nhịp của bạn</p>
+        </div>
+      </div>
+    );
+  }
+
+  return(
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10" style={{background:`linear-gradient(150deg,${r?.gradFrom||'#fef2f2'},#fdfbf7)`}}>
+      <div className="max-w-md w-full">
+        <div className="text-center mb-6 bounce-in">
+          <div className="text-5xl mb-3 float">{r?.icon||'✨'}</div>
+          <h2 className="font-heading text-2xl font-black text-gray-900 mb-2 leading-tight">Điều gì đang<br/>kéo bạn đến đây?</h2>
+          <p className="text-gray-500 text-sm mb-3">Chọn <strong>{MAX}</strong> điều chạm đến bạn nhất</p>
+          <div className="flex justify-center gap-2">
+            {Array.from({length:MAX}).map((_,i)=>(
+              <div key={i} className="w-3 h-3 rounded-full transition-all duration-300" style={{background:i<selected.length?(r?.accent||'#9b1106'):'#e5e7eb',transform:i<selected.length?'scale(1.2)':'scale(1)'}}/>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          {cards.map(card=>{
+            const isSel=selected.includes(card.id);
+            const isOff=!isSel&&selected.length>=MAX;
+            return(
+              <button key={card.id} onClick={()=>toggle(card.id)} disabled={isOff}
+                className={`relative rounded-2xl p-4 text-left transition-all duration-200 active:scale-95 border-2 ${isSel?'bg-white shadow-lg':isOff?'bg-white/50 opacity-40 border-transparent':'bg-white shadow-sm border-transparent hover:shadow-md'}`}
+                style={isSel?{borderColor:r?.accent||'#9b1106',boxShadow:`0 4px 20px ${r?.accent||'#9b1106'}20`,transform:'scale(1.03)'}:{}}>
+                {isSel&&<div className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{background:r?.accent||'#9b1106'}}>✓</div>}
+                <div className="text-3xl mb-2">{card.icon}</div>
+                <p className="text-xs font-medium text-gray-700 leading-snug">{card.text}</p>
+              </button>
+            );
+          })}
+        </div>
+        {selected.length===MAX?(
+          <div className="bounce-in">
+            <button onClick={()=>setPhase('result')} className="w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg transition-all active:scale-95 pulse-glow" style={{background:`linear-gradient(135deg,${r?.accent||'#9b1106'},#c41a0a)`}}>
+              Khám phá hành trình của tôi →
+            </button>
+          </div>
+        ):(
+          <p className="text-center text-xs text-gray-400">
+            {selected.length===0?'Nhấn vào những thẻ chạm đến bạn':`Chọn thêm ${MAX-selected.length} thẻ nữa`}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── SECRETS GAME ────────────────────────────────────────────────── */
+function SecretsGame({courseId,onDone}){
+  const r=QUIZ_RESULTS[courseId];
+  const secrets=(COURSE_SECRETS[courseId]||COURSE_SECRETS.R);
+  const [revealed,setRevealed]=useState([]);
+  const allRevealed=revealed.length===secrets.length;
+
+  const reveal=(i)=>setRevealed(prev=>prev.includes(i)?prev:[...prev,i]);
+
+  return(
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10" style={{background:`linear-gradient(150deg,${r?.gradFrom||'#fef2f2'},#fdfbf7)`}}>
+      <div className="max-w-md w-full">
+        <div className="text-center mb-6 bounce-in">
+          <div className="text-5xl mb-3 float">🔮</div>
+          <h2 className="font-heading text-2xl font-black text-gray-900 mb-2 leading-tight">3 bí mật mà<br/>khoá học sẽ tiết lộ</h2>
+          <p className="text-gray-500 text-sm">Nhấn vào từng thẻ để hé lộ</p>
+        </div>
+        <div className="space-y-3 mb-5">
+          {secrets.map((s,i)=>{
+            const isRev=revealed.includes(i);
+            return(
+              <button key={i} onClick={()=>reveal(i)} className="w-full rounded-2xl text-left transition-all duration-300 active:scale-98">
+                {isRev?(
+                  <div className="bg-white border-2 shadow-md p-4 rounded-2xl fade-in" style={{borderColor:r?.accent||'#9b1106'}}>
+                    <div className="flex gap-3 items-start">
+                      <div className="text-2xl flex-shrink-0">{s.emoji}</div>
+                      <div>
+                        <p className="text-xs font-bold mb-1" style={{color:r?.accent||'#9b1106'}}>{s.title}</p>
+                        <p className="text-sm text-gray-700 leading-relaxed">{s.reveal}</p>
+                      </div>
+                    </div>
+                  </div>
+                ):(
+                  <div className="bg-white/70 border-2 border-dashed border-gray-200 p-4 rounded-2xl flex items-center gap-3">
+                    <div className="text-2xl opacity-30">❓</div>
+                    <div className="flex-1">
+                      <div className="h-3 bg-gray-200 rounded-full w-3/4 mb-2"/>
+                      <div className="h-2 bg-gray-100 rounded-full w-1/2"/>
+                    </div>
+                    <p className="text-xs text-gray-400 font-medium flex-shrink-0">Nhấn để mở</p>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        {allRevealed?(
+          <div className="bounce-in">
+            <p className="text-center text-sm text-gray-500 mb-3 italic">Và còn nhiều hơn thế đang chờ bạn trong khoá học...</p>
+            <button onClick={onDone} className="w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg transition-all active:scale-95 pulse-glow" style={{background:`linear-gradient(135deg,${r?.accent||'#9b1106'},#c41a0a)`}}>
+              Tôi muốn khám phá tất cả →
+            </button>
+          </div>
+        ):(
+          <p className="text-center text-xs text-gray-400">
+            {`Hé lộ ${secrets.length-revealed.length} thẻ nữa để tiếp tục`}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── COMMIT GAME ─────────────────────────────────────────────────── */
+const COMMIT_OPTIONS=[
+  {id:'now',    label:'Ngay bây giờ! 🔥',   msg:'Tuyệt vời! Đây chính là khoảnh khắc thay đổi bắt đầu.',     sub:'Bài học đầu tiên đang chờ bạn — hành trình ngàn dặm bắt đầu từ bước này.',  cta:'Bắt đầu ngay bây giờ →',  big:true},
+  {id:'hour',   label:'Trong 1 giờ tới ⏰',  msg:'Hoàn toàn ổn! Nhưng bạn đã ở đây rồi...',                   sub:'Thử xem 5 phút đầu ngay lúc này nhé — chỉ để cảm nhận thôi. Rất nhiều người bắt đầu như vậy và không dừng lại được!', cta:'Xem thử 5 phút đầu →',    big:false},
+  {id:'tonight',label:'Tối nay 🌙',           msg:'Tốt lắm! Bạn đã có kế hoạch rồi.',                          sub:'Còn bây giờ — chỉ cần xem phần giới thiệu ngắn để hành trình chính thức bắt đầu từ hôm nay.', cta:'Xem phần giới thiệu →',   big:false},
+  {id:'later',  label:'Khi nào rảnh hơn 📅', msg:'Bạn đã đến được đây rồi — đó là bước đầu tiên.',            sub:'"Hành trình ngàn dặm bắt đầu bằng một bước chân." Bước đó là ngay lúc này, dù chỉ là 3 phút đầu tiên.', cta:'Thử bước đầu tiên →', big:false},
+];
+
+function CommitGame({courseId,onDone}){
+  const r=QUIZ_RESULTS[courseId];
+  const [chosen,setChosen]=useState(null);
+  const opt=COMMIT_OPTIONS.find(o=>o.id===chosen);
+
+  if(chosen&&opt){
+    return(
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12" style={{background:`linear-gradient(150deg,${r?.gradFrom||'#fef2f2'},#fdfbf7)`}}>
+        <div className="max-w-md w-full text-center bounce-in">
+          <div className="text-6xl mb-4 float">{chosen==='now'?'🎉':'💪'}</div>
+          <h2 className="font-heading text-2xl font-black text-gray-900 mb-2">{opt.msg}</h2>
+          <p className="text-gray-500 text-sm leading-relaxed mb-8 px-2">{opt.sub}</p>
+          <button onClick={onDone} className="w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg transition-all active:scale-95 pulse-glow" style={{background:`linear-gradient(135deg,${r?.accent||'#9b1106'},#c41a0a)`}}>
+            {opt.cta}
+          </button>
+          {chosen==='now'&&<p className="text-xs text-gray-400 mt-3">Miễn phí · Không cần cài app · Học ngay trên trình duyệt</p>}
+        </div>
+      </div>
+    );
+  }
+
+  return(
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10" style={{background:`linear-gradient(150deg,${r?.gradFrom||'#fef2f2'},#fdfbf7)`}}>
+      <div className="max-w-md w-full">
+        <div className="text-center mb-7 bounce-in">
+          <div className="text-5xl mb-3 float">⏱️</div>
+          <h2 className="font-heading text-2xl font-black text-gray-900 mb-2 leading-tight">Bài học đầu tiên<br/>khi nào bạn sẽ xem?</h2>
+          <p className="text-gray-500 text-sm">Không có câu trả lời sai — chỉ có câu trả lời thật</p>
+        </div>
+        <div className="space-y-3">
+          {COMMIT_OPTIONS.map(o=>(
+            <button key={o.id} onClick={()=>setChosen(o.id)}
+              className="w-full bg-white rounded-2xl p-4 text-left shadow-sm border-2 border-transparent hover:shadow-md hover:border-gray-100 transition-all active:scale-98">
+              <p className="font-semibold text-gray-800 text-sm">{o.label}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── WELCOME ─────────────────────────────────────────────────── */
 function WelcomeScreen({userName,courseId,onStart}){
   const course=COURSES[courseId];
@@ -1820,6 +2111,7 @@ function MatchingGame({quiz,onComplete}){
   
 /* ─── LESSON COMMENTS ──────────────────────────────────────────── */
 const COMMENTS_API='https://thuvien.rni.vn/comments.php';
+const AI_SUMMARY_API='https://thuvien.rni.vn/ai-summary.php';
 const PUSH_SUBSCRIBE_API='https://thuvien.rni.vn/push-subscribe.php';
 const VAPID_PUBLIC_KEY='BH6-XOsyTWZG-ebLHimL-6-0OqhcEs0nTI9FRVoS4fF_zCw9vi48BtsSOr0Nit-X3d4JkR1DJ_ZVjKcwbSMaWLc';
 
@@ -2125,6 +2417,116 @@ function LessonComments({lessonId,isAdmin=false}){
 }
 
 /* ─── LESSON VIEW ──────────────────────────────────────────────── */
+/* ─── AI SUMMARY BOX ─────────────────────────────────────────────── */
+function AiSummaryBox({lesson,accent}){
+  const cacheKey='rni-ai-'+lesson.id;
+  const [open,setOpen]=useState(false);
+  const [status,setStatus]=useState('idle');
+  const [data,setData]=useState(null);
+  const [activeTopic,setActiveTopic]=useState(null);
+  const [explanation,setExplanation]=useState('');
+  const [explLoading,setExplLoading]=useState(false);
+
+  const vid=lesson.videoId||(lesson.videos?.[0]?.videoId)||'';
+  const quizCtx=(lesson.quiz||[]).filter(q=>q.q).slice(0,5).map(q=>({q:q.q,answer:q.opts?.[q.correct]||''}));
+  const basePayload={title:lesson.title,desc:lesson.desc||'',quiz:quizCtx,practice:lesson.practice?.prompt||'',videoId:vid};
+
+  const load=async()=>{
+    if(!open){setOpen(true);}
+    if(data||status==='loading')return;
+    try{const cached=localStorage.getItem(cacheKey);if(cached){setData(JSON.parse(cached));setStatus('done');return;}}catch{}
+    setStatus('loading');
+    try{
+      const res=await fetch(AI_SUMMARY_API,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'summary',...basePayload})});
+      const json=await res.json();
+      if(json.summary&&json.topics){setData(json);setStatus('done');try{localStorage.setItem(cacheKey,JSON.stringify(json));}catch{}}
+      else setStatus('error');
+    }catch{setStatus('error');}
+  };
+
+  const explain=async(topic)=>{
+    if(activeTopic===topic.title){setActiveTopic(null);setExplanation('');return;}
+    setActiveTopic(topic.title);setExplanation('');setExplLoading(true);
+    try{
+      const res=await fetch(AI_SUMMARY_API,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'explain',...basePayload,topic:topic.title})});
+      const json=await res.json();
+      setExplanation(json.explanation||'Không thể tải. Vui lòng thử lại.');
+    }catch{setExplanation('Không thể tải. Vui lòng thử lại.');}
+    finally{setExplLoading(false);}
+  };
+
+  const isFromTranscript=data?.source==='transcript';
+
+  return(
+    <div className="rounded-2xl overflow-hidden border border-indigo-100 bg-white shadow-sm">
+      <button onClick={load} className="w-full px-5 py-4 flex items-center gap-3 text-left hover:bg-indigo-50 transition-colors">
+        <span className="text-xl">✨</span>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-gray-800">AI Tóm Tắt Bài Học</p>
+          <p className="text-xs text-gray-400">Nắm key insights trong 1 phút · Hỏi đáp chủ đề bất kỳ</p>
+        </div>
+        <span className="text-gray-300 text-xs">{open?'▲':'▼'}</span>
+      </button>
+      {open&&(
+        <div className="border-t border-indigo-50 px-5 pb-5 fade-in">
+          {status==='loading'&&(
+            <div className="py-8 text-center">
+              <div className="inline-block w-6 h-6 border-2 border-indigo-200 border-t-indigo-500 rounded-full" style={{animation:'spin 0.8s linear infinite'}}/>
+              <p className="text-xs text-gray-400 mt-2">{vid?'AI đang đọc nội dung video...':'AI đang tổng hợp bài học...'}</p>
+            </div>
+          )}
+          {status==='error'&&(
+            <div className="py-4 text-center">
+              <p className="text-xs text-gray-400">Không thể tải. <button onClick={()=>{setStatus('idle');load();}} className="text-indigo-500 underline">Thử lại</button></p>
+            </div>
+          )}
+          {status==='done'&&data&&(
+            <>
+              <div className="mt-4 bg-indigo-50 rounded-xl px-4 py-3 mb-1">
+                <p className="text-xs font-bold text-indigo-600 mb-1">📝 Tóm tắt nhanh</p>
+                <p className="text-sm text-gray-700 leading-relaxed">{data.summary}</p>
+              </div>
+              <p className="text-xs text-gray-300 mb-3 px-1">{isFromTranscript?'✦ Tóm tắt từ transcript video':'✦ Tóm tắt từ nội dung bài học'}</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Chọn chủ đề để khám phá sâu hơn</p>
+              <div className="space-y-2">
+                {(data.topics||[]).map((t,i)=>(
+                  <div key={i}>
+                    <button onClick={()=>explain(t)}
+                      className={`w-full rounded-xl p-3 text-left transition-all border-2 ${activeTopic===t.title?'border-indigo-300 bg-indigo-50':'border-transparent bg-gray-50 hover:bg-indigo-50 hover:border-indigo-100'}`}>
+                      <div className="flex items-start gap-2">
+                        <span className="text-lg flex-shrink-0">{t.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-gray-800 leading-snug">{t.title}</p>
+                          <p className="text-xs text-gray-500 mt-0.5 leading-snug">{t.hook}</p>
+                        </div>
+                        <span className="text-gray-300 text-xs flex-shrink-0 mt-0.5">{activeTopic===t.title?'▲':'▼'}</span>
+                      </div>
+                    </button>
+                    {activeTopic===t.title&&(
+                      <div className="mt-1 ml-3 pl-3 border-l-2 border-indigo-200 fade-in">
+                        {explLoading?(
+                          <div className="py-3 flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-indigo-200 border-t-indigo-500 rounded-full flex-shrink-0" style={{animation:'spin 0.8s linear infinite'}}/>
+                            <p className="text-xs text-gray-400">Đang giải đáp...</p>
+                          </div>
+                        ):(
+                          <p className="text-sm text-gray-600 leading-relaxed py-3 whitespace-pre-wrap">{explanation}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
   const [tab,setTab]=useState('video');
   const [tabsUnlocked,setTabsUnlocked]=useState(false);// tabs chỉ hiện sau khi bấm "Tiếp theo"
@@ -2226,6 +2628,7 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
                     <p className="text-gray-600 text-sm leading-relaxed">{lesson.desc}</p>
                   </div>
                 )}
+                <AiSummaryBox lesson={lesson} accent={accent}/>
                 {/* multiple videos support */}
                 {lesson.videos?(
                   <div className="space-y-4">
@@ -3330,6 +3733,12 @@ if(n&&c&&isReturning){
       }
     });
   }
+  setScreen('needGame');
+};
+  const handleNeedGameDone=()=>setScreen('secretsGame');
+  const handleSecretsGameDone=()=>setScreen('commitGame');
+  const handleCommitGameDone=()=>{
+  const preE=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
   if(preE&&shouldShowPushPrompt()){
     incPushPromptCount();
     setShowPushPrompt(true);
@@ -3467,6 +3876,9 @@ const phone=localStorage.getItem('rni-pre-phone')||'';
   if(screen==='quizLoading')return <QuizLoading onDone={()=>setScreen('rniOverview')}/>;
   if(screen==='rniOverview')return <RniOverviewScreen onContinue={()=>setScreen('quizResult')}/>;
   if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={handleQuizResultContinue} onBack={()=>setScreen('quiz')}/>;
+  if(screen==='needGame')return <NeedDiscoveryGame courseId={quizResult} onDone={handleNeedGameDone}/>;
+  if(screen==='secretsGame')return <SecretsGame courseId={quizResult} onDone={handleSecretsGameDone}/>;
+  if(screen==='commitGame')return <CommitGame courseId={quizResult} onDone={handleCommitGameDone}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}} isAdmin={isAdmin}/>;
   return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{

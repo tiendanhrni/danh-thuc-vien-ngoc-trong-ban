@@ -80,12 +80,14 @@ Yêu cầu:
 PROMPT;
 
     $result = callClaude($API_KEY, $prompt, 900);
-    $json = extractJson($result['text'] ?? '');
+    $rawText = $result['text'] ?? '';
+    $json = extractJson($rawText);
     if ($json) {
         $json['source'] = $sourceNote;
         echo json_encode($json, JSON_UNESCAPED_UNICODE);
     } else {
-        echo json_encode(['error' => 'parse_error']);
+        error_log('[ai-summary] parse_error. HTTP=' . ($result['httpCode'] ?? '?') . ' raw=' . mb_substr($rawText, 0, 500, 'UTF-8'));
+        echo json_encode(['error' => 'parse_error', 'raw' => mb_substr($rawText, 0, 200, 'UTF-8')]);
     }
 
 } else {
@@ -243,15 +245,24 @@ function callClaude(string $apiKey, string $prompt, int $maxTokens): array {
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if ($code !== 200) return ['text' => '', 'error' => 'http_' . $code];
+    if ($code !== 200) return ['text' => '', 'error' => 'http_' . $code, 'httpCode' => $code];
 
     $data = json_decode($res, true);
-    return ['text' => $data['content'][0]['text'] ?? ''];
+    return ['text' => $data['content'][0]['text'] ?? '', 'httpCode' => $code];
 }
 
 function extractJson(string $text): ?array {
-    if (preg_match('/\{[\s\S]*\}/u', $text, $m)) {
-        $decoded = json_decode($m[0], true);
+    // Strip markdown fences if present
+    $text = preg_replace('/^```(?:json)?\s*/im', '', $text);
+    $text = preg_replace('/```\s*$/im', '', $text);
+    $text = trim($text);
+
+    // Try to find the outermost JSON object
+    $start = strpos($text, '{');
+    $end   = strrpos($text, '}');
+    if ($start !== false && $end !== false && $end > $start) {
+        $candidate = substr($text, $start, $end - $start + 1);
+        $decoded = json_decode($candidate, true);
         if ($decoded !== null) return $decoded;
     }
     return null;

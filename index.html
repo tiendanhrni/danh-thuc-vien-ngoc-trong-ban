@@ -1569,20 +1569,45 @@ function PracticeBox({practice,lessonId}){
 
 /* ─── CHAT BUTTON ──────────────────────────────────────────────── */
 const NOTEBOOK_URL='https://notebooklm.google.com/notebook/c89aedea-4f7a-4fb9-be3f-f10aed45d871/preview';
+const ZALO_OA_URL='https://zalo.me/4096198069463501502';
 function openNotebookLM(){
   const w=420,h=680;
   const left=Math.max(0,window.screen.width-w-20);
   const top=Math.max(0,window.screen.height-h-60);
   window.open(NOTEBOOK_URL,'notebooklm_chat',`width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`);
 }
-function ChatButton(){
+function ChatConfirmModal({onClose}){
   return(
-    <div className="chat-bubble">
-      <button onClick={openNotebookLM} title="Cần tài khoản Google để sử dụng" className="flex items-center gap-2 text-white font-semibold text-sm px-4 py-3 rounded-full shadow-xl transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
-        <span className="text-lg">💬</span>
-        <span className="hidden sm:inline text-xs">Hỏi đáp về bài học</span>
-      </button>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center px-4" style={{background:'rgba(0,0,0,0.45)'}}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xs p-6 flex flex-col gap-4">
+        <p className="font-bold text-gray-800 text-base text-center">Bạn có tài khoản Google không?</p>
+        <p className="text-sm text-gray-500 text-center leading-relaxed">Tính năng hỏi đáp dùng NotebookLM của Google, cần đăng nhập tài khoản Google để sử dụng.</p>
+        <button onClick={()=>{onClose();openNotebookLM();}}
+          className="w-full py-3 rounded-xl text-white font-semibold text-sm transition-all active:scale-95"
+          style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+          Tôi có tài khoản Google →
+        </button>
+        <a href={ZALO_OA_URL} target="_blank" rel="noopener noreferrer" onClick={onClose}
+          className="w-full py-3 rounded-xl text-center font-semibold text-sm border-2 border-gray-200 text-gray-600 hover:bg-gray-50 transition-all">
+          Chưa có — nhắn qua Zalo
+        </a>
+        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600 text-center">Đóng</button>
+      </div>
     </div>
+  );
+}
+function ChatButton(){
+  const [showModal,setShowModal]=useState(false);
+  return(
+    <>
+      <div className="chat-bubble">
+        <button onClick={()=>setShowModal(true)} className="flex items-center gap-2 text-white font-semibold text-sm px-4 py-3 rounded-full shadow-xl transition-all active:scale-95" style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+          <span className="text-lg">💬</span>
+          <span className="hidden sm:inline text-xs">Hỏi đáp về bài học</span>
+        </button>
+      </div>
+      {showModal&&<ChatConfirmModal onClose={()=>setShowModal(false)}/>}
+    </>
   );
 }
 // Curiosity upsell pool — nằm ngoài component để không bị re-create
@@ -2219,7 +2244,7 @@ function LessonView({lesson,progress,courseId,onComplete,onBack,isAdmin=false}){
                   </div>
                 )}
                 {/* ask chatbot — NotebookLM */}
-                <button onClick={openNotebookLM} className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-rni-200 rounded-2xl py-3 text-rni-600 font-semibold text-sm hover:bg-rni-50 transition-all">
+                <button onClick={()=>document.querySelector('.chat-bubble button')?.click()} className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-rni-200 rounded-2xl py-3 text-rni-600 font-semibold text-sm hover:bg-rni-50 transition-all">
                   💬 Hỏi đáp thêm về bài học tại đây →
                 </button>
                 {/* simple: just complete */}

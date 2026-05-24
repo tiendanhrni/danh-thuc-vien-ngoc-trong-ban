@@ -269,6 +269,25 @@ const NEED_RESPONSES={
   },
 };
 
+/* ─── COURSE SECRETS DATA ───────────────────────────────────────── */
+const COURSE_SECRETS={
+  R:[
+    {emoji:'🔑',title:'Vì sao "cố gắng" không giải quyết được vấn đề này',reveal:'Cố gắng nhiều hơn không phải đáp án — vì gốc rễ không nằm ở nỗ lực. Bài học đầu tiên sẽ chỉ cho bạn thấy điều thực sự đang xảy ra.'},
+    {emoji:'🧭',title:'La bàn nội tâm của bạn chưa từng biến mất',reveal:'Bạn không cần "xây dựng" la bàn mới. Bạn chỉ cần bỏ đi những thứ đang che nó. Khoá học dạy bạn cách làm chính xác điều đó.'},
+    {emoji:'⚡',title:'1 thay đổi nhỏ tạo hiệu ứng domino cho toàn bộ cuộc đời',reveal:'Không cần thay đổi tất cả cùng lúc. Khoá học tập trung vào 1 điểm tựa quan trọng nhất — và mọi thứ khác sẽ theo sau một cách tự nhiên.'},
+  ],
+  N:[
+    {emoji:'🌊',title:'Vì sao tỉnh thức "được một lúc" rồi lại mất',reveal:'Không phải bạn thiếu ý chí. Đó là vì bạn đang dùng sai công cụ. 4 Trạm Soi Sáng sẽ trao cho bạn hệ thống đúng để thay đổi điều này.'},
+    {emoji:'💎',title:'Sự bình an không đến từ việc loại bỏ khó khăn',reveal:'Sự bình an thực sự được xây dựng ngay giữa những khó khăn. Trạm Đủ sẽ trao cho bạn bí mật mà ít người biết này.'},
+    {emoji:'🌱',title:'Thay đổi bền vững luôn bắt đầu từ 1 hành động nhỏ',reveal:'Khoá học không yêu cầu bạn lật ngược cuộc sống. Chỉ cần 1 hành động nhỏ mỗi ngày — được thực hành đúng cách — là đủ để tạo ra chuyển hoá thực sự.'},
+  ],
+  I:[
+    {emoji:'💡',title:'Giá trị thực không nằm ở kiến thức — mà ở khả năng tạo chuyển hoá',reveal:'AI có thể copy kiến thức nhưng không thể copy sự chuyển hoá bạn tạo ra cho người khác. Đây là lợi thế cạnh tranh không thể thay thế của bạn.'},
+    {emoji:'🏗️',title:'Sự nghiệp ý nghĩa cần hệ thống — không chỉ đam mê',reveal:'Đam mê tạo ra khởi đầu. Hệ thống tạo ra sự bền vững. Khoá học này trao cho bạn cả hai — theo đúng thứ tự.'},
+    {emoji:'🦋',title:'Khi bạn thay đổi, người xung quanh thay đổi theo',reveal:'Bạn không cần thuyết phục ai. Khi bạn sống đúng với giá trị cốt lõi, ảnh hưởng tự nhiên lan ra. Khoá học dạy cơ chế này.'},
+  ],
+};
+
 /* ─── UPSELL PRODUCTS ───────────────────────────────────────────── */
 const UPSELL=[
   {id:'tieng-noi',title:'Tiếng Nói Từ Tâm',url:'https://www.rni.institute/tieng-noi-tu-tam',img:'https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2151679743/settings_images/0644dc7-fbcf-467e-636f-42e05621a3fc_Ti_ng_N_i_T_T_m.png',tag:'Khoá học',courses:['R','N','I']},
@@ -1423,6 +1442,119 @@ function NeedDiscoveryGame({courseId,onDone}){
             {selected.length===0?'Nhấn vào những thẻ chạm đến bạn':`Chọn thêm ${MAX-selected.length} thẻ nữa`}
           </p>
         )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── SECRETS GAME ────────────────────────────────────────────────── */
+function SecretsGame({courseId,onDone}){
+  const r=QUIZ_RESULTS[courseId];
+  const secrets=(COURSE_SECRETS[courseId]||COURSE_SECRETS.R);
+  const [revealed,setRevealed]=useState([]);
+  const allRevealed=revealed.length===secrets.length;
+
+  const reveal=(i)=>setRevealed(prev=>prev.includes(i)?prev:[...prev,i]);
+
+  return(
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10" style={{background:`linear-gradient(150deg,${r?.gradFrom||'#fef2f2'},#fdfbf7)`}}>
+      <div className="max-w-md w-full">
+        <div className="text-center mb-6 bounce-in">
+          <div className="text-5xl mb-3 float">🔮</div>
+          <h2 className="font-heading text-2xl font-black text-gray-900 mb-2 leading-tight">3 bí mật mà<br/>khoá học sẽ tiết lộ</h2>
+          <p className="text-gray-500 text-sm">Nhấn vào từng thẻ để hé lộ</p>
+        </div>
+        <div className="space-y-3 mb-5">
+          {secrets.map((s,i)=>{
+            const isRev=revealed.includes(i);
+            return(
+              <button key={i} onClick={()=>reveal(i)} className="w-full rounded-2xl text-left transition-all duration-300 active:scale-98">
+                {isRev?(
+                  <div className="bg-white border-2 shadow-md p-4 rounded-2xl fade-in" style={{borderColor:r?.accent||'#9b1106'}}>
+                    <div className="flex gap-3 items-start">
+                      <div className="text-2xl flex-shrink-0">{s.emoji}</div>
+                      <div>
+                        <p className="text-xs font-bold mb-1" style={{color:r?.accent||'#9b1106'}}>{s.title}</p>
+                        <p className="text-sm text-gray-700 leading-relaxed">{s.reveal}</p>
+                      </div>
+                    </div>
+                  </div>
+                ):(
+                  <div className="bg-white/70 border-2 border-dashed border-gray-200 p-4 rounded-2xl flex items-center gap-3">
+                    <div className="text-2xl opacity-30">❓</div>
+                    <div className="flex-1">
+                      <div className="h-3 bg-gray-200 rounded-full w-3/4 mb-2"/>
+                      <div className="h-2 bg-gray-100 rounded-full w-1/2"/>
+                    </div>
+                    <p className="text-xs text-gray-400 font-medium flex-shrink-0">Nhấn để mở</p>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        {allRevealed?(
+          <div className="bounce-in">
+            <p className="text-center text-sm text-gray-500 mb-3 italic">Và còn nhiều hơn thế đang chờ bạn trong khoá học...</p>
+            <button onClick={onDone} className="w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg transition-all active:scale-95 pulse-glow" style={{background:`linear-gradient(135deg,${r?.accent||'#9b1106'},#c41a0a)`}}>
+              Tôi muốn khám phá tất cả →
+            </button>
+          </div>
+        ):(
+          <p className="text-center text-xs text-gray-400">
+            {`Hé lộ ${secrets.length-revealed.length} thẻ nữa để tiếp tục`}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── COMMIT GAME ─────────────────────────────────────────────────── */
+const COMMIT_OPTIONS=[
+  {id:'now',    label:'Ngay bây giờ! 🔥',   msg:'Tuyệt vời! Đây chính là khoảnh khắc thay đổi bắt đầu.',     sub:'Bài học đầu tiên đang chờ bạn — hành trình ngàn dặm bắt đầu từ bước này.',  cta:'Bắt đầu ngay bây giờ →',  big:true},
+  {id:'hour',   label:'Trong 1 giờ tới ⏰',  msg:'Hoàn toàn ổn! Nhưng bạn đã ở đây rồi...',                   sub:'Thử xem 5 phút đầu ngay lúc này nhé — chỉ để cảm nhận thôi. Rất nhiều người bắt đầu như vậy và không dừng lại được!', cta:'Xem thử 5 phút đầu →',    big:false},
+  {id:'tonight',label:'Tối nay 🌙',           msg:'Tốt lắm! Bạn đã có kế hoạch rồi.',                          sub:'Còn bây giờ — chỉ cần xem phần giới thiệu ngắn để hành trình chính thức bắt đầu từ hôm nay.', cta:'Xem phần giới thiệu →',   big:false},
+  {id:'later',  label:'Khi nào rảnh hơn 📅', msg:'Bạn đã đến được đây rồi — đó là bước đầu tiên.',            sub:'"Hành trình ngàn dặm bắt đầu bằng một bước chân." Bước đó là ngay lúc này, dù chỉ là 3 phút đầu tiên.', cta:'Thử bước đầu tiên →', big:false},
+];
+
+function CommitGame({courseId,onDone}){
+  const r=QUIZ_RESULTS[courseId];
+  const [chosen,setChosen]=useState(null);
+  const opt=COMMIT_OPTIONS.find(o=>o.id===chosen);
+
+  if(chosen&&opt){
+    return(
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12" style={{background:`linear-gradient(150deg,${r?.gradFrom||'#fef2f2'},#fdfbf7)`}}>
+        <div className="max-w-md w-full text-center bounce-in">
+          <div className="text-6xl mb-4 float">{chosen==='now'?'🎉':'💪'}</div>
+          <h2 className="font-heading text-2xl font-black text-gray-900 mb-2">{opt.msg}</h2>
+          <p className="text-gray-500 text-sm leading-relaxed mb-8 px-2">{opt.sub}</p>
+          <button onClick={onDone} className="w-full py-4 rounded-2xl text-white font-semibold text-base shadow-lg transition-all active:scale-95 pulse-glow" style={{background:`linear-gradient(135deg,${r?.accent||'#9b1106'},#c41a0a)`}}>
+            {opt.cta}
+          </button>
+          {chosen==='now'&&<p className="text-xs text-gray-400 mt-3">Miễn phí · Không cần cài app · Học ngay trên trình duyệt</p>}
+        </div>
+      </div>
+    );
+  }
+
+  return(
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10" style={{background:`linear-gradient(150deg,${r?.gradFrom||'#fef2f2'},#fdfbf7)`}}>
+      <div className="max-w-md w-full">
+        <div className="text-center mb-7 bounce-in">
+          <div className="text-5xl mb-3 float">⏱️</div>
+          <h2 className="font-heading text-2xl font-black text-gray-900 mb-2 leading-tight">Bài học đầu tiên<br/>khi nào bạn sẽ xem?</h2>
+          <p className="text-gray-500 text-sm">Không có câu trả lời sai — chỉ có câu trả lời thật</p>
+        </div>
+        <div className="space-y-3">
+          {COMMIT_OPTIONS.map(o=>(
+            <button key={o.id} onClick={()=>setChosen(o.id)}
+              className="w-full bg-white rounded-2xl p-4 text-left shadow-sm border-2 border-transparent hover:shadow-md hover:border-gray-100 transition-all active:scale-98">
+              <p className="font-semibold text-gray-800 text-sm">{o.label}</p>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -3490,7 +3622,9 @@ if(n&&c&&isReturning){
   }
   setScreen('needGame');
 };
-  const handleNeedGameDone=()=>{
+  const handleNeedGameDone=()=>setScreen('secretsGame');
+  const handleSecretsGameDone=()=>setScreen('commitGame');
+  const handleCommitGameDone=()=>{
   const preE=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
   if(preE&&shouldShowPushPrompt()){
     incPushPromptCount();
@@ -3630,6 +3764,8 @@ const phone=localStorage.getItem('rni-pre-phone')||'';
   if(screen==='rniOverview')return <RniOverviewScreen onContinue={()=>setScreen('quizResult')}/>;
   if(screen==='quizResult')return <QuizResultScreen result={quizResult} onContinue={handleQuizResultContinue} onBack={()=>setScreen('quiz')}/>;
   if(screen==='needGame')return <NeedDiscoveryGame courseId={quizResult} onDone={handleNeedGameDone}/>;
+  if(screen==='secretsGame')return <SecretsGame courseId={quizResult} onDone={handleSecretsGameDone}/>;
+  if(screen==='commitGame')return <CommitGame courseId={quizResult} onDone={handleCommitGameDone}/>;
   if(screen==='cert')return <CertScreen userName={userName} courseId={courseId} onBack={()=>setScreen('dashboard')} onDone={()=>setScreen('dashboard')}/>;
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}} isAdmin={isAdmin}/>;
   return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{

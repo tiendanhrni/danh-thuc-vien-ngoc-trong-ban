@@ -175,7 +175,7 @@ const QUIZ_RESULTS={
     opening:`Bạn thương mến,\n\nCó một thực tại lặng lẽ mà có lẽ bạn đang cảm nhận rất rõ: bên ngoài và bên trong bạn dường như không còn nói cùng một ngôn ngữ.\n\nBạn vẫn bước đi mỗi ngày, vẫn hoàn thành mọi vai trò một cách "tạm ổn". Nhưng trong những khoảng lặng hiếm hoi, một câu hỏi bỗng hiện lên nhức nhối: "Mình đang thực sự sống, hay chỉ đang loay hoay để tồn tại cho đúng kịch bản của cuộc đời?".\n\nXin hãy hiểu rằng, cảm giác trống trải hay hoang mang ấy không phải là một "lỗi sai", cũng không phải là sự yếu đuối. Đó chính là khoảnh khắc "bừng tỉnh". Là tiếng gọi từ bản thể chân thực đang thúc giục bạn tìm về một hiện thực sâu sắc và chân thật hơn những gì đang hiển lộ.\n\nLúc này, điều bạn cần không phải là chất thêm vào ba lô những thông tin hay những kế hoạch vĩ đại mới. Thứ bạn thực sự cần là dũng khí để thực hiện một "Phép Trừ" cho tâm hồn.\n\nĐể được dừng lại và thôi chạy trốn khỏi chính mình.\nĐể được thấy rõ những giá trị cốt lõi đang bị che lấp bởi kỳ vọng của số đông.\nĐể thực hiện cuộc thiên di lớn nhất đời người: trở về đánh thức viên ngọc quý vốn đã luôn ở đó, sẵn sàng để tỏa rạng từ bên trong bạn.\n\n"Cuộc đời thật đẹp không phải khi nó hoàn hảo, mà khi dù không hoàn hảo, ta vẫn có thể bình thản đón nhận và sống đúng với bản thể chân thật của mình."\n\nKhi bạn chọn bước đi để tìm lại sợi dây kết nối ấy, con đường mới sẽ tự khắc mở ra dưới chân bạn.`,
     courseHeader:"KẾT NỐI VỚI CHÍNH MÌNH & NGUỒN SÁNG BÊN TRONG",
     courseSubtag:"Khóa học miễn phí · Giai đoạn Return · Học viện RNI",
-    courseIntro:"",
+    courseIntro:"Đây là không gian dành cho những ai đang cảm thấy chông chênh, mất kết nối với chính mình — và mong muốn tìm lại sự bình an, vững vàng từ bên trong.",
     course:"Kết Nối Với Chính Mình & Nguồn Sáng Bên Trong",courseTag:"Giai đoạn Return — Miễn phí",
     benefits:["Nhận ra 4 rào cản vô hình đang ngăn bạn sống cuộc đời mình thật sự muốn","Kết nối lại với tiếng gọi bên trong — thứ mà bạn đã lâu không nghe thấy","Xây dựng 'la bàn nội tâm' — để tự dẫn đường trong mọi hoàn cảnh","Dám chọn lại chính mình — từ bên trong ra"],
     quote:`"Khi bạn thấy rõ chính mình,\ncon đường tự khắc hiện ra dưới chân bạn\nmà không cần một nỗ lực tìm kiếm nào từ bên ngoài."`},
@@ -2554,7 +2554,7 @@ function AdminCoursePicker({userName,onPick}){
 }
 
 /* ─── COURSE CHOICE (chọn quiz hoặc học ngay theo giai đoạn) ────── */
-function CourseChoiceScreen({onPickCourse,onQuiz,onBack}){
+function CourseChoiceScreen({onSelectCourse,onQuiz,onBack}){
   return(
     <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12 relative">
       <button onClick={onBack} className="absolute top-4 left-4 flex items-center gap-1 text-gray-400 hover:text-gray-700 text-sm font-medium transition-colors">
@@ -2568,25 +2568,26 @@ function CourseChoiceScreen({onPickCourse,onQuiz,onBack}){
         </div>
 
         <button onClick={onQuiz}
-          className="w-full bg-white border-2 border-rni-200 rounded-2xl p-5 text-left hover:border-rni-400 hover:shadow-sm transition-all flex items-center gap-4 mb-5">
+          className="w-full bg-white border-2 border-rni-300 rounded-2xl p-5 text-left hover:border-rni-400 hover:shadow-md transition-all flex items-center gap-4 mb-2 shadow-sm">
           <span className="text-3xl">🧭</span>
           <div>
-            <p className="font-bold text-gray-900">Làm bài trắc nghiệm</p>
-            <p className="text-sm text-gray-500">Để tìm ra giai đoạn phù hợp nhất với bạn</p>
+            <p className="font-bold text-gray-900 flex items-center gap-2">Làm bài trắc nghiệm <span className="text-[10px] font-semibold text-rni-600 bg-rni-50 border border-rni-100 rounded-full px-2 py-0.5">Đề xuất</span></p>
+            <p className="text-sm text-gray-500 mt-0.5">Chưa chắc mình đang ở giai đoạn nào? Làm bài trắc nghiệm ngắn (chỉ 3–5 phút) để RNI đồng hành đúng khoá học phù hợp với bạn nhất.</p>
           </div>
-          <span className="ml-auto text-gray-300 text-lg">›</span>
+          <span className="ml-auto text-gray-300 text-lg flex-shrink-0">›</span>
         </button>
 
-        <div className="relative my-5">
+        <div className="relative my-6">
           <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"/></div>
-          <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-gray-400">Hoặc học ngay theo giai đoạn</span></div>
+          <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-gray-400 font-medium">Hoặc học ngay theo giai đoạn</span></div>
         </div>
+        <p className="text-gray-500 text-xs text-center leading-relaxed mb-4 -mt-1">Đây là 3 khoá học <b>miễn phí</b>, mỗi khoá tương ứng với 1 giai đoạn trong hành trình Đánh Thức Viên Ngọc Bên Trong của Học viện RNI. Nếu đã biết rõ mình đang ở giai đoạn nào, bạn có thể chọn học ngay bên dưới.</p>
 
         <div className="space-y-3">
           {['R','N','I'].map(id=>{
             const r=QUIZ_RESULTS[id];
             return(
-              <button key={id} onClick={()=>onPickCourse(id)}
+              <button key={id} onClick={()=>onSelectCourse(id)}
                 className="w-full bg-white border-2 border-gray-100 rounded-2xl p-5 text-left hover:border-rni-300 hover:shadow-sm transition-all flex items-center gap-4">
                 <span className="text-3xl">{r.icon}</span>
                 <div>
@@ -2598,6 +2599,44 @@ function CourseChoiceScreen({onPickCourse,onQuiz,onBack}){
             );
           })}
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── COURSE INTRO (giới thiệu ngắn trước khi vào khoá đã chọn) ─── */
+function CourseIntroScreen({courseId,onContinue,onBack}){
+  const r=QUIZ_RESULTS[courseId];
+  if(!r)return null;
+  return(
+    <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12 relative">
+      <button onClick={onBack} className="absolute top-4 left-4 flex items-center gap-1 text-gray-400 hover:text-gray-700 text-sm font-medium transition-colors">
+        ← Chọn khoá khác
+      </button>
+      <div className="max-w-md w-full slide-up">
+        <div className="text-center mb-6">
+          <div className="flex justify-center mb-3"><Logo size={48}/></div>
+          <p className="text-xs text-gray-400 leading-relaxed max-w-sm mx-auto">Học viện RNI (Return – Nurture – Illuminate) đồng hành cùng bạn trên hành trình đánh thức viên ngọc quý bên trong, qua 3 giai đoạn: Trở Về, Vun Bồi và Toả Sáng.</p>
+        </div>
+        <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-sm p-6 text-center">
+          <span className="text-4xl">{r.icon}</span>
+          <div className="inline-block bg-rni-50 text-rni-600 text-xs font-bold px-3 py-1 rounded-full mt-3 mb-2">Giai đoạn {r.stage} — {r.subtitle}</div>
+          <h2 className="font-heading font-black text-xl text-gray-900 leading-snug mb-2">{r.courseHeader}</h2>
+          <p className="text-gray-500 text-xs mb-4">{r.courseSubtag}</p>
+          {r.courseIntro&&<p className="text-gray-600 text-sm leading-relaxed text-left">{r.courseIntro}</p>}
+          {r.benefits&&<ul className="text-left mt-4 space-y-2">
+            {r.benefits.slice(0,3).map((b,i)=>(
+              <li key={i} className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="text-rni-500 flex-shrink-0 mt-0.5">✓</span>{b}
+              </li>
+            ))}
+          </ul>}
+        </div>
+        <button onClick={onContinue}
+          className="w-full mt-6 py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 hover:opacity-90 pulse-glow"
+          style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+          Vào học ngay →
+        </button>
       </div>
     </div>
   );
@@ -3258,6 +3297,7 @@ function App(){
   const [quizResult,setQuizResult]=useState(null);
   const [courseId,setCourseId]=useState(null);
   const [lesson,setLesson]=useState(null);
+  const [pendingCourseId,setPendingCourseId]=useState(null);
   const [showIosPrompt,setShowIosPrompt]=useState(false);
   const [progress,setProgress]=useState(()=>{try{return JSON.parse(localStorage.getItem('rni-progress')||'{}');}catch{return{};}});
   const [showWelcomeBack,setShowWelcomeBack]=useState(false);
@@ -3526,7 +3566,8 @@ if(n&&c&&isReturning){
   }
   if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('courseChoice')} onAdminLogin={n=>{setUserName(n);setIsAdmin(true);setScreen('adminPicker');}} onReturn={handleReturn}/>;
   if(screen==='adminPicker')return <AdminCoursePicker userName={userName} onPick={id=>{setCourseId(id);setScreen('dashboard');}}/>;
-  if(screen==='courseChoice')return <CourseChoiceScreen onQuiz={()=>setScreen('quizTransition')} onPickCourse={handlePickCourse} onBack={()=>setScreen(courseId?'dashboard':'preQuiz')}/>;
+  if(screen==='courseChoice')return <CourseChoiceScreen onQuiz={()=>setScreen('quizTransition')} onSelectCourse={id=>{setPendingCourseId(id);setScreen('courseIntro');}} onBack={()=>setScreen(courseId?'dashboard':'preQuiz')}/>;
+  if(screen==='courseIntro')return <CourseIntroScreen courseId={pendingCourseId} onContinue={()=>handlePickCourse(pendingCourseId)} onBack={()=>setScreen('courseChoice')}/>;
   if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('courseChoice')}/>;
   if(screen==='quiz')return <QuizScreen onDone={r=>{
     setQuizResult(r);setCourseId(r);

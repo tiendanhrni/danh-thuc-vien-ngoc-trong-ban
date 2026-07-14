@@ -104,6 +104,17 @@ function Logo({size=48,className=''}){
   );
 }
 
+/* ─── STAGE ICON (line-art, thay cho emoji) ─────────────────────── */
+const STAGE_ACCENT={R:'#9b1106',N:'#d97706',I:'#f59e0b'};
+function StageIcon({id,size=28,strokeWidth=1.6,color}){
+  const c=color||STAGE_ACCENT[id]||'#9b1106';
+  const common={width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:c,strokeWidth,strokeLinecap:'round',strokeLinejoin:'round'};
+  if(id==='R')return(<svg {...common}><path d="M12 21V11"/><path d="M12 12c0-4.2-3-7-7.5-7C4.5 9.2 7.7 12 12 12z"/><path d="M12 12c0-4.2 3-7 7.5-7C19.5 9.2 16.3 12 12 12z"/></svg>);
+  if(id==='N')return(<svg {...common}><circle cx="12" cy="12" r="4.2"/><path d="M12 2.8v2.6M12 18.6v2.6M4.2 12H1.6M22.4 12h-2.6M5.9 5.9l1.8 1.8M16.3 16.3l1.8 1.8M18.1 5.9l-1.8 1.8M7.7 16.3l-1.8 1.8"/></svg>);
+  if(id==='I')return(<svg {...common}><path d="M12 2.5l1.9 6.6L20.5 11l-6.6 1.9L12 19.5l-1.9-6.6L3.5 11l6.6-1.9L12 2.5z"/></svg>);
+  return null;
+}
+
 /* ─── QUIZ DATA ─────────────────────────────────────────────────── */
 const QUIZ_QUESTIONS=[
   {id:1,part:1,q:"Từ khóa nào mô tả đúng nhất về tình trạng nội tâm của bạn hiện tại?",opts:["Chông chênh, trống rỗng và kiệt quệ cảm xúc dù bề ngoài vẫn ổn.","Đang tập quay về bên trong, có lúc bình an nhưng đôi khi vẫn bị ngoại cảnh làm dao động.","Vững chãi, tĩnh tại và sẵn sàng lan tỏa năng lượng bình an này đến những người xung quanh."]},
@@ -795,7 +806,7 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
                     onKeyDown={e=>e.key==='Enter'&&submitNew()}
                     placeholder="0912 345 678"
                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
-                  <p className="text-gray-400 text-xs mt-1.5">📞 Để đội ngũ RNI hỗ trợ bạn trên hành trình.</p>
+                  <p className="text-gray-400 text-xs mt-1.5">Để đội ngũ RNI hỗ trợ bạn trên hành trình.</p>
                 </div>
               </div>
               {err&&<p className="text-rni-600 text-xs mt-3 font-medium">⚠ {err}</p>}
@@ -815,7 +826,7 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
                   autoFocus
                   placeholder="email@example.com"
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
-                <p className="text-gray-400 text-xs mt-1.5">📩 Nếu đã học trước đây, bạn sẽ vào thẳng khoá học.</p>
+                <p className="text-gray-400 text-xs mt-1.5">Nếu đã học trước đây, bạn sẽ vào thẳng khoá học.</p>
               </div>
               {err&&<p className="text-rni-600 text-xs mt-3 font-medium">⚠ {err}</p>}
               <button onClick={checkEmail} disabled={loading}
@@ -849,7 +860,7 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
                     onKeyDown={e=>e.key==='Enter'&&submit()}
                     placeholder="0912 345 678"
                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
-                  <p className="text-gray-400 text-xs mt-1.5">📞 Để đội ngũ RNI hỗ trợ bạn trên hành trình.</p>
+                  <p className="text-gray-400 text-xs mt-1.5">Để đội ngũ RNI hỗ trợ bạn trên hành trình.</p>
                 </div>
               </div>
               {err&&<p className="text-rni-600 text-xs mt-3 font-medium">⚠ {err}</p>}
@@ -879,7 +890,7 @@ function QuizTransition({onDone,onBack}){
         ← Quay lại
       </button>
       <div className="max-w-sm text-center fade-in">
-        <div className="text-5xl mb-6 float">🌿</div>
+        <div className="text-5xl mb-6 float text-rni-600">✦</div>
         <div className="text-gray-600 text-base leading-loose">
           <p>Hãy đặt điện thoại xuống một chút.</p>
           <p>Hít thở.</p>
@@ -1119,8 +1130,9 @@ function QuizResultScreen({result,onContinue,onBack}){
       className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all hover:opacity-85 active:scale-90"
       style={{background:'#25d366'}}>W</a>
     <button onClick={()=>{try{navigator.clipboard.writeText(pageUrl).then(()=>alert('Đã sao chép link!'));}catch{alert('Link: '+pageUrl);}}}
-      className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 border-2 border-gray-200 transition-all hover:border-gray-400 active:scale-90 text-base">
-      🔗
+      aria-label="Sao chép liên kết"
+      className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 border-2 border-gray-200 transition-all hover:border-gray-400 active:scale-90">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>
     </button>
   </div>
           <p className="text-xs text-gray-400 mt-4"><span className="font-semibold text-rni-600">Học viện RNI</span> · Return · Nurture · Illuminate</p>
@@ -2568,13 +2580,14 @@ function CourseChoiceScreen({onSelectCourse,onQuiz,onBack}){
         </div>
 
         <button onClick={onQuiz}
-          className="w-full bg-white border-2 border-rni-300 rounded-2xl p-5 text-left hover:border-rni-400 hover:shadow-md transition-all flex items-center gap-4 mb-2 shadow-sm">
-          <span className="text-3xl">🧭</span>
+          className="w-full rounded-2xl p-5 text-left transition-all flex items-center gap-4 mb-2 shadow-lg active:scale-[.99] hover:opacity-95"
+          style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+          <span className="flex-shrink-0 w-11 h-11 rounded-full bg-white/15 flex items-center justify-center text-white text-xl">✦</span>
           <div>
-            <p className="font-bold text-gray-900 flex items-center gap-2">Làm bài trắc nghiệm <span className="text-[10px] font-semibold text-rni-600 bg-rni-50 border border-rni-100 rounded-full px-2 py-0.5">Đề xuất</span></p>
-            <p className="text-sm text-gray-500 mt-0.5">Chưa chắc mình đang ở giai đoạn nào? Làm bài trắc nghiệm ngắn (chỉ 3–5 phút) để RNI đồng hành đúng khoá học phù hợp với bạn nhất.</p>
+            <p className="font-bold text-white flex items-center gap-2">Làm bài trắc nghiệm <span className="text-[10px] font-semibold text-white bg-white/20 rounded-full px-2 py-0.5">Đề xuất</span></p>
+            <p className="text-sm text-white/85 mt-0.5">Chưa chắc mình đang ở giai đoạn nào? Làm bài trắc nghiệm ngắn (chỉ 3–5 phút) để RNI đồng hành đúng khoá học phù hợp với bạn nhất.</p>
           </div>
-          <span className="ml-auto text-gray-300 text-lg flex-shrink-0">›</span>
+          <span className="ml-auto text-white/60 text-lg flex-shrink-0">›</span>
         </button>
 
         <div className="relative my-6">
@@ -2589,7 +2602,7 @@ function CourseChoiceScreen({onSelectCourse,onQuiz,onBack}){
             return(
               <button key={id} onClick={()=>onSelectCourse(id)}
                 className="w-full bg-white border-2 border-gray-100 rounded-2xl p-5 text-left hover:border-rni-300 hover:shadow-sm transition-all flex items-center gap-4">
-                <span className="text-3xl">{r.icon}</span>
+                <span className="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center" style={{background:`${STAGE_ACCENT[id]}12`}}><StageIcon id={id} size={22}/></span>
                 <div>
                   <p className="font-bold text-gray-900">{r.stage}</p>
                   <p className="text-sm text-gray-500">{r.subtitle}</p>
@@ -2616,10 +2629,12 @@ function CourseIntroScreen({courseId,onContinue,onBack}){
       <div className="max-w-md w-full slide-up">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3"><Logo size={48}/></div>
-          <p className="text-xs text-gray-400 leading-relaxed max-w-sm mx-auto">Học viện RNI (Return – Nurture – Illuminate) đồng hành cùng bạn trên hành trình đánh thức viên ngọc quý bên trong, qua 3 giai đoạn: Trở Về, Vun Bồi và Toả Sáng.</p>
+          <div className="bg-rni-50/60 border border-rni-100 rounded-xl px-4 py-3 max-w-sm mx-auto">
+            <p className="text-sm text-gray-600 leading-relaxed">Học viện RNI (Return – Nurture – Illuminate) đồng hành cùng bạn trên hành trình đánh thức viên ngọc quý bên trong, qua 3 giai đoạn: <b>Trở Về, Vun Bồi</b> và <b>Toả Sáng</b>.</p>
+          </div>
         </div>
         <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-sm p-6 text-center">
-          <span className="text-4xl">{r.icon}</span>
+          <span className="inline-flex w-16 h-16 rounded-full items-center justify-center" style={{background:`${STAGE_ACCENT[courseId]}12`}}><StageIcon id={courseId} size={30}/></span>
           <div className="inline-block bg-rni-50 text-rni-600 text-xs font-bold px-3 py-1 rounded-full mt-3 mb-2">Giai đoạn {r.stage} — {r.subtitle}</div>
           <h2 className="font-heading font-black text-xl text-gray-900 leading-snug mb-2">{r.courseHeader}</h2>
           <p className="text-gray-500 text-xs mb-4">{r.courseSubtag}</p>
@@ -3229,14 +3244,14 @@ function RniOverviewScreen({onContinue}){
             {/* 3 chặng */}
             <div className="relative z-10 grid grid-cols-3 gap-2">
               {[
-                {label:'Return',vi:'Trở về',icon:'🍀',color:'#9b1106',desc:'Trở về với bản thể chân thật'},
-                {label:'Nurture',vi:'Vun bồi',icon:'❤️',color:'#d97706',desc:'Xây dựng nền tảng nội lực'},
-                {label:'Illuminate',vi:'Toả sáng',icon:'✨',color:'#f59e0b',desc:'Sứ mệnh của ánh sáng'},
+                {id:'R',label:'Return',vi:'Trở về',color:'#9b1106'},
+                {id:'N',label:'Nurture',vi:'Vun bồi',color:'#d97706'},
+                {id:'I',label:'Illuminate',vi:'Toả sáng',color:'#f59e0b'},
               ].map((s,i)=>(
                 <div key={i} className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl shadow-md mb-3"
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-md mb-3"
                     style={{background:`${s.color}15`,border:`2.5px solid ${s.color}`}}>
-                    {s.icon}
+                    <StageIcon id={s.id} size={26} color={s.color}/>
                   </div>
                   <p className="font-heading font-black text-xs" style={{color:s.color}}>{s.label}</p>
                   <p className="text-xs text-gray-500 font-medium">{s.vi}</p>
@@ -3254,17 +3269,13 @@ function RniOverviewScreen({onContinue}){
           {/* Mô tả 3 chặng */}
           <div className="mt-6 space-y-4">
             {[
-              {num:'01',label:'Return — Trở về',color:'#9b1106',desc:'Đây là lúc bạn nhận ra mình không thể tiếp tục sống theo kịch bản của người khác. Bạn chọn dừng lại để tìm đường "Trở về" với ngôi nhà bên trong, về với bản thể chân thật sau những năm tháng "lạc lối" trong chính nội tâm mình.'},
-              {num:'02',label:'Nurture — Vun bồi',color:'#d97706',desc:'Khi đã về đến Nhà, bạn bắt đầu chăm sóc "khu vườn" nội tâm. Đây là giai đoạn bạn cần những công cụ thực tế để tự quan sát, làm chủ cảm xúc và duy trì sự cam kết.'},
-              {num:'03',label:'Illuminate — Toả sáng',color:'#f59e0b',desc:'Khi viên ngọc trong bạn đã đủ sáng, việc trao đi không còn là nghĩa vụ mà trở thành nhu cầu tự nhiên. Bạn bắt đầu lan tỏa giá trị và trở thành người dẫn dắt những người xung quanh.'},
+              {label:'Return — Trở về',color:'#9b1106',desc:'Đây là lúc bạn nhận ra mình không thể tiếp tục sống theo kịch bản của người khác. Bạn chọn dừng lại để tìm đường "Trở về" với ngôi nhà bên trong, về với bản thể chân thật sau những năm tháng "lạc lối" trong chính nội tâm mình.'},
+              {label:'Nurture — Vun bồi',color:'#d97706',desc:'Khi đã về đến Nhà, bạn bắt đầu chăm sóc "khu vườn" nội tâm. Đây là giai đoạn bạn cần những công cụ thực tế để tự quan sát, làm chủ cảm xúc và duy trì sự cam kết.'},
+              {label:'Illuminate — Toả sáng',color:'#f59e0b',desc:'Khi viên ngọc trong bạn đã đủ sáng, việc trao đi không còn là nghĩa vụ mà trở thành nhu cầu tự nhiên. Bạn bắt đầu lan tỏa giá trị và trở thành người dẫn dắt những người xung quanh.'},
             ].map((s,i)=>(
-              <div key={i} className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white font-black text-xs"
-                  style={{background:s.color}}>{s.num}</div>
-                <div>
-                  <p className="text-sm font-bold text-gray-900 mb-1">{s.label}</p>
-                  <p className="text-xs text-gray-500 leading-relaxed">{s.desc}</p>
-                </div>
+              <div key={i} className="border-l-2 pl-4" style={{borderColor:`${s.color}40`}}>
+                <p className="text-sm font-bold mb-1" style={{color:s.color}}>{s.label}</p>
+                <p className="text-xs text-gray-500 leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>

@@ -106,6 +106,10 @@ function Logo({size=48,className=''}){
 
 /* ─── STAGE ICON (line-art, thay cho emoji) ─────────────────────── */
 const STAGE_ACCENT={R:'#9b1106',N:'#d97706',I:'#f59e0b'};
+/* Ảnh thật từ rni.institute — dùng để tăng độ tin cậy, không dùng ảnh dựng */
+const RUBY_PHOTO_URL='https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/themes/2148053282/settings_images/w75SuiEzSqWwhMUkplLJ_WEBSITE_RNI_INSTITUTE_-_RUBY_NGUYEN_2.png';
+const EMCC_BADGE_URL='https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2156756287/settings_images/3f6eef-5cfe-8b34-c1-756e88848cb_aining-provider-quality-award-eqa-v4.png';
+const RNI_STATS=[{n:'657K+',l:'người nhận giá trị từ RNI'},{n:'67K+',l:'học viên · 55 quốc gia'},{n:'2.7K+',l:'học viên chương trình chuyên sâu'}];
 function StageIcon({id,size=28,strokeWidth=1.6,color}){
   const c=color||STAGE_ACCENT[id]||'#9b1106';
   const common={width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:c,strokeWidth,strokeLinecap:'round',strokeLinejoin:'round'};
@@ -763,9 +767,13 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
             hành trình của mình?
           </span>
         </h1>
-        <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-8 max-w-xl mx-auto">
+        <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-6 max-w-xl mx-auto">
           Không có câu trả lời đúng hay sai, chỉ cần sự thành thật với chính mình. Sau đây là những câu hỏi trắc nghiệm ngắn để giúp bạn xác định một cách sáng rõ bạn đang ở đâu trên hành trình của mình.
         </p>
+        <div className="flex items-center justify-center gap-2.5 mb-8">
+          <img src={RUBY_PHOTO_URL} alt="Ruby Nguyen" className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm" onError={e=>e.target.style.display='none'}/>
+          <p className="text-xs text-gray-500"><span className="font-semibold text-gray-700">Ruby Nguyen</span> · Nhà sáng lập Học viện RNI</p>
+        </div>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 max-w-md mx-auto text-left">
           {step==='new'?(
             <>
@@ -872,6 +880,15 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
               <button onClick={()=>{setStep('email');setErr('');setEmailNotFound(false);}} className="w-full mt-2 py-2 text-xs text-gray-400 hover:text-gray-600 transition-colors">← Đổi email</button>
             </>
           )}
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 mb-8 max-w-xl mx-auto">
+          {RNI_STATS.map((s,i)=>(
+            <div key={i} className="text-center">
+              <p className="font-heading font-black text-xl text-rni-600">{s.n}</p>
+              <p className="text-[11px] text-gray-400 leading-tight max-w-[110px]">{s.l}</p>
+            </div>
+          ))}
+          <img src={EMCC_BADGE_URL} alt="Chứng nhận EMCC Global" className="h-12 object-contain" onError={e=>e.target.style.display='none'}/>
         </div>
         <div className="border-t border-gray-200 pt-6 max-w-xl mx-auto">
           <p className="text-gray-500 text-sm leading-relaxed mb-3">Và hãy nhớ rằng dù bạn đang ở chặng nào, có một sự thật không đổi đó là bên trong bạn luôn có một viên ngọc quý và</p>
@@ -2631,6 +2648,11 @@ function CourseIntroScreen({courseId,onContinue,onBack}){
           <div className="flex justify-center mb-3"><Logo size={48}/></div>
           <div className="bg-rni-50/60 border border-rni-100 rounded-xl px-4 py-3 max-w-sm mx-auto">
             <p className="text-sm text-gray-600 leading-relaxed">Học viện RNI (Return – Nurture – Illuminate) đồng hành cùng bạn trên hành trình đánh thức viên ngọc quý bên trong, qua 3 giai đoạn: <b>Trở Về, Vun Bồi</b> và <b>Toả Sáng</b>.</p>
+          </div>
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <img src={RUBY_PHOTO_URL} alt="Ruby Nguyen" className="w-6 h-6 rounded-full object-cover border border-white shadow-sm" onError={e=>e.target.style.display='none'}/>
+            <p className="text-[11px] text-gray-400">Sáng lập bởi Ruby Nguyen</p>
+            <img src={EMCC_BADGE_URL} alt="Chứng nhận EMCC Global" className="h-7 object-contain" onError={e=>e.target.style.display='none'}/>
           </div>
         </div>
         <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-sm p-6 text-center">

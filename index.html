@@ -634,8 +634,8 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
   const hasSession=!!(localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email'));
   const [step,setStep]=useState(hasSession?'email':'new'); // 'new' | 'email' | 'register'
   const [email,setEmail]=useState(localStorage.getItem('rni-pre-email')||localStorage.getItem('rni-email')||'');
-  const [name,setName]=useState('');
-  const [phone,setPhone]=useState('');
+  const [name,setName]=useState(localStorage.getItem('rni-pre-name')||localStorage.getItem('rni-name')||'');
+  const [phone,setPhone]=useState(localStorage.getItem('rni-pre-phone')||localStorage.getItem('rni-phone')||'');
   const [loading,setLoading]=useState(false);
   const [err,setErr]=useState('');
 
@@ -665,7 +665,18 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
         return;
       }
     }catch(e){}
-    setLoading(false);setStep('register');
+    setLoading(false);
+    // Nếu đã có sẵn tên & SĐT từ trước (cùng trình duyệt) thì không bắt điền lại
+    if(name.trim()&&phone.trim()){
+      try{
+        localStorage.setItem('rni-pre-name',name.trim());
+        localStorage.setItem('rni-pre-email',e);
+        localStorage.setItem('rni-pre-phone',phone.trim());
+      }catch{}
+      onStart();
+      return;
+    }
+    setStep('register');
   };
 
   const submit=()=>{

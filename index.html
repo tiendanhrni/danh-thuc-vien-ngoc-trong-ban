@@ -2534,6 +2534,56 @@ function AdminCoursePicker({userName,onPick}){
   );
 }
 
+/* ─── COURSE CHOICE (chọn quiz hoặc học ngay theo giai đoạn) ────── */
+function CourseChoiceScreen({onPickCourse,onQuiz,onBack}){
+  return(
+    <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12 relative">
+      <button onClick={onBack} className="absolute top-4 left-4 flex items-center gap-1 text-gray-400 hover:text-gray-700 text-sm font-medium transition-colors">
+        ← Quay lại
+      </button>
+      <div className="max-w-md w-full slide-up">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-3"><Logo size={54}/></div>
+          <h2 className="font-heading font-black text-2xl text-gray-900">Bạn muốn bắt đầu như thế nào?</h2>
+          <p className="text-gray-500 text-sm mt-1">Chọn một trong hai cách bên dưới để bắt đầu hành trình của bạn</p>
+        </div>
+
+        <button onClick={onQuiz}
+          className="w-full bg-white border-2 border-rni-200 rounded-2xl p-5 text-left hover:border-rni-400 hover:shadow-sm transition-all flex items-center gap-4 mb-5">
+          <span className="text-3xl">🧭</span>
+          <div>
+            <p className="font-bold text-gray-900">Làm bài trắc nghiệm</p>
+            <p className="text-sm text-gray-500">Để tìm ra giai đoạn phù hợp nhất với bạn</p>
+          </div>
+          <span className="ml-auto text-gray-300 text-lg">›</span>
+        </button>
+
+        <div className="relative my-5">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"/></div>
+          <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-gray-400">Hoặc học ngay theo giai đoạn</span></div>
+        </div>
+
+        <div className="space-y-3">
+          {['R','N','I'].map(id=>{
+            const r=QUIZ_RESULTS[id];
+            return(
+              <button key={id} onClick={()=>onPickCourse(id)}
+                className="w-full bg-white border-2 border-gray-100 rounded-2xl p-5 text-left hover:border-rni-300 hover:shadow-sm transition-all flex items-center gap-4">
+                <span className="text-3xl">{r.icon}</span>
+                <div>
+                  <p className="font-bold text-gray-900">{r.stage}</p>
+                  <p className="text-sm text-gray-500">{r.subtitle}</p>
+                </div>
+                <span className="ml-auto text-gray-300 text-lg">›</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── DASHBOARD ─────────────────────────────────────────────────── */
 function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo,onLogout,isAdmin}){
   const [expanded,setExpanded]=useState(1);
@@ -2565,7 +2615,7 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo,onLogout,i
           </div>
           <div className="flex items-center gap-3">
             <button onClick={onRedo} className="text-xs text-gray-400 hover:text-rni-600 transition-colors font-medium whitespace-nowrap">
-              ← Làm lại khảo sát
+              ← Đổi lộ trình học
             </button>
             <button onClick={onLogout} className="text-xs text-gray-400 hover:text-red-500 transition-colors font-medium whitespace-nowrap border border-gray-200 rounded-lg px-2 py-1">
               Đăng xuất
@@ -3338,6 +3388,39 @@ if(n&&c&&isReturning){
     setScreen('dashboard');
   }
 };
+
+  // Học viên chọn học ngay một khoá theo giai đoạn, không cần làm quiz.
+  // Nếu email này đã có tiến độ từ trước (dù ở khoá nào), tiến độ đó được
+  // đồng bộ lại để học viên học tiếp chứ không học lại từ đầu.
+  const handlePickCourse=(id)=>{
+    const preN=localStorage.getItem('rni-name')||localStorage.getItem('rni-pre-name')||'Học viên';
+    const preE=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
+    const preP=localStorage.getItem('rni-phone')||localStorage.getItem('rni-pre-phone')||'';
+    setUserName(preN);setCourseId(id);
+    try{
+      localStorage.setItem('rni-name',preN);
+      if(preE)localStorage.setItem('rni-email',preE);
+      if(preP)localStorage.setItem('rni-phone',preP);
+      localStorage.setItem('rni-course',id);
+      localStorage.removeItem('rni-quiz-result');
+    }catch{}
+    if(preE){
+      fetchServerProgress(preE).then(serverP=>{
+        if(Object.keys(serverP).length>0){
+          setProgress(p=>({...serverP,...p}));
+        }
+      });
+      sendProgressEvent({event:'course_select',courseId:id,courseName:COURSES[id]?.title||id,lessonId:'',lessonTitle:'',completedCount:0,totalCount:0,progressPct:0});
+    }
+    if(preE&&shouldShowPushPrompt()){
+      incPushPromptCount();
+      setShowPushPrompt(true);
+    }else{
+      if(preE)setTimeout(()=>registerPush(preE,()=>setPushBlocked(true),()=>setShowIosPrompt(true)),2000);
+      setScreen('dashboard');
+    }
+  };
+
   if(showWelcomeBack)return(
   <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
     <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center bounce-in">
@@ -3422,9 +3505,10 @@ if(n&&c&&isReturning){
   </div>
   );
   }
-  if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('quizTransition')} onAdminLogin={n=>{setUserName(n);setIsAdmin(true);setScreen('adminPicker');}} onReturn={handleReturn}/>;
+  if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('courseChoice')} onAdminLogin={n=>{setUserName(n);setIsAdmin(true);setScreen('adminPicker');}} onReturn={handleReturn}/>;
   if(screen==='adminPicker')return <AdminCoursePicker userName={userName} onPick={id=>{setCourseId(id);setScreen('dashboard');}}/>;
-  if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('preQuiz')}/>;
+  if(screen==='courseChoice')return <CourseChoiceScreen onQuiz={()=>setScreen('quizTransition')} onPickCourse={handlePickCourse} onBack={()=>setScreen(courseId?'dashboard':'preQuiz')}/>;
+  if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('courseChoice')}/>;
   if(screen==='quiz')return <QuizScreen onDone={r=>{
     setQuizResult(r);setCourseId(r);
     try{localStorage.setItem('rni-quiz-result',r);}catch{}
@@ -3471,7 +3555,7 @@ const phone=localStorage.getItem('rni-pre-phone')||'';
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}} isAdmin={isAdmin}/>;
   return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{
     if(!isAdmin) sendProgressEvent({event:'lesson_open',courseId,courseName:COURSES[courseId]?.title||courseId,lessonId:l.id,lessonTitle:l.title,completedCount:Object.keys(progress).filter(k=>getAllLessons(courseId).some(x=>x.id===k)).length,totalCount:getAllLessons(courseId).length,progressPct:Math.round(Object.keys(progress).filter(k=>getAllLessons(courseId).some(x=>x.id===k)).length/getAllLessons(courseId).length*100)});
-    setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onLogout={handleLogout} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-course');}catch{}setCourseId(null);setQuizResult(null);setScreen('quizTransition');}}/>;
+    setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onLogout={handleLogout} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>setScreen('courseChoice')}/>;
 }
 
 const root=ReactDOM.createRoot(document.getElementById('root'));

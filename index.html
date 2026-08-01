@@ -104,6 +104,21 @@ function Logo({size=48,className=''}){
   );
 }
 
+/* ─── STAGE ICON (line-art, thay cho emoji) ─────────────────────── */
+const STAGE_ACCENT={R:'#9b1106',N:'#d97706',I:'#f59e0b'};
+/* Ảnh thật từ rni.institute — dùng để tăng độ tin cậy, không dùng ảnh dựng */
+const RUBY_PHOTO_URL='https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/themes/2148053282/settings_images/w75SuiEzSqWwhMUkplLJ_WEBSITE_RNI_INSTITUTE_-_RUBY_NGUYEN_2.png';
+const EMCC_BADGE_URL='https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/themes/2156756287/settings_images/3f6eef-5cfe-8b34-c1-756e88848cb_aining-provider-quality-award-eqa-v4.png';
+const RNI_STATS=[{n:'657K+',l:'người nhận giá trị từ RNI'},{n:'67K+',l:'học viên · 55 quốc gia'},{n:'2.7K+',l:'học viên chương trình chuyên sâu'}];
+function StageIcon({id,size=28,strokeWidth=1.6,color}){
+  const c=color||STAGE_ACCENT[id]||'#9b1106';
+  const common={width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:c,strokeWidth,strokeLinecap:'round',strokeLinejoin:'round'};
+  if(id==='R')return(<svg {...common}><path d="M12 21V11"/><path d="M12 12c0-4.2-3-7-7.5-7C4.5 9.2 7.7 12 12 12z"/><path d="M12 12c0-4.2 3-7 7.5-7C19.5 9.2 16.3 12 12 12z"/></svg>);
+  if(id==='N')return(<svg {...common}><circle cx="12" cy="12" r="4.2"/><path d="M12 2.8v2.6M12 18.6v2.6M4.2 12H1.6M22.4 12h-2.6M5.9 5.9l1.8 1.8M16.3 16.3l1.8 1.8M18.1 5.9l-1.8 1.8M7.7 16.3l-1.8 1.8"/></svg>);
+  if(id==='I')return(<svg {...common}><path d="M12 2.5l1.9 6.6L20.5 11l-6.6 1.9L12 19.5l-1.9-6.6L3.5 11l6.6-1.9L12 2.5z"/></svg>);
+  return null;
+}
+
 /* ─── QUIZ DATA ─────────────────────────────────────────────────── */
 const QUIZ_QUESTIONS=[
   {id:1,part:1,q:"Từ khóa nào mô tả đúng nhất về tình trạng nội tâm của bạn hiện tại?",opts:["Chông chênh, trống rỗng và kiệt quệ cảm xúc dù bề ngoài vẫn ổn.","Đang tập quay về bên trong, có lúc bình an nhưng đôi khi vẫn bị ngoại cảnh làm dao động.","Vững chãi, tĩnh tại và sẵn sàng lan tỏa năng lượng bình an này đến những người xung quanh."]},
@@ -175,7 +190,7 @@ const QUIZ_RESULTS={
     opening:`Bạn thương mến,\n\nCó một thực tại lặng lẽ mà có lẽ bạn đang cảm nhận rất rõ: bên ngoài và bên trong bạn dường như không còn nói cùng một ngôn ngữ.\n\nBạn vẫn bước đi mỗi ngày, vẫn hoàn thành mọi vai trò một cách "tạm ổn". Nhưng trong những khoảng lặng hiếm hoi, một câu hỏi bỗng hiện lên nhức nhối: "Mình đang thực sự sống, hay chỉ đang loay hoay để tồn tại cho đúng kịch bản của cuộc đời?".\n\nXin hãy hiểu rằng, cảm giác trống trải hay hoang mang ấy không phải là một "lỗi sai", cũng không phải là sự yếu đuối. Đó chính là khoảnh khắc "bừng tỉnh". Là tiếng gọi từ bản thể chân thực đang thúc giục bạn tìm về một hiện thực sâu sắc và chân thật hơn những gì đang hiển lộ.\n\nLúc này, điều bạn cần không phải là chất thêm vào ba lô những thông tin hay những kế hoạch vĩ đại mới. Thứ bạn thực sự cần là dũng khí để thực hiện một "Phép Trừ" cho tâm hồn.\n\nĐể được dừng lại và thôi chạy trốn khỏi chính mình.\nĐể được thấy rõ những giá trị cốt lõi đang bị che lấp bởi kỳ vọng của số đông.\nĐể thực hiện cuộc thiên di lớn nhất đời người: trở về đánh thức viên ngọc quý vốn đã luôn ở đó, sẵn sàng để tỏa rạng từ bên trong bạn.\n\n"Cuộc đời thật đẹp không phải khi nó hoàn hảo, mà khi dù không hoàn hảo, ta vẫn có thể bình thản đón nhận và sống đúng với bản thể chân thật của mình."\n\nKhi bạn chọn bước đi để tìm lại sợi dây kết nối ấy, con đường mới sẽ tự khắc mở ra dưới chân bạn.`,
     courseHeader:"KẾT NỐI VỚI CHÍNH MÌNH & NGUỒN SÁNG BÊN TRONG",
     courseSubtag:"Khóa học miễn phí · Giai đoạn Return · Học viện RNI",
-    courseIntro:"",
+    courseIntro:"Đây là không gian dành cho những ai đang cảm thấy chông chênh, mất kết nối với chính mình — và mong muốn tìm lại sự bình an, vững vàng từ bên trong.",
     course:"Kết Nối Với Chính Mình & Nguồn Sáng Bên Trong",courseTag:"Giai đoạn Return — Miễn phí",
     benefits:["Nhận ra 4 rào cản vô hình đang ngăn bạn sống cuộc đời mình thật sự muốn","Kết nối lại với tiếng gọi bên trong — thứ mà bạn đã lâu không nghe thấy","Xây dựng 'la bàn nội tâm' — để tự dẫn đường trong mọi hoàn cảnh","Dám chọn lại chính mình — từ bên trong ra"],
     quote:`"Khi bạn thấy rõ chính mình,\ncon đường tự khắc hiện ra dưới chân bạn\nmà không cần một nỗ lực tìm kiếm nào từ bên ngoài."`},
@@ -634,10 +649,11 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
   const hasSession=!!(localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email'));
   const [step,setStep]=useState(hasSession?'email':'new'); // 'new' | 'email' | 'register'
   const [email,setEmail]=useState(localStorage.getItem('rni-pre-email')||localStorage.getItem('rni-email')||'');
-  const [name,setName]=useState('');
-  const [phone,setPhone]=useState('');
+  const [name,setName]=useState(localStorage.getItem('rni-pre-name')||localStorage.getItem('rni-name')||'');
+  const [phone,setPhone]=useState(localStorage.getItem('rni-pre-phone')||localStorage.getItem('rni-phone')||'');
   const [loading,setLoading]=useState(false);
   const [err,setErr]=useState('');
+  const [emailNotFound,setEmailNotFound]=useState(false);
 
   const checkEmail=async()=>{
     const e=email.trim();
@@ -665,7 +681,19 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
         return;
       }
     }catch(e){}
-    setLoading(false);setStep('register');
+    setLoading(false);
+    // Nếu đã có sẵn tên & SĐT từ trước (cùng trình duyệt) thì không bắt điền lại
+    if(name.trim()&&phone.trim()){
+      try{
+        localStorage.setItem('rni-pre-name',name.trim());
+        localStorage.setItem('rni-pre-email',e);
+        localStorage.setItem('rni-pre-phone',phone.trim());
+      }catch{}
+      onStart();
+      return;
+    }
+    setEmailNotFound(true);
+    setStep('register');
   };
 
   const submit=()=>{
@@ -739,9 +767,13 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
             hành trình của mình?
           </span>
         </h1>
-        <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-8 max-w-xl mx-auto">
+        <p className="text-gray-600 text-base sm:text-lg leading-relaxed mb-6 max-w-xl mx-auto">
           Không có câu trả lời đúng hay sai, chỉ cần sự thành thật với chính mình. Sau đây là những câu hỏi trắc nghiệm ngắn để giúp bạn xác định một cách sáng rõ bạn đang ở đâu trên hành trình của mình.
         </p>
+        <div className="flex items-center justify-center gap-2.5 mb-8">
+          <img src={RUBY_PHOTO_URL} alt="Ruby Nguyen" className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm" onError={e=>e.target.style.display='none'}/>
+          <p className="text-xs text-gray-500"><span className="font-semibold text-gray-700">Ruby Nguyen</span> · Nhà sáng lập Học viện RNI</p>
+        </div>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 max-w-md mx-auto text-left">
           {step==='new'?(
             <>
@@ -782,7 +814,7 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
                     onKeyDown={e=>e.key==='Enter'&&submitNew()}
                     placeholder="0912 345 678"
                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
-                  <p className="text-gray-400 text-xs mt-1.5">📞 Để đội ngũ RNI hỗ trợ bạn trên hành trình.</p>
+                  <p className="text-gray-400 text-xs mt-1.5">Để đội ngũ RNI hỗ trợ bạn trên hành trình.</p>
                 </div>
               </div>
               {err&&<p className="text-rni-600 text-xs mt-3 font-medium">⚠ {err}</p>}
@@ -802,7 +834,7 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
                   autoFocus
                   placeholder="email@example.com"
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
-                <p className="text-gray-400 text-xs mt-1.5">📩 Nếu đã học trước đây, bạn sẽ vào thẳng khoá học.</p>
+                <p className="text-gray-400 text-xs mt-1.5">Nếu đã học trước đây, bạn sẽ vào thẳng khoá học.</p>
               </div>
               {err&&<p className="text-rni-600 text-xs mt-3 font-medium">⚠ {err}</p>}
               <button onClick={checkEmail} disabled={loading}
@@ -815,6 +847,12 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
             <>
               <p className="text-sm font-semibold text-gray-700 mb-1 text-center">Làm trắc nghiệm ngắn</p>
               <p className="text-xs text-gray-400 text-center mb-4">{email}</p>
+              {emailNotFound&&
+                <div className="bg-red-50 border border-red-200 rounded-xl px-3 py-2.5 mb-4">
+                  <p className="text-rni-600 text-xs font-medium">⚠ Email này chưa có tài khoản trong hệ thống.</p>
+                  <p className="text-rni-600 text-xs mt-0.5">Vui lòng điền đầy đủ thông tin bên dưới để tạo tài khoản mới.</p>
+                </div>
+              }
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1.5">Họ và tên</label>
@@ -830,7 +868,7 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
                     onKeyDown={e=>e.key==='Enter'&&submit()}
                     placeholder="0912 345 678"
                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rni-400 transition-colors"/>
-                  <p className="text-gray-400 text-xs mt-1.5">📞 Để đội ngũ RNI hỗ trợ bạn trên hành trình.</p>
+                  <p className="text-gray-400 text-xs mt-1.5">Để đội ngũ RNI hỗ trợ bạn trên hành trình.</p>
                 </div>
               </div>
               {err&&<p className="text-rni-600 text-xs mt-3 font-medium">⚠ {err}</p>}
@@ -839,9 +877,18 @@ function PreQuizScreen({onStart,onAdminLogin,onReturn}){
                 style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
                 Bắt đầu làm trắc nghiệm →
               </button>
-              <button onClick={()=>{setStep('email');setErr('');}} className="w-full mt-2 py-2 text-xs text-gray-400 hover:text-gray-600 transition-colors">← Đổi email</button>
+              <button onClick={()=>{setStep('email');setErr('');setEmailNotFound(false);}} className="w-full mt-2 py-2 text-xs text-gray-400 hover:text-gray-600 transition-colors">← Đổi email</button>
             </>
           )}
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 mb-8 max-w-xl mx-auto">
+          {RNI_STATS.map((s,i)=>(
+            <div key={i} className="text-center">
+              <p className="font-heading font-black text-xl text-rni-600">{s.n}</p>
+              <p className="text-[11px] text-gray-400 leading-tight max-w-[110px]">{s.l}</p>
+            </div>
+          ))}
+          <img src={EMCC_BADGE_URL} alt="Chứng nhận EMCC Global" className="h-12 object-contain" onError={e=>e.target.style.display='none'}/>
         </div>
         <div className="border-t border-gray-200 pt-6 max-w-xl mx-auto">
           <p className="text-gray-500 text-sm leading-relaxed mb-3">Và hãy nhớ rằng dù bạn đang ở chặng nào, có một sự thật không đổi đó là bên trong bạn luôn có một viên ngọc quý và</p>
@@ -860,7 +907,7 @@ function QuizTransition({onDone,onBack}){
         ← Quay lại
       </button>
       <div className="max-w-sm text-center fade-in">
-        <div className="text-5xl mb-6 float">🌿</div>
+        <div className="text-5xl mb-6 float text-rni-600">✦</div>
         <div className="text-gray-600 text-base leading-loose">
           <p>Hãy đặt điện thoại xuống một chút.</p>
           <p>Hít thở.</p>
@@ -1100,8 +1147,9 @@ function QuizResultScreen({result,onContinue,onBack}){
       className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm transition-all hover:opacity-85 active:scale-90"
       style={{background:'#25d366'}}>W</a>
     <button onClick={()=>{try{navigator.clipboard.writeText(pageUrl).then(()=>alert('Đã sao chép link!'));}catch{alert('Link: '+pageUrl);}}}
-      className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 border-2 border-gray-200 transition-all hover:border-gray-400 active:scale-90 text-base">
-      🔗
+      aria-label="Sao chép liên kết"
+      className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 border-2 border-gray-200 transition-all hover:border-gray-400 active:scale-90">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>
     </button>
   </div>
           <p className="text-xs text-gray-400 mt-4"><span className="font-semibold text-rni-600">Học viện RNI</span> · Return · Nurture · Illuminate</p>
@@ -2534,6 +2582,103 @@ function AdminCoursePicker({userName,onPick}){
   );
 }
 
+/* ─── COURSE CHOICE (chọn quiz hoặc học ngay theo giai đoạn) ────── */
+function CourseChoiceScreen({onSelectCourse,onQuiz,onBack}){
+  return(
+    <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12 relative">
+      <button onClick={onBack} className="absolute top-4 left-4 flex items-center gap-1 text-gray-400 hover:text-gray-700 text-sm font-medium transition-colors">
+        ← Quay lại
+      </button>
+      <div className="max-w-md w-full slide-up">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-3"><Logo size={54}/></div>
+          <h2 className="font-heading font-black text-2xl text-gray-900">Bạn muốn bắt đầu như thế nào?</h2>
+          <p className="text-gray-500 text-sm mt-1">Chọn một trong hai cách bên dưới để bắt đầu hành trình của bạn</p>
+        </div>
+
+        <button onClick={onQuiz}
+          className="w-full rounded-2xl p-5 text-left transition-all flex items-center gap-4 mb-2 shadow-lg active:scale-[.99] hover:opacity-95"
+          style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+          <span className="flex-shrink-0 w-11 h-11 rounded-full bg-white/15 flex items-center justify-center text-white text-xl">✦</span>
+          <div>
+            <p className="font-bold text-white flex items-center gap-2">Làm bài trắc nghiệm <span className="text-[10px] font-semibold text-white bg-white/20 rounded-full px-2 py-0.5">Đề xuất</span></p>
+            <p className="text-sm text-white/85 mt-0.5">Chưa chắc mình đang ở giai đoạn nào? Làm bài trắc nghiệm ngắn (chỉ 3–5 phút) để RNI đồng hành đúng khoá học phù hợp với bạn nhất.</p>
+          </div>
+          <span className="ml-auto text-white/60 text-lg flex-shrink-0">›</span>
+        </button>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"/></div>
+          <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-gray-400 font-medium">Hoặc học ngay theo giai đoạn</span></div>
+        </div>
+        <p className="text-gray-500 text-xs text-center leading-relaxed mb-4 -mt-1">Đây là 3 khoá học <b>miễn phí</b>, mỗi khoá tương ứng với 1 giai đoạn trong hành trình Đánh Thức Viên Ngọc Bên Trong của Học viện RNI. Nếu đã biết rõ mình đang ở giai đoạn nào, bạn có thể chọn học ngay bên dưới.</p>
+
+        <div className="space-y-3">
+          {['R','N','I'].map(id=>{
+            const r=QUIZ_RESULTS[id];
+            return(
+              <button key={id} onClick={()=>onSelectCourse(id)}
+                className="w-full bg-white border-2 border-gray-100 rounded-2xl p-5 text-left hover:border-rni-300 hover:shadow-sm transition-all flex items-center gap-4">
+                <span className="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center" style={{background:`${STAGE_ACCENT[id]}12`}}><StageIcon id={id} size={22}/></span>
+                <div>
+                  <p className="font-bold text-gray-900">{r.stage}</p>
+                  <p className="text-sm text-gray-500">{r.subtitle}</p>
+                </div>
+                <span className="ml-auto text-gray-300 text-lg">›</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── COURSE INTRO (giới thiệu ngắn trước khi vào khoá đã chọn) ─── */
+function CourseIntroScreen({courseId,onContinue,onBack}){
+  const r=QUIZ_RESULTS[courseId];
+  if(!r)return null;
+  return(
+    <div className="min-h-screen hero-bg flex items-center justify-center px-4 py-12 relative">
+      <button onClick={onBack} className="absolute top-4 left-4 flex items-center gap-1 text-gray-400 hover:text-gray-700 text-sm font-medium transition-colors">
+        ← Chọn khoá khác
+      </button>
+      <div className="max-w-md w-full slide-up">
+        <div className="text-center mb-6">
+          <div className="flex justify-center mb-3"><Logo size={48}/></div>
+          <div className="bg-rni-50/60 border border-rni-100 rounded-xl px-4 py-3 max-w-sm mx-auto">
+            <p className="text-sm text-gray-600 leading-relaxed">Học viện RNI (Return – Nurture – Illuminate) đồng hành cùng bạn trên hành trình đánh thức viên ngọc quý bên trong, qua 3 giai đoạn: <b>Trở Về, Vun Bồi</b> và <b>Toả Sáng</b>.</p>
+          </div>
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <img src={RUBY_PHOTO_URL} alt="Ruby Nguyen" className="w-6 h-6 rounded-full object-cover border border-white shadow-sm" onError={e=>e.target.style.display='none'}/>
+            <p className="text-[11px] text-gray-400">Sáng lập bởi Ruby Nguyen</p>
+            <img src={EMCC_BADGE_URL} alt="Chứng nhận EMCC Global" className="h-7 object-contain" onError={e=>e.target.style.display='none'}/>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border-2 border-gray-100 shadow-sm p-6 text-center">
+          <span className="inline-flex w-16 h-16 rounded-full items-center justify-center" style={{background:`${STAGE_ACCENT[courseId]}12`}}><StageIcon id={courseId} size={30}/></span>
+          <div className="inline-block bg-rni-50 text-rni-600 text-xs font-bold px-3 py-1 rounded-full mt-3 mb-2">Giai đoạn {r.stage} — {r.subtitle}</div>
+          <h2 className="font-heading font-black text-xl text-gray-900 leading-snug mb-2">{r.courseHeader}</h2>
+          <p className="text-gray-500 text-xs mb-4">{r.courseSubtag}</p>
+          {r.courseIntro&&<p className="text-gray-600 text-sm leading-relaxed text-left">{r.courseIntro}</p>}
+          {r.benefits&&<ul className="text-left mt-4 space-y-2">
+            {r.benefits.slice(0,3).map((b,i)=>(
+              <li key={i} className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="text-rni-500 flex-shrink-0 mt-0.5">✓</span>{b}
+              </li>
+            ))}
+          </ul>}
+        </div>
+        <button onClick={onContinue}
+          className="w-full mt-6 py-3.5 rounded-xl text-white font-semibold text-sm shadow-md transition-all active:scale-95 hover:opacity-90 pulse-glow"
+          style={{background:'linear-gradient(135deg,#9b1106,#c41a0a)'}}>
+          Vào học ngay →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ─── DASHBOARD ─────────────────────────────────────────────────── */
 function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo,onLogout,isAdmin}){
   const [expanded,setExpanded]=useState(1);
@@ -2565,7 +2710,7 @@ function Dashboard({userName,courseId,progress,onLesson,onCert,onRedo,onLogout,i
           </div>
           <div className="flex items-center gap-3">
             <button onClick={onRedo} className="text-xs text-gray-400 hover:text-rni-600 transition-colors font-medium whitespace-nowrap">
-              ← Làm lại khảo sát
+              ← Đổi lộ trình học
             </button>
             <button onClick={onLogout} className="text-xs text-gray-400 hover:text-red-500 transition-colors font-medium whitespace-nowrap border border-gray-200 rounded-lg px-2 py-1">
               Đăng xuất
@@ -3121,14 +3266,14 @@ function RniOverviewScreen({onContinue}){
             {/* 3 chặng */}
             <div className="relative z-10 grid grid-cols-3 gap-2">
               {[
-                {label:'Return',vi:'Trở về',icon:'🍀',color:'#9b1106',desc:'Trở về với bản thể chân thật'},
-                {label:'Nurture',vi:'Vun bồi',icon:'❤️',color:'#d97706',desc:'Xây dựng nền tảng nội lực'},
-                {label:'Illuminate',vi:'Toả sáng',icon:'✨',color:'#f59e0b',desc:'Sứ mệnh của ánh sáng'},
+                {id:'R',label:'Return',vi:'Trở về',color:'#9b1106'},
+                {id:'N',label:'Nurture',vi:'Vun bồi',color:'#d97706'},
+                {id:'I',label:'Illuminate',vi:'Toả sáng',color:'#f59e0b'},
               ].map((s,i)=>(
                 <div key={i} className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl shadow-md mb-3"
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-md mb-3"
                     style={{background:`${s.color}15`,border:`2.5px solid ${s.color}`}}>
-                    {s.icon}
+                    <StageIcon id={s.id} size={26} color={s.color}/>
                   </div>
                   <p className="font-heading font-black text-xs" style={{color:s.color}}>{s.label}</p>
                   <p className="text-xs text-gray-500 font-medium">{s.vi}</p>
@@ -3146,17 +3291,13 @@ function RniOverviewScreen({onContinue}){
           {/* Mô tả 3 chặng */}
           <div className="mt-6 space-y-4">
             {[
-              {num:'01',label:'Return — Trở về',color:'#9b1106',desc:'Đây là lúc bạn nhận ra mình không thể tiếp tục sống theo kịch bản của người khác. Bạn chọn dừng lại để tìm đường "Trở về" với ngôi nhà bên trong, về với bản thể chân thật sau những năm tháng "lạc lối" trong chính nội tâm mình.'},
-              {num:'02',label:'Nurture — Vun bồi',color:'#d97706',desc:'Khi đã về đến Nhà, bạn bắt đầu chăm sóc "khu vườn" nội tâm. Đây là giai đoạn bạn cần những công cụ thực tế để tự quan sát, làm chủ cảm xúc và duy trì sự cam kết.'},
-              {num:'03',label:'Illuminate — Toả sáng',color:'#f59e0b',desc:'Khi viên ngọc trong bạn đã đủ sáng, việc trao đi không còn là nghĩa vụ mà trở thành nhu cầu tự nhiên. Bạn bắt đầu lan tỏa giá trị và trở thành người dẫn dắt những người xung quanh.'},
+              {label:'Return — Trở về',color:'#9b1106',desc:'Đây là lúc bạn nhận ra mình không thể tiếp tục sống theo kịch bản của người khác. Bạn chọn dừng lại để tìm đường "Trở về" với ngôi nhà bên trong, về với bản thể chân thật sau những năm tháng "lạc lối" trong chính nội tâm mình.'},
+              {label:'Nurture — Vun bồi',color:'#d97706',desc:'Khi đã về đến Nhà, bạn bắt đầu chăm sóc "khu vườn" nội tâm. Đây là giai đoạn bạn cần những công cụ thực tế để tự quan sát, làm chủ cảm xúc và duy trì sự cam kết.'},
+              {label:'Illuminate — Toả sáng',color:'#f59e0b',desc:'Khi viên ngọc trong bạn đã đủ sáng, việc trao đi không còn là nghĩa vụ mà trở thành nhu cầu tự nhiên. Bạn bắt đầu lan tỏa giá trị và trở thành người dẫn dắt những người xung quanh.'},
             ].map((s,i)=>(
-              <div key={i} className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white font-black text-xs"
-                  style={{background:s.color}}>{s.num}</div>
-                <div>
-                  <p className="text-sm font-bold text-gray-900 mb-1">{s.label}</p>
-                  <p className="text-xs text-gray-500 leading-relaxed">{s.desc}</p>
-                </div>
+              <div key={i} className="border-l-2 pl-4" style={{borderColor:`${s.color}40`}}>
+                <p className="text-sm font-bold mb-1" style={{color:s.color}}>{s.label}</p>
+                <p className="text-xs text-gray-500 leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -3189,6 +3330,7 @@ function App(){
   const [quizResult,setQuizResult]=useState(null);
   const [courseId,setCourseId]=useState(null);
   const [lesson,setLesson]=useState(null);
+  const [pendingCourseId,setPendingCourseId]=useState(null);
   const [showIosPrompt,setShowIosPrompt]=useState(false);
   const [progress,setProgress]=useState(()=>{try{return JSON.parse(localStorage.getItem('rni-progress')||'{}');}catch{return{};}});
   const [showWelcomeBack,setShowWelcomeBack]=useState(false);
@@ -3338,6 +3480,39 @@ if(n&&c&&isReturning){
     setScreen('dashboard');
   }
 };
+
+  // Học viên chọn học ngay một khoá theo giai đoạn, không cần làm quiz.
+  // Nếu email này đã có tiến độ từ trước (dù ở khoá nào), tiến độ đó được
+  // đồng bộ lại để học viên học tiếp chứ không học lại từ đầu.
+  const handlePickCourse=(id)=>{
+    const preN=localStorage.getItem('rni-name')||localStorage.getItem('rni-pre-name')||'Học viên';
+    const preE=localStorage.getItem('rni-email')||localStorage.getItem('rni-pre-email')||'';
+    const preP=localStorage.getItem('rni-phone')||localStorage.getItem('rni-pre-phone')||'';
+    setUserName(preN);setCourseId(id);
+    try{
+      localStorage.setItem('rni-name',preN);
+      if(preE)localStorage.setItem('rni-email',preE);
+      if(preP)localStorage.setItem('rni-phone',preP);
+      localStorage.setItem('rni-course',id);
+      localStorage.removeItem('rni-quiz-result');
+    }catch{}
+    if(preE){
+      fetchServerProgress(preE).then(serverP=>{
+        if(Object.keys(serverP).length>0){
+          setProgress(p=>({...serverP,...p}));
+        }
+      });
+      sendProgressEvent({event:'course_select',courseId:id,courseName:COURSES[id]?.title||id,lessonId:'',lessonTitle:'',completedCount:0,totalCount:0,progressPct:0});
+    }
+    if(preE&&shouldShowPushPrompt()){
+      incPushPromptCount();
+      setShowPushPrompt(true);
+    }else{
+      if(preE)setTimeout(()=>registerPush(preE,()=>setPushBlocked(true),()=>setShowIosPrompt(true)),2000);
+      setScreen('dashboard');
+    }
+  };
+
   if(showWelcomeBack)return(
   <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
     <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-7 text-center bounce-in">
@@ -3422,9 +3597,11 @@ if(n&&c&&isReturning){
   </div>
   );
   }
-  if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('quizTransition')} onAdminLogin={n=>{setUserName(n);setIsAdmin(true);setScreen('adminPicker');}} onReturn={handleReturn}/>;
+  if(screen==='preQuiz')return <PreQuizScreen onStart={()=>setScreen('courseChoice')} onAdminLogin={n=>{setUserName(n);setIsAdmin(true);setScreen('adminPicker');}} onReturn={handleReturn}/>;
   if(screen==='adminPicker')return <AdminCoursePicker userName={userName} onPick={id=>{setCourseId(id);setScreen('dashboard');}}/>;
-  if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('preQuiz')}/>;
+  if(screen==='courseChoice')return <CourseChoiceScreen onQuiz={()=>setScreen('quizTransition')} onSelectCourse={id=>{setPendingCourseId(id);setScreen('courseIntro');}} onBack={()=>setScreen(courseId?'dashboard':'preQuiz')}/>;
+  if(screen==='courseIntro')return <CourseIntroScreen courseId={pendingCourseId} onContinue={()=>handlePickCourse(pendingCourseId)} onBack={()=>setScreen('courseChoice')}/>;
+  if(screen==='quizTransition')return <QuizTransition onDone={()=>setScreen('quiz')} onBack={()=>setScreen('courseChoice')}/>;
   if(screen==='quiz')return <QuizScreen onDone={r=>{
     setQuizResult(r);setCourseId(r);
     try{localStorage.setItem('rni-quiz-result',r);}catch{}
@@ -3471,7 +3648,7 @@ const phone=localStorage.getItem('rni-pre-phone')||'';
   if(screen==='lesson'&&lesson)return <LessonView lesson={lesson} progress={progress} courseId={courseId} onComplete={done} onBack={()=>{setLesson(null);setScreen('dashboard');}} isAdmin={isAdmin}/>;
   return <Dashboard userName={userName} courseId={courseId} progress={progress} onLesson={l=>{
     if(!isAdmin) sendProgressEvent({event:'lesson_open',courseId,courseName:COURSES[courseId]?.title||courseId,lessonId:l.id,lessonTitle:l.title,completedCount:Object.keys(progress).filter(k=>getAllLessons(courseId).some(x=>x.id===k)).length,totalCount:getAllLessons(courseId).length,progressPct:Math.round(Object.keys(progress).filter(k=>getAllLessons(courseId).some(x=>x.id===k)).length/getAllLessons(courseId).length*100)});
-    setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onLogout={handleLogout} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>{try{localStorage.removeItem('rni-course');}catch{}setCourseId(null);setQuizResult(null);setScreen('quizTransition');}}/>;
+    setLesson(l);setScreen('lesson');}} onCert={()=>setScreen('cert')} isAdmin={isAdmin} onLogout={handleLogout} onRedo={isAdmin?()=>setScreen('adminPicker'):()=>setScreen('courseChoice')}/>;
 }
 
 const root=ReactDOM.createRoot(document.getElementById('root'));
